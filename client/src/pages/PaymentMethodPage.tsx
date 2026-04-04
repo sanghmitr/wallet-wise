@@ -16,6 +16,7 @@ import { getPaymentMethodMeta } from '@/lib/payment-methods';
 import { useAppData } from '@/store/AppDataContext';
 import type { DashboardPreset, DashboardRangeMode } from '@/types/domain';
 import {
+  filterExpensesByCategory,
   filterExpensesByDateRange,
   filterExpensesByMonth,
   filterExpensesByPaymentMethod,
@@ -29,6 +30,7 @@ export function PaymentMethodPage() {
   const { paymentMethodId = '' } = useParams();
   const {
     expenses,
+    categories,
     paymentMethods,
     settings,
     openCreateExpense,
@@ -42,13 +44,14 @@ export function PaymentMethodPage() {
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | 'all'>('all');
 
   const paymentMethodExpenses = useMemo(
     () => filterExpensesByPaymentMethod(expenses, paymentMethodId),
     [expenses, paymentMethodId],
   );
 
-  const filteredExpenses = useMemo(() => {
+  const dateFilteredExpenses = useMemo(() => {
     if (rangeMode === 'month') {
       return filterExpensesByMonth(paymentMethodExpenses, selectedMonth);
     }
@@ -70,6 +73,17 @@ export function PaymentMethodPage() {
     selectedMonth,
     startDate,
   ]);
+
+  const visibleCategories = useMemo(() => {
+    const categoryNames = new Set(paymentMethodExpenses.map((expense) => expense.category));
+
+    return categories.filter((category) => categoryNames.has(category.name));
+  }, [categories, paymentMethodExpenses]);
+
+  const filteredExpenses = useMemo(
+    () => filterExpensesByCategory(dateFilteredExpenses, selectedCategory),
+    [dateFilteredExpenses, selectedCategory],
+  );
 
   const transactions = useMemo(
     () => getSortedExpenses(filteredExpenses),
@@ -104,35 +118,38 @@ export function PaymentMethodPage() {
   }
 
   function getTransactionDescription() {
+    const categoryText =
+      selectedCategory === 'all' ? '' : ` in ${selectedCategory}`;
+
     if (rangeMode === 'month') {
-      return `Showing ${transactions.length} transactions for ${activePaymentMethod.name} in ${formatMonthLabel(
+      return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} in ${formatMonthLabel(
         selectedMonth,
       )}.`;
     }
 
     if (rangeMode === 'custom') {
       if (startDate && endDate) {
-        return `Showing ${transactions.length} transactions for ${activePaymentMethod.name} from ${startDate} to ${endDate}.`;
+        return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} from ${startDate} to ${endDate}.`;
       }
 
       if (startDate) {
-        return `Showing ${transactions.length} transactions for ${activePaymentMethod.name} from ${startDate} onward.`;
+        return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} from ${startDate} onward.`;
       }
 
       if (endDate) {
-        return `Showing ${transactions.length} transactions for ${activePaymentMethod.name} up to ${endDate}.`;
+        return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} up to ${endDate}.`;
       }
     }
 
     if (preset === 'last-30-days') {
-      return `Showing ${transactions.length} transactions for ${activePaymentMethod.name} from the last 30 days.`;
+      return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} from the last 30 days.`;
     }
 
     if (preset === 'all-time') {
-      return `Showing ${transactions.length} transactions for ${activePaymentMethod.name} across all recorded time.`;
+      return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} across all recorded time.`;
     }
 
-    return `Showing ${transactions.length} transactions for ${activePaymentMethod.name} this month.`;
+    return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} this month.`;
   }
 
   return (
@@ -203,15 +220,19 @@ export function PaymentMethodPage() {
         startDate={startDate}
         endDate={endDate}
         paymentMethods={[]}
+        categories={visibleCategories}
         paymentMethodId={activePaymentMethod.id}
+        selectedCategory={selectedCategory}
         onRangeModeChange={handleRangeModeChange}
         onPresetChange={setPreset}
         onSelectedMonthChange={setSelectedMonth}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
         onPaymentMethodChange={() => undefined}
+        onCategoryChange={setSelectedCategory}
         showPaymentMethodFilter={false}
         paymentMethodLabel={activePaymentMethod.name}
+        showCategoryFilter={visibleCategories.length > 0}
       />
 
       {!paymentMethodExpenses.length ? (

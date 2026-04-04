@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import type {
+  Category,
   DashboardPreset,
   DashboardRangeMode,
   PaymentMethod,
@@ -13,15 +14,19 @@ interface FilterBarProps {
   startDate: string;
   endDate: string;
   paymentMethods: PaymentMethod[];
+  categories?: Category[];
   paymentMethodId: string | 'all';
+  selectedCategory?: string | 'all';
   onRangeModeChange: (mode: DashboardRangeMode) => void;
   onPresetChange: (preset: DashboardPreset) => void;
   onSelectedMonthChange: (month: string) => void;
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
   onPaymentMethodChange: (paymentMethodId: string | 'all') => void;
+  onCategoryChange?: (category: string | 'all') => void;
   showPaymentMethodFilter?: boolean;
   paymentMethodLabel?: string;
+  showCategoryFilter?: boolean;
 }
 
 const presets: Array<{ label: string; value: DashboardPreset }> = [
@@ -43,15 +48,19 @@ export function FilterBar({
   startDate,
   endDate,
   paymentMethods,
+  categories = [],
   paymentMethodId,
+  selectedCategory = 'all',
   onRangeModeChange,
   onPresetChange,
   onSelectedMonthChange,
   onStartDateChange,
   onEndDateChange,
   onPaymentMethodChange,
+  onCategoryChange,
   showPaymentMethodFilter = true,
   paymentMethodLabel,
+  showCategoryFilter = false,
 }: FilterBarProps) {
   return (
     <section className="space-y-4">
@@ -166,6 +175,28 @@ export function FilterBar({
               {paymentMethodLabel}
             </div>
           </div>
+        ) : null}
+
+        {showCategoryFilter ? (
+          <label className="flex min-w-[260px] flex-col gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+              Category
+            </span>
+            <select
+              value={selectedCategory}
+              onChange={(event) =>
+                onCategoryChange?.(event.target.value as string | 'all')
+              }
+              className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
+            >
+              <option value="all">All Categories</option>
+              {categories.map((item) => (
+                <option key={item.id} value={item.name}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
         ) : null}
       </div>
     </section>

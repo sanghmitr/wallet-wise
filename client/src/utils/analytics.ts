@@ -91,6 +91,17 @@ export function filterExpensesByPaymentMethod(
   );
 }
 
+export function filterExpensesByCategory(
+  expenses: Expense[],
+  category: string | 'all',
+) {
+  if (category === 'all') {
+    return expenses;
+  }
+
+  return expenses.filter((expense) => expense.category === category);
+}
+
 export function getCategoryTotals(expenses: Expense[]) {
   return Object.entries(
     expenses.reduce<Record<string, number>>((accumulator, expense) => {
