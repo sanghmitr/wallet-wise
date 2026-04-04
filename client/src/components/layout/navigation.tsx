@@ -25,19 +25,11 @@ interface NavigationProps {
 export function DesktopSidebar({ onAddExpense, onSignOut }: NavigationProps) {
   return (
     <aside className="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-72 lg:flex-col lg:border-r lg:border-outline-variant/20 lg:bg-surface-container-low/88 lg:p-6 lg:backdrop-blur-xl">
-      <div>
-        <p className="text-xl font-black tracking-tight text-on-surface">
-          Wallet Wise
-        </p>
-        <div className="mt-8 rounded-[1.5rem] bg-surface-container-low p-4">
-          <p className="text-sm font-bold text-on-surface">The Curator</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.25em] text-on-surface-variant">
-            Financial mindfulness
-          </p>
-        </div>
-      </div>
+      <p className="text-xl font-black tracking-tight text-on-surface">
+        Wallet Wise
+      </p>
 
-      <nav className="mt-8 space-y-2">
+      <nav className="mt-10 space-y-2">
         {navigationItems.map((item) => (
           <NavLink
             key={item.to}
