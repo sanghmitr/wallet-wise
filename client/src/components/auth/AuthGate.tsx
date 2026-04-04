@@ -59,7 +59,7 @@ export function AuthGate({
 
       <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center">
         <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1.08fr)_420px] lg:gap-10">
-          <section className="order-2 lg:order-1">
+          <section className="order-1 lg:order-1">
             <div className="inline-flex items-center gap-3 rounded-full border border-outline-variant/30 bg-surface-container-lowest/70 px-4 py-3 shadow-ambient backdrop-blur-xl">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary">
                 <MaterialIcon
@@ -175,7 +175,7 @@ export function AuthGate({
             </div>
           </section>
 
-          <aside className="order-1 lg:order-2">
+          <aside className="order-2 mt-2 lg:order-2 lg:mt-0">
             <div className="relative overflow-hidden rounded-[2.4rem] border border-outline-variant/20 bg-surface-container-lowest/82 p-6 shadow-ambient backdrop-blur-2xl sm:p-7">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,122,84,0.16),transparent_32%),radial-gradient(circle_at_top_left,rgba(255,255,255,0.44),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.14),transparent_34%)]" />
               <div className="absolute right-[-2.5rem] top-[-3rem] h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
