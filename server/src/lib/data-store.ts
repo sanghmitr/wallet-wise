@@ -566,6 +566,7 @@ class MemoryStore implements DataStore {
 }
 
 class FirestoreStore implements DataStore {
+  private categorySeedTasks = new Map<string, Promise<void>>();
   private paymentMethodSeedTasks = new Map<string, Promise<void>>();
 
   constructor(private readonly db: Firestore) {}
@@ -639,34 +640,77 @@ class FirestoreStore implements DataStore {
   }
 
   private async ensureDefaultCategories(userId: string) {
-    await this.ensureUserDoc(userId);
-    const snapshot = await this.withTimeout(
-      'read category defaults from Firestore',
-      this.categoriesRef(userId).get(),
-    );
-    const existingNames = new Set(
-      snapshot.docs.map((doc) =>
-        normalizeName(((doc.data() as Partial<Category>).name || '')),
-      ),
-    );
-    const missingDefaults = defaultCategories.filter(
-      (category) => !existingNames.has(normalizeName(category.name)),
-    );
+    const existingTask = this.categorySeedTasks.get(userId);
 
-    if (!missingDefaults.length) {
+    if (existingTask) {
+      await existingTask;
       return;
     }
 
-    const batch = this.db.batch();
-    missingDefaults.forEach((category) => {
-      const created = {
-        ...category,
-        id: randomUUID(),
-        createdAt: new Date().toISOString(),
-      };
-      batch.set(this.categoriesRef(userId).doc(created.id), created);
+    const task = (async () => {
+      await this.ensureUserDoc(userId);
+      const snapshot = await this.withTimeout(
+        'read category defaults from Firestore',
+        this.categoriesRef(userId).get(),
+      );
+      const categoryDocs = snapshot.docs.map((doc) => ({
+        ref: doc.ref,
+        value: this.mapDoc(doc.id, doc.data()) as Category,
+      }));
+      const categoriesByName = new Map<
+        string,
+        Array<{ ref: FirebaseFirestore.DocumentReference; value: Category }>
+      >();
+
+      categoryDocs.forEach((category) => {
+        const key = normalizeName(category.value.name);
+        const group = categoriesByName.get(key) ?? [];
+        group.push(category);
+        categoriesByName.set(key, group);
+      });
+
+      const missingDefaults = defaultCategories.filter(
+        (category) => !categoriesByName.has(normalizeName(category.name)),
+      );
+      const duplicateGroups = Array.from(categoriesByName.values()).filter(
+        (group) => group.length > 1,
+      );
+
+      if (!missingDefaults.length && !duplicateGroups.length) {
+        return;
+      }
+
+      const batch = this.db.batch();
+
+      missingDefaults.forEach((category) => {
+        const created = {
+          ...category,
+          id: randomUUID(),
+          createdAt: new Date().toISOString(),
+        };
+        batch.set(this.categoriesRef(userId).doc(created.id), created);
+      });
+
+      duplicateGroups.forEach((group) => {
+        const [, ...duplicates] = [...group].sort((left, right) =>
+          left.value.createdAt.localeCompare(right.value.createdAt),
+        );
+
+        duplicates.forEach((duplicate) => {
+          batch.delete(duplicate.ref);
+        });
+      });
+
+      await this.withTimeout(
+        'repair default categories in Firestore',
+        batch.commit(),
+      );
+    })().finally(() => {
+      this.categorySeedTasks.delete(userId);
     });
-    await this.withTimeout('seed default categories in Firestore', batch.commit());
+
+    this.categorySeedTasks.set(userId, task);
+    await task;
   }
 
   private async ensureDefaultPaymentMethods(userId: string) {
