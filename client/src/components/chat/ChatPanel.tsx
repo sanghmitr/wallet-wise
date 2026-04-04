@@ -9,7 +9,7 @@ const suggestions = [
   'This month summary',
   'Food expenses',
   'Top spending category',
-  'I spent 450 on Zomato using UPI',
+  'I spent 450 on Zomato using HDFC Credit Card',
 ];
 
 export function ChatPanel() {
@@ -84,7 +84,7 @@ export function ChatPanel() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 rounded-[2rem] border border-black/5 bg-surface-container-lowest p-2 shadow-ambient">
+          <div className="flex items-center gap-2 rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest p-2 shadow-ambient">
             <button className="flex h-12 w-12 items-center justify-center rounded-full text-on-surface-variant transition hover:bg-surface-container-low">
               <MaterialIcon name="attach_file" />
             </button>

@@ -24,11 +24,16 @@ const CategoriesPage = lazy(() =>
     default: module.CategoriesPage,
   })),
 );
+const ProfilePage = lazy(() =>
+  import('@/pages/ProfilePage').then((module) => ({
+    default: module.ProfilePage,
+  })),
+);
 
 function LoadingScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="rounded-[2rem] bg-white/80 px-6 py-4 text-sm font-semibold text-on-surface shadow-ambient backdrop-blur-xl">
+      <div className="rounded-[2rem] bg-surface-container-lowest/85 px-6 py-4 text-sm font-semibold text-on-surface shadow-ambient backdrop-blur-xl">
         Loading Wallet Wise...
       </div>
     </div>
@@ -66,6 +71,7 @@ export function App() {
           <Route path="/budgets" element={<BudgetsPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -1,11 +1,12 @@
-import type { DashboardPreset, PaymentSource } from '@/types/domain';
+import type { DashboardPreset, PaymentMethod } from '@/types/domain';
 import { cn } from '@/lib/utils';
 
 interface FilterBarProps {
   preset: DashboardPreset;
-  source: PaymentSource | 'all';
+  paymentMethods: PaymentMethod[];
+  paymentMethodId: string | 'all';
   onPresetChange: (preset: DashboardPreset) => void;
-  onSourceChange: (source: PaymentSource | 'all') => void;
+  onPaymentMethodChange: (paymentMethodId: string | 'all') => void;
 }
 
 const presets: Array<{ label: string; value: DashboardPreset }> = [
@@ -14,19 +15,12 @@ const presets: Array<{ label: string; value: DashboardPreset }> = [
   { label: 'All Time', value: 'all-time' },
 ];
 
-const sources: Array<{ label: string; value: PaymentSource | 'all' }> = [
-  { label: 'All Sources', value: 'all' },
-  { label: 'Credit', value: 'credit' },
-  { label: 'Debit', value: 'debit' },
-  { label: 'UPI', value: 'upi' },
-  { label: 'Cash', value: 'cash' },
-];
-
 export function FilterBar({
   preset,
-  source,
+  paymentMethods,
+  paymentMethodId,
   onPresetChange,
-  onSourceChange,
+  onPaymentMethodChange,
 }: FilterBarProps) {
   return (
     <section className="no-scrollbar flex gap-3 overflow-x-auto py-2">
@@ -46,15 +40,14 @@ export function FilterBar({
       ))}
 
       <select
-        value={source}
-        onChange={(event) =>
-          onSourceChange(event.target.value as PaymentSource | 'all')
-        }
+        value={paymentMethodId}
+        onChange={(event) => onPaymentMethodChange(event.target.value as string | 'all')}
         className="rounded-full border-none bg-surface-container-low px-4 py-2 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
       >
-        {sources.map((item) => (
-          <option key={item.value} value={item.value}>
-            {item.label}
+        <option value="all">All Payment Methods</option>
+        {paymentMethods.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
           </option>
         ))}
       </select>

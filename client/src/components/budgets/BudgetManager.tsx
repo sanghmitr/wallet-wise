@@ -8,7 +8,7 @@ import { useAppData } from '@/store/AppDataContext';
 import { getBudgetUsage, sumExpenses } from '@/utils/analytics';
 
 export function BudgetManager() {
-  const { budgets, categories, expenses, saveBudget } = useAppData();
+  const { budgets, categories, expenses, saveBudget, settings } = useAppData();
   const currentMonth = format(new Date(), 'yyyy-MM');
 
   const monthExpenses = useMemo(
@@ -40,12 +40,14 @@ export function BudgetManager() {
             Total Monthly Budget
           </p>
           <h2 className="mt-3 text-4xl font-extrabold tracking-[-0.04em]">
-            {formatCurrency(totalBudget)}
+            {formatCurrency(totalBudget, settings.currency)}
           </h2>
           <div className="mt-6 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs text-white/75">Current spend</p>
-              <p className="mt-1 text-lg font-semibold">{formatCurrency(totalSpent)}</p>
+              <p className="mt-1 text-lg font-semibold">
+                {formatCurrency(totalSpent, settings.currency)}
+              </p>
             </div>
             <Button variant="secondary">Adjust Total</Button>
           </div>
@@ -55,7 +57,10 @@ export function BudgetManager() {
 
       <section className="grid gap-6 md:grid-cols-2">
         {usage.map((item) => (
-          <Card key={item.category} className="border border-black/5 bg-surface-container-lowest">
+          <Card
+            key={item.category}
+            className="border border-outline-variant/20 bg-surface-container-lowest"
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-container-low text-primary">
@@ -90,7 +95,7 @@ export function BudgetManager() {
             <div className="mt-6 space-y-3">
               <div className="flex items-end justify-between gap-4">
                 <span className="text-xs font-bold text-on-surface">
-                  {formatCurrency(item.spent)} spent
+                  {formatCurrency(item.spent, settings.currency)} spent
                 </span>
                 <span className="text-xs font-medium text-on-surface-variant">
                   {item.limit > 0 ? `${Math.round(item.usage * 100)}% utilized` : 'No limit'}

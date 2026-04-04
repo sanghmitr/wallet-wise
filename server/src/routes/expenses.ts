@@ -11,6 +11,7 @@ export function createExpensesRouter(store: DataStore, defaultUserId: string) {
       const userId = request.userId || defaultUserId;
       const filters: ExpenseFilters = {
         category: request.query.category as string | undefined,
+        paymentMethodId: request.query.paymentMethodId as string | undefined,
         source: request.query.source as string | undefined,
         startDate: request.query.startDate as string | undefined,
         endDate: request.query.endDate as string | undefined,

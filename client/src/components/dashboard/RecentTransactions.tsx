@@ -2,6 +2,7 @@ import type { Expense } from '@/types/domain';
 import { formatCurrency, formatExpenseDate, formatExpenseMeta } from '@/lib/format';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { Card } from '@/components/ui/Card';
+import { useAppData } from '@/store/AppDataContext';
 
 interface RecentTransactionsProps {
   expenses: Expense[];
@@ -10,8 +11,8 @@ interface RecentTransactionsProps {
 }
 
 const sourceIcons: Record<string, string> = {
-  credit: 'credit_card',
-  debit: 'payments',
+  credit_card: 'credit_card',
+  debit_card: 'payments',
   upi: 'qr_code_2',
   cash: 'wallet',
 };
@@ -21,13 +22,15 @@ export function RecentTransactions({
   onEdit,
   onDelete,
 }: RecentTransactionsProps) {
+  const { settings } = useAppData();
+
   return (
     <Card className="bg-surface-container-low">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-bold text-on-surface">Recent Transactions</h3>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Latest ledger activity across all payment sources.
+            Latest ledger activity across your saved payment methods.
           </p>
         </div>
       </div>
@@ -48,7 +51,7 @@ export function RecentTransactions({
                     {expense.note || expense.merchant || expense.category}
                   </p>
                   <p className="mt-1 text-xs text-on-surface-variant">
-                    {expense.category} • {expense.source.toUpperCase()} •{' '}
+                    {expense.category} • {expense.paymentMethodName} •{' '}
                     {formatExpenseMeta(expense.date)}
                   </p>
                   <p className="mt-1 text-xs text-on-surface-variant">
@@ -59,7 +62,7 @@ export function RecentTransactions({
 
               <div className="text-right">
                 <p className="font-bold text-on-surface">
-                  {formatCurrency(expense.amount)}
+                  {formatCurrency(expense.amount, settings.currency)}
                 </p>
                 <div className="mt-3 flex justify-end gap-1">
                   <button

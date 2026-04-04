@@ -4,29 +4,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#f8f9fa',
-        surface: '#f8f9fa',
-        primary: '#5f5e5e',
-        'primary-dim': '#535252',
-        'primary-container': '#e5e2e1',
-        'on-primary': '#faf7f6',
-        'on-primary-container': '#525151',
-        secondary: '#585f6d',
-        'secondary-container': '#dce2f3',
-        tertiary: '#5f5c78',
-        error: '#9f403d',
-        outline: '#737c7f',
-        'outline-variant': '#abb3b7',
-        'surface-container-lowest': '#ffffff',
-        'surface-container-low': '#f1f4f6',
-        'surface-container': '#eaeff1',
-        'surface-container-high': '#e2e9ec',
-        'surface-container-highest': '#dbe4e7',
-        'surface-dim': '#d1dce0',
-        'on-background': '#2b3437',
-        'on-surface': '#2b3437',
-        'on-surface-variant': '#586064',
-        'on-secondary-container': '#4b525f',
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        primary: 'rgb(var(--color-primary) / <alpha-value>)',
+        'primary-dim': 'rgb(var(--color-primary-dim) / <alpha-value>)',
+        'primary-container': 'rgb(var(--color-primary-container) / <alpha-value>)',
+        'on-primary': 'rgb(var(--color-on-primary) / <alpha-value>)',
+        'on-primary-container': 'rgb(var(--color-on-primary-container) / <alpha-value>)',
+        secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
+        'secondary-container': 'rgb(var(--color-secondary-container) / <alpha-value>)',
+        tertiary: 'rgb(var(--color-tertiary) / <alpha-value>)',
+        error: 'rgb(var(--color-error) / <alpha-value>)',
+        outline: 'rgb(var(--color-outline) / <alpha-value>)',
+        'outline-variant': 'rgb(var(--color-outline-variant) / <alpha-value>)',
+        'surface-container-lowest':
+          'rgb(var(--color-surface-container-lowest) / <alpha-value>)',
+        'surface-container-low': 'rgb(var(--color-surface-container-low) / <alpha-value>)',
+        'surface-container': 'rgb(var(--color-surface-container) / <alpha-value>)',
+        'surface-container-high':
+          'rgb(var(--color-surface-container-high) / <alpha-value>)',
+        'surface-container-highest':
+          'rgb(var(--color-surface-container-highest) / <alpha-value>)',
+        'surface-dim': 'rgb(var(--color-surface-dim) / <alpha-value>)',
+        'on-background': 'rgb(var(--color-on-background) / <alpha-value>)',
+        'on-surface': 'rgb(var(--color-on-surface) / <alpha-value>)',
+        'on-surface-variant': 'rgb(var(--color-on-surface-variant) / <alpha-value>)',
+        'on-secondary-container':
+          'rgb(var(--color-on-secondary-container) / <alpha-value>)',
       },
       borderRadius: {
         DEFAULT: '1rem',
@@ -34,10 +38,10 @@ export default {
         xl: '3rem',
       },
       boxShadow: {
-        ambient: '0 12px 32px rgba(43, 52, 55, 0.06)',
+        ambient: '0 18px 45px rgba(55, 108, 156, 0.14)',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         floatIn: {

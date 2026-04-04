@@ -8,6 +8,8 @@ import { createBudgetsRouter } from './routes/budgets.js';
 import { createCategoriesRouter } from './routes/categories.js';
 import { createChatRouter } from './routes/chat.js';
 import { createExpensesRouter } from './routes/expenses.js';
+import { createPaymentMethodsRouter } from './routes/payment-methods.js';
+import { createSettingsRouter } from './routes/settings.js';
 
 const store = createDataStore(
   env.dataProvider === 'firestore' && isFirebaseConfigured()
@@ -39,6 +41,8 @@ app.get('/api/health', (_request, response) => {
 app.use('/api/expenses', createExpensesRouter(store, env.defaultUserId));
 app.use('/api/categories', createCategoriesRouter(store, env.defaultUserId));
 app.use('/api/budgets', createBudgetsRouter(store, env.defaultUserId));
+app.use('/api/payment-methods', createPaymentMethodsRouter(store, env.defaultUserId));
+app.use('/api/settings', createSettingsRouter(store, env.defaultUserId));
 app.use('/api/chat', createChatRouter(store, env.defaultUserId));
 
 app.use((error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {

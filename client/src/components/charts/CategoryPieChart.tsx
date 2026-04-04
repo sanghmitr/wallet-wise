@@ -2,6 +2,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card } from '@/components/ui/Card';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { formatCurrency } from '@/lib/format';
+import { useAppData } from '@/store/AppDataContext';
 
 const colors = ['#5f5e5e', '#7a8799', '#7a778f', '#a79892', '#bf7b77'];
 
@@ -10,6 +11,7 @@ interface CategoryPieChartProps {
 }
 
 export function CategoryPieChart({ data }: CategoryPieChartProps) {
+  const { settings } = useAppData();
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const lead = data[0];
   const leadShare = lead && total > 0 ? Math.round((lead.value / total) * 100) : 0;
@@ -41,11 +43,12 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: number) => formatCurrency(value)}
+              formatter={(value: number) => formatCurrency(value, settings.currency)}
               contentStyle={{
                 borderRadius: 16,
-                border: '1px solid rgba(171, 179, 183, 0.15)',
-                background: 'rgba(255,255,255,0.95)',
+                border: '1px solid rgb(var(--color-outline-variant) / 0.2)',
+                background: 'rgb(var(--color-surface-container-lowest) / 0.96)',
+                color: 'rgb(var(--color-on-surface))',
               }}
             />
           </PieChart>
@@ -72,7 +75,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
               <span>{item.name}</span>
             </div>
             <span className="font-bold text-on-surface">
-              {formatCurrency(item.value)}
+              {formatCurrency(item.value, settings.currency)}
             </span>
           </div>
         ))}

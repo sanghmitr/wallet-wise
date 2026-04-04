@@ -5,23 +5,36 @@ import type { DataStore } from '../../lib/data-store.js';
 import type {
   Budget,
   ChatIntent,
+  CurrencyCode,
   Expense,
   ExpenseFilters,
+  PaymentMethod,
   PaymentSource,
 } from '../../types/domain.js';
 
 const categoryKeywordMap: Record<string, string> = {
-  zomato: 'Food',
-  swiggy: 'Food',
-  cafe: 'Food',
+  zomato: 'Food & Dining',
+  swiggy: 'Food & Dining',
+  cafe: 'Food & Dining',
   uber: 'Travel',
   ola: 'Travel',
   metro: 'Travel',
   amazon: 'Shopping',
   myntra: 'Shopping',
-  rent: 'Bills',
-  electricity: 'Bills',
-  bill: 'Bills',
+  rent: 'Rent & Utilities',
+  electricity: 'Rent & Utilities',
+  bill: 'Rent & Utilities',
+  grocery: 'Groceries',
+  medicine: 'Health',
+  doctor: 'Health',
+};
+
+const currencyLocales: Record<CurrencyCode, string> = {
+  INR: 'en-IN',
+  USD: 'en-US',
+  EUR: 'de-DE',
+  GBP: 'en-GB',
+  AED: 'en-AE',
 };
 
 function buildDateRange(preset: string | null) {
@@ -67,11 +80,11 @@ function inferSource(message: string): PaymentSource | null {
   }
 
   if (lower.includes('debit')) {
-    return 'debit';
+    return 'debit_card';
   }
 
   if (lower.includes('credit') || lower.includes('card') || lower.includes('hdfc')) {
-    return 'credit';
+    return 'credit_card';
   }
 
   if (lower.includes('cash')) {
@@ -91,7 +104,7 @@ function inferCategory(message: string): string | null {
   }
 
   if (lower.includes('food') || lower.includes('dinner')) {
-    return 'Food';
+    return 'Food & Dining';
   }
 
   if (lower.includes('travel') || lower.includes('trip')) {
@@ -103,7 +116,7 @@ function inferCategory(message: string): string | null {
   }
 
   if (lower.includes('bill')) {
-    return 'Bills';
+    return 'Rent & Utilities';
   }
 
   return null;
@@ -148,7 +161,7 @@ function fallbackIntent(message: string): ChatIntent {
       note: null,
       date: format(new Date(), 'yyyy-MM-dd'),
       category: category || 'Other',
-      source: source || 'credit',
+      source: source || 'credit_card',
     };
   }
 
@@ -301,6 +314,14 @@ function sumExpenses(expenses: Expense[]) {
   return expenses.reduce((total, expense) => total + expense.amount, 0);
 }
 
+function formatAmount(value: number, currency: CurrencyCode) {
+  return new Intl.NumberFormat(currencyLocales[currency], {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 function buildBudgetAlerts(expenses: Expense[], budgets: Budget[]) {
   return budgets
     .map((budget) => {
@@ -320,7 +341,12 @@ function buildBudgetAlerts(expenses: Expense[], budgets: Budget[]) {
     .sort((left, right) => right.usage - left.usage);
 }
 
-function formatExpenseSummary(message: string, expenses: Expense[], budgetAlerts: ReturnType<typeof buildBudgetAlerts>) {
+function formatExpenseSummary(
+  message: string,
+  expenses: Expense[],
+  budgetAlerts: ReturnType<typeof buildBudgetAlerts>,
+  currency: CurrencyCode,
+) {
   if (!expenses.length) {
     return 'No matching expenses were found for that request.';
   }
@@ -338,16 +364,50 @@ function formatExpenseSummary(message: string, expenses: Expense[], budgetAlerts
         .join(', ')}.`
     : '';
 
-  return `I found ${expenses.length} matching transactions totaling INR ${total.toFixed(
-    2,
+  return `I found ${expenses.length} matching transactions totaling ${formatAmount(
+    total,
+    currency,
   )}. Top category: ${lead?.[0] ?? 'N/A'}.${alertLine}`;
 }
 
-async function generateResponse(message: string, expenses: Expense[], budgetAlerts: ReturnType<typeof buildBudgetAlerts>) {
+function resolvePaymentMethod(
+  message: string,
+  paymentMethods: PaymentMethod[],
+  fallbackType: PaymentSource | null,
+) {
+  const lower = message.toLocaleLowerCase();
+
+  const exactName = paymentMethods.find((paymentMethod) =>
+    lower.includes(paymentMethod.name.toLocaleLowerCase()),
+  );
+
+  if (exactName) {
+    return exactName;
+  }
+
+  if (fallbackType) {
+    const byType = paymentMethods.find(
+      (paymentMethod) => paymentMethod.type === fallbackType,
+    );
+
+    if (byType) {
+      return byType;
+    }
+  }
+
+  return paymentMethods[0] ?? null;
+}
+
+async function generateResponse(
+  message: string,
+  expenses: Expense[],
+  budgetAlerts: ReturnType<typeof buildBudgetAlerts>,
+  currency: CurrencyCode,
+) {
   const client = getOpenAIClient();
 
   if (!client) {
-    return formatExpenseSummary(message, expenses, budgetAlerts);
+    return formatExpenseSummary(message, expenses, budgetAlerts, currency);
   }
 
   try {
@@ -363,6 +423,7 @@ async function generateResponse(message: string, expenses: Expense[], budgetAler
           role: 'user',
           content: JSON.stringify({
             query: message,
+            currency,
             expenses: expenses.slice(0, 20),
             budgetAlerts,
           }),
@@ -372,10 +433,10 @@ async function generateResponse(message: string, expenses: Expense[], budgetAler
 
     return (
       completion.choices[0]?.message.content ||
-      formatExpenseSummary(message, expenses, budgetAlerts)
+      formatExpenseSummary(message, expenses, budgetAlerts, currency)
     );
   } catch (error) {
-    return formatExpenseSummary(message, expenses, budgetAlerts);
+    return formatExpenseSummary(message, expenses, budgetAlerts, currency);
   }
 }
 
@@ -387,12 +448,26 @@ export async function handleAssistantMessage(
   const intent = await extractIntent(message);
   const month = format(new Date(), 'yyyy-MM');
   const budgets = await store.listBudgets(userId, month);
+  const paymentMethods = await store.listPaymentMethods(userId);
+  const settings = await store.getSettings(userId);
 
   if (intent.intent === 'add_expense' && intent.amount) {
+    const paymentMethod = resolvePaymentMethod(
+      message,
+      paymentMethods,
+      intent.source,
+    );
+
+    if (!paymentMethod) {
+      throw new Error('Add a payment method in Profile before adding expenses.');
+    }
+
     const expense = await store.createExpense(userId, {
       amount: intent.amount,
       category: intent.category || 'Other',
-      source: intent.source || 'credit',
+      paymentMethodId: paymentMethod.id,
+      paymentMethodName: paymentMethod.name,
+      source: paymentMethod.type,
       date: intent.date || format(new Date(), 'yyyy-MM-dd'),
       merchant: intent.merchant || undefined,
       note: intent.note || intent.merchant || undefined,
@@ -403,15 +478,21 @@ export async function handleAssistantMessage(
       expense,
       matches: [expense],
       budgetAlerts: [],
-      response: `Added ${expense.category} expense for INR ${expense.amount.toFixed(
-        2,
+      response: `Added ${expense.category} expense for ${formatAmount(
+        expense.amount,
+        settings.currency,
       )}${expense.merchant ? ` at ${expense.merchant}` : ''}.`,
     };
   }
 
   const expenses = await store.listExpenses(userId, toExpenseFilters(intent));
   const budgetAlerts = buildBudgetAlerts(expenses, budgets);
-  const response = await generateResponse(message, expenses, budgetAlerts);
+  const response = await generateResponse(
+    message,
+    expenses,
+    budgetAlerts,
+    settings.currency,
+  );
 
   return {
     intent,

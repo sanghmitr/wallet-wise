@@ -6,14 +6,17 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
+import { getCurrencySymbol } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useAppData } from '@/store/AppDataContext';
-import type { PaymentSource } from '@/types/domain';
+import type { PaymentMethod } from '@/types/domain';
 
 const expenseSchema = z.object({
   amount: z.coerce.number().positive('Amount is required'),
   category: z.string().min(1, 'Category is required'),
-  source: z.enum(['credit', 'debit', 'upi', 'cash']),
+  paymentMethodId: z.string().min(1, 'Payment method is required'),
+  paymentMethodName: z.string().min(1, 'Payment method is required'),
+  source: z.enum(['credit_card', 'debit_card', 'upi', 'cash']),
   date: z.string().min(1, 'Date is required'),
   note: z.string().max(120).optional(),
   merchant: z.string().max(80).optional(),
@@ -21,17 +24,35 @@ const expenseSchema = z.object({
 
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
 
-const sourceOptions: Array<{ value: PaymentSource; label: string }> = [
-  { value: 'credit', label: 'Credit Card' },
-  { value: 'debit', label: 'Debit Card' },
-  { value: 'upi', label: 'UPI / Transfer' },
-  { value: 'cash', label: 'Cash' },
-];
+const paymentMethodIcons: Record<string, string> = {
+  credit_card: 'credit_card',
+  debit_card: 'payments',
+  upi: 'qr_code_2',
+  cash: 'wallet',
+};
+
+function getPaymentMethodTypeLabel(type: string) {
+  if (type === 'credit_card') {
+    return 'Credit Card';
+  }
+
+  if (type === 'debit_card') {
+    return 'Debit Card';
+  }
+
+  if (type === 'upi') {
+    return 'UPI';
+  }
+
+  return 'Cash';
+}
 
 export function AddExpenseModal() {
   const navigate = useNavigate();
   const {
     categories,
+    paymentMethods,
+    settings,
     editingExpense,
     isExpenseModalOpen,
     closeExpenseModal,
@@ -50,7 +71,9 @@ export function AddExpenseModal() {
     defaultValues: {
       amount: undefined,
       category: '',
-      source: 'credit',
+      paymentMethodId: '',
+      paymentMethodName: '',
+      source: 'credit_card',
       date: format(new Date(), 'yyyy-MM-dd'),
       note: '',
       merchant: '',
@@ -62,6 +85,8 @@ export function AddExpenseModal() {
       reset({
         amount: editingExpense.amount,
         category: editingExpense.category,
+        paymentMethodId: editingExpense.paymentMethodId,
+        paymentMethodName: editingExpense.paymentMethodName,
         source: editingExpense.source,
         date: editingExpense.date,
         note: editingExpense.note || '',
@@ -70,15 +95,21 @@ export function AddExpenseModal() {
       return;
     }
 
+    const defaultPaymentMethod =
+      paymentMethods.find((paymentMethod) => paymentMethod.isDefault) ??
+      paymentMethods[0];
+
     reset({
       amount: undefined,
       category: categories[0]?.name ?? '',
-      source: 'credit',
+      paymentMethodId: defaultPaymentMethod?.id ?? '',
+      paymentMethodName: defaultPaymentMethod?.name ?? '',
+      source: defaultPaymentMethod?.type ?? 'credit_card',
       date: format(new Date(), 'yyyy-MM-dd'),
       note: '',
       merchant: '',
     });
-  }, [categories, editingExpense, reset]);
+  }, [categories, editingExpense, paymentMethods, reset]);
 
   if (!isExpenseModalOpen) {
     return null;
@@ -86,15 +117,30 @@ export function AddExpenseModal() {
 
   const selectedCategory = watch('category');
   const visibleCategories = categories.slice(0, 7);
+  const selectedPaymentMethodId = watch('paymentMethodId');
+  const submitExpense = handleSubmit(async (values) => {
+    await saveExpense(values, editingExpense?.id);
+  });
 
   function openCategoryManager() {
     closeExpenseModal();
     navigate('/categories');
   }
 
+  function openProfileManager() {
+    closeExpenseModal();
+    navigate('/profile');
+  }
+
+  function selectPaymentMethod(paymentMethod: PaymentMethod) {
+    setValue('paymentMethodId', paymentMethod.id, { shouldValidate: true });
+    setValue('paymentMethodName', paymentMethod.name, { shouldValidate: true });
+    setValue('source', paymentMethod.type, { shouldValidate: true });
+  }
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-white/75 backdrop-blur-xl">
-      <div className="mx-auto min-h-screen max-w-2xl bg-background pb-36">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[rgba(232,244,255,0.78)] backdrop-blur-xl">
+      <div className="mx-auto min-h-screen max-w-2xl bg-background">
         <header className="glass-panel sticky top-0 z-10 flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <button
@@ -114,17 +160,21 @@ export function AddExpenseModal() {
         </header>
 
         <form
-          onSubmit={handleSubmit(async (values) => {
-            await saveExpense(values, editingExpense?.id);
-          })}
+          onSubmit={submitExpense}
           className="px-6 pt-8"
         >
+          <input type="hidden" {...register('paymentMethodId')} />
+          <input type="hidden" {...register('paymentMethodName')} />
+          <input type="hidden" {...register('source')} />
+
           <section className="mb-10 text-center">
             <p className="mb-2 text-sm font-medium tracking-[0.22em] text-on-surface-variant">
               AMOUNT
             </p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-4xl font-light text-on-surface">$</span>
+              <span className="text-4xl font-light text-on-surface">
+                {getCurrencySymbol(settings.currency)}
+              </span>
               <input
                 type="number"
                 step="0.01"
@@ -224,19 +274,85 @@ export function AddExpenseModal() {
 
           <section className="grid gap-4">
             <label className="rounded-[2rem] bg-surface-container-low p-6">
-              <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                Payment Source
-              </span>
-              <select
-                className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-4 text-sm font-medium text-on-surface outline-none"
-                {...register('source')}
-              >
-                {sourceOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-end justify-between gap-4">
+                <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                  Payment Method
+                </span>
+                <button
+                  type="button"
+                  onClick={openProfileManager}
+                  className="rounded-full bg-primary-container px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary transition hover:bg-surface-container-high"
+                >
+                  Manage
+                </button>
+              </div>
+
+              {!paymentMethods.length ? (
+                <div className="mt-3 rounded-[1.25rem] bg-surface-container-lowest p-4">
+                  <p className="text-sm leading-6 text-on-surface">
+                    Add at least one card name, UPI handle, or cash wallet in
+                    Profile before saving transactions.
+                  </p>
+                  <Button
+                    type="button"
+                    className="mt-4 gap-2"
+                    onClick={openProfileManager}
+                  >
+                    <MaterialIcon name="person" className="text-[18px]" />
+                    Open Profile
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-3 space-y-3">
+                  {paymentMethods.map((paymentMethod) => {
+                    const isSelected = selectedPaymentMethodId === paymentMethod.id;
+
+                    return (
+                      <button
+                        key={paymentMethod.id}
+                        type="button"
+                        onClick={() => selectPaymentMethod(paymentMethod)}
+                        className={`flex w-full items-center justify-between rounded-[1.25rem] px-4 py-4 text-left transition ${
+                          isSelected
+                            ? 'bg-primary text-on-primary shadow-ambient'
+                            : 'bg-surface-container-lowest text-on-surface'
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-container-lowest/70 text-primary">
+                            <MaterialIcon
+                              name={
+                                paymentMethodIcons[paymentMethod.type] || 'account_balance_wallet'
+                              }
+                              className="text-[20px]"
+                            />
+                          </span>
+                          <span>
+                            <span className="block text-sm font-semibold">
+                              {paymentMethod.name}
+                            </span>
+                            <span
+                              className={`block text-xs ${
+                                isSelected ? 'text-white/80' : 'text-on-surface-variant'
+                              }`}
+                            >
+                              {getPaymentMethodTypeLabel(paymentMethod.type)}
+                            </span>
+                          </span>
+                        </span>
+                        {isSelected ? (
+                          <MaterialIcon name="check_circle" filled className="text-[20px]" />
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {errors.paymentMethodId ? (
+                <p className="mt-3 text-sm text-error">
+                  {errors.paymentMethodId.message}
+                </p>
+              ) : null}
             </label>
 
             <label className="rounded-[2rem] bg-surface-container-low p-6">
@@ -294,20 +410,21 @@ export function AddExpenseModal() {
               </div>
             </div>
           </div>
-
-          <div className="glass-panel fixed bottom-0 left-0 w-full px-6 pb-6 pt-4">
-            <div className="mx-auto max-w-2xl">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full gap-2 py-5 text-base"
-              >
-                <MaterialIcon name="check_circle" filled />
-                {isSubmitting ? 'Saving...' : 'Save Transaction'}
-              </Button>
-            </div>
-          </div>
         </form>
+
+        <div className="sticky bottom-0 z-20 px-6 pb-6 pt-4">
+          <div className="mx-auto max-w-2xl rounded-t-[2rem] bg-[linear-gradient(180deg,rgba(238,246,255,0),rgba(238,246,255,0.78)_18%,rgba(238,246,255,0.96)_40%,rgba(238,246,255,0.98)_100%)] pt-4 backdrop-blur-xl">
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              className="w-full gap-2 py-5 text-base shadow-[0_20px_40px_rgba(47,111,163,0.22)]"
+              onClick={() => void submitExpense()}
+            >
+              <MaterialIcon name="check_circle" filled />
+              {isSubmitting ? 'Saving...' : 'Save Transaction'}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

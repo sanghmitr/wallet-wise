@@ -14,6 +14,7 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Budgets', to: '/budgets', icon: 'query_stats' },
   { label: 'Chat', to: '/chat', icon: 'forum' },
   { label: 'Categories', to: '/categories', icon: 'category' },
+  { label: 'Profile', to: '/profile', icon: 'person' },
 ];
 
 interface NavigationProps {
@@ -23,7 +24,7 @@ interface NavigationProps {
 
 export function DesktopSidebar({ onAddExpense, onSignOut }: NavigationProps) {
   return (
-    <aside className="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-72 lg:flex-col lg:border-r lg:border-black/5 lg:bg-white/70 lg:p-6 lg:backdrop-blur-xl">
+    <aside className="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-72 lg:flex-col lg:border-r lg:border-outline-variant/20 lg:bg-surface-container-lowest/70 lg:p-6 lg:backdrop-blur-xl">
       <div>
         <p className="text-xl font-black tracking-tight text-on-surface">
           Wallet Wise
@@ -103,14 +104,14 @@ export function MobileTopBar() {
 
 export function BottomNavigation({ onAddExpense }: NavigationProps) {
   return (
-    <nav className="glass-panel fixed bottom-0 left-0 z-40 flex w-full items-center justify-around rounded-t-[2rem] px-4 pb-6 pt-2 shadow-ambient lg:hidden">
+    <nav className="glass-panel fixed bottom-0 left-0 z-40 grid w-full grid-cols-6 items-center gap-1 rounded-t-[2rem] px-3 pb-6 pt-2 shadow-ambient lg:hidden">
       {navigationItems.slice(0, 2).map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
           className={({ isActive }) =>
             cn(
-              'flex flex-col items-center gap-1 rounded-full p-3 text-[11px] font-medium tracking-wide transition',
+              'flex min-w-0 flex-col items-center gap-1 rounded-[1.2rem] px-1 py-3 text-[10px] font-medium tracking-wide transition',
               isActive
                 ? 'text-on-surface'
                 : 'text-on-surface-variant hover:text-on-surface',
@@ -123,18 +124,18 @@ export function BottomNavigation({ onAddExpense }: NavigationProps) {
       ))}
       <button
         onClick={onAddExpense}
-        className="flex flex-col items-center gap-1 rounded-full bg-surface-container-high px-4 py-3 text-[11px] font-semibold text-on-surface shadow-ambient"
+        className="flex min-w-0 flex-col items-center gap-1 rounded-[1.2rem] bg-surface-container-high px-1 py-3 text-[10px] font-semibold text-on-surface shadow-ambient"
       >
         <MaterialIcon name="add_circle" filled />
         Add
       </button>
-      {navigationItems.slice(2).map((item) => (
+      {navigationItems.slice(2, 4).map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
           className={({ isActive }) =>
             cn(
-              'flex flex-col items-center gap-1 rounded-full p-3 text-[11px] font-medium tracking-wide transition',
+              'flex min-w-0 flex-col items-center gap-1 rounded-[1.2rem] px-1 py-3 text-[10px] font-medium tracking-wide transition',
               isActive
                 ? 'text-on-surface'
                 : 'text-on-surface-variant hover:text-on-surface',
@@ -145,6 +146,20 @@ export function BottomNavigation({ onAddExpense }: NavigationProps) {
           {item.label}
         </NavLink>
       ))}
+      <NavLink
+        to={navigationItems[4].to}
+        className={({ isActive }) =>
+          cn(
+            'flex min-w-0 flex-col items-center gap-1 rounded-[1.2rem] px-1 py-3 text-[10px] font-medium tracking-wide transition',
+            isActive
+              ? 'text-on-surface'
+              : 'text-on-surface-variant hover:text-on-surface',
+          )
+        }
+      >
+        <MaterialIcon name={navigationItems[4].icon} />
+        {navigationItems[4].label}
+      </NavLink>
     </nav>
   );
 }

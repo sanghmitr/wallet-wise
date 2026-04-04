@@ -20,6 +20,13 @@ import {
   removeCategory,
   updateCategory,
 } from '@/services/categories';
+import {
+  createPaymentMethod,
+  getPaymentMethods,
+  removePaymentMethod,
+  updatePaymentMethod,
+} from '@/services/payment-methods';
+import { getSettings, updateSettings } from '@/services/settings';
 import { upsertBudget, getBudgets } from '@/services/budgets';
 import { sendChatMessage } from '@/services/chat';
 import {
@@ -29,6 +36,12 @@ import {
   updateExpense,
 } from '@/services/expenses';
 import { getApiErrorMessage } from '@/services/api';
+import {
+  applyThemePreference,
+  cacheSettings,
+  defaultUserSettings,
+  getCachedSettings,
+} from '@/lib/preferences';
 import { generateId } from '@/lib/utils';
 import type {
   Budget,
@@ -39,12 +52,18 @@ import type {
   ChatResponsePayload,
   Expense,
   ExpenseInput,
+  PaymentMethod,
+  PaymentMethodInput,
+  UserSettings,
+  UserSettingsInput,
 } from '@/types/domain';
 
 interface AppDataContextValue {
   expenses: Expense[];
   categories: Category[];
   budgets: Budget[];
+  paymentMethods: PaymentMethod[];
+  settings: UserSettings;
   chatMessages: ChatMessage[];
   isBootstrapping: boolean;
   bootstrapError: string | null;
@@ -63,6 +82,12 @@ interface AppDataContextValue {
   deleteExpense: (expenseId: string) => Promise<void>;
   saveCategory: (payload: CategoryInput, categoryId?: string) => Promise<boolean>;
   deleteCategory: (categoryId: string) => Promise<void>;
+  savePaymentMethod: (
+    payload: PaymentMethodInput,
+    paymentMethodId?: string,
+  ) => Promise<boolean>;
+  deletePaymentMethod: (paymentMethodId: string) => Promise<void>;
+  saveSettings: (payload: UserSettingsInput) => Promise<boolean>;
   saveBudget: (payload: BudgetInput) => Promise<void>;
   submitChatMessage: (message: string) => Promise<ChatResponsePayload | null>;
 }
@@ -73,20 +98,39 @@ function normalizeCategoryName(name: string) {
   return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 }
 
+function normalizePaymentMethodName(name: string) {
+  return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+}
+
 function buildWelcomeMessage(): ChatMessage {
   return {
     id: generateId('assistant'),
     role: 'assistant',
     content:
-      "Welcome back. I can summarize your spending, flag budget risk, or add an expense from a natural-language message like 'I spent 450 on Zomato using UPI.'",
+      "Welcome back. I can summarize your spending, flag budget risk, or add an expense from a natural-language message like 'I spent 450 on Zomato using HDFC Credit Card.'",
     timestamp: new Date().toISOString(),
   };
 }
 
+function createSettingsState(
+  settings: Partial<UserSettingsInput> = {},
+): UserSettings {
+  return {
+    currency: settings.currency || defaultUserSettings.currency,
+    theme: settings.theme || defaultUserSettings.theme,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 export function AppDataProvider({ children }: PropsWithChildren) {
+  const cachedSettings = getCachedSettings();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [settings, setSettings] = useState<UserSettings>(() =>
+    createSettingsState(cachedSettings),
+  );
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     buildWelcomeMessage(),
   ]);
@@ -101,19 +145,42 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       representation: 'date',
     }).slice(0, 7);
 
-    const [expenseData, categoryData, budgetData] = await Promise.all([
-      getExpenses(),
-      getCategories(),
-      getBudgets(currentMonth),
-    ]);
+    const [expenseData, categoryData, budgetData, paymentMethodData, settingsData] =
+      await Promise.all([
+        getExpenses(),
+        getCategories(),
+        getBudgets(currentMonth),
+        getPaymentMethods(),
+        getSettings(),
+      ]);
 
     startTransition(() => {
       setExpenses(expenseData);
       setCategories(categoryData);
       setBudgets(budgetData);
+      setPaymentMethods(paymentMethodData);
+      setSettings(settingsData);
       setBootstrapError(null);
     });
   }
+
+  useEffect(() => {
+    applyThemePreference(settings.theme);
+    cacheSettings({
+      currency: settings.currency,
+      theme: settings.theme,
+    });
+
+    if (typeof window === 'undefined' || settings.theme !== 'system') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const syncTheme = () => applyThemePreference('system');
+
+    mediaQuery.addEventListener('change', syncTheme);
+    return () => mediaQuery.removeEventListener('change', syncTheme);
+  }, [settings.currency, settings.theme]);
 
   useEffect(() => {
     void (async () => {
@@ -257,6 +324,98 @@ export function AppDataProvider({ children }: PropsWithChildren) {
     }
   }
 
+  async function savePaymentMethod(
+    payload: PaymentMethodInput,
+    paymentMethodId?: string,
+  ) {
+    const sanitizedPayload = {
+      ...payload,
+      name: payload.name.trim().replace(/\s+/g, ' '),
+    };
+    const duplicate = paymentMethods.find(
+      (paymentMethod) =>
+        normalizePaymentMethodName(paymentMethod.name) ===
+          normalizePaymentMethodName(sanitizedPayload.name) &&
+        paymentMethod.id !== paymentMethodId,
+    );
+
+    if (duplicate) {
+      toast.error('A payment method with that name already exists.');
+      return false;
+    }
+
+    try {
+      const saved = paymentMethodId
+        ? await updatePaymentMethod(paymentMethodId, sanitizedPayload)
+        : await createPaymentMethod(sanitizedPayload);
+
+      startTransition(() => {
+        setPaymentMethods((current) => {
+          if (paymentMethodId) {
+            return current
+              .map((paymentMethod) =>
+                paymentMethod.id === paymentMethodId ? saved : paymentMethod,
+              )
+              .sort((left, right) => left.name.localeCompare(right.name));
+          }
+
+          return [...current, saved].sort((left, right) =>
+            left.name.localeCompare(right.name),
+          );
+        });
+        setExpenses((current) =>
+          current.map((expense) =>
+            expense.paymentMethodId === saved.id
+              ? {
+                  ...expense,
+                  paymentMethodName: saved.name,
+                  source: saved.type,
+                }
+              : expense,
+          ),
+        );
+      });
+
+      toast.success(paymentMethodId ? 'Payment method updated.' : 'Payment method added.');
+      return true;
+    } catch (error) {
+      toast.error(getApiErrorMessage(error));
+      return false;
+    }
+  }
+
+  async function deletePaymentMethod(paymentMethodId: string) {
+    try {
+      await removePaymentMethod(paymentMethodId);
+
+      startTransition(() => {
+        setPaymentMethods((current) =>
+          current.filter((paymentMethod) => paymentMethod.id !== paymentMethodId),
+        );
+      });
+
+      toast.success('Payment method removed.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error));
+    }
+  }
+
+  async function saveSettings(payload: UserSettingsInput) {
+    try {
+      const saved = await updateSettings(payload);
+
+      startTransition(() => {
+        setSettings(saved);
+      });
+
+      toast.success('Settings updated.');
+      return true;
+    } catch (error) {
+      toast.error(getApiErrorMessage(error));
+      return false;
+    }
+  }
+
   async function saveBudget(payload: BudgetInput) {
     try {
       const saved = await upsertBudget(payload);
@@ -374,6 +533,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
     setExpenses([]);
     setCategories([]);
     setBudgets([]);
+    setPaymentMethods([]);
     setChatMessages([buildWelcomeMessage()]);
     setEditingExpense(null);
     setIsExpenseModalOpen(false);
@@ -386,6 +546,8 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         expenses,
         categories,
         budgets,
+        paymentMethods,
+        settings,
         chatMessages,
         isBootstrapping,
         bootstrapError,
@@ -404,6 +566,9 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         deleteExpense,
         saveCategory,
         deleteCategory,
+        savePaymentMethod,
+        deletePaymentMethod,
+        saveSettings,
         saveBudget,
         submitChatMessage,
       }}

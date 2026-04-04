@@ -4,8 +4,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { registerSW } from 'virtual:pwa-register';
 import { App } from '@/app/App';
+import { applyThemePreference, getCachedSettings } from '@/lib/preferences';
 import { AppDataProvider } from '@/store/AppDataContext';
 import '@/styles/index.css';
+
+applyThemePreference(getCachedSettings().theme);
 
 if (import.meta.env.DEV && 'serviceWorker' in navigator) {
   void navigator.serviceWorker
@@ -28,7 +31,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Toaster
           position="top-center"
           toastOptions={{
-            className: 'rounded-full border border-black/5 bg-white px-4 py-3 text-sm text-on-surface shadow-ambient',
+            className:
+              'rounded-full border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface shadow-ambient',
           }}
         />
       </AppDataProvider>

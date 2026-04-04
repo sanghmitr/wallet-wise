@@ -1,11 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  color: #2b3437;
-  background: #f8f9fa;
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --color-background: 238 246 255;
+  --color-surface: 238 246 255;
+  --color-primary: 47 111 163;
+  --color-primary-dim: 37 90 133;
+  --color-primary-container: 216 235 255;
+  --color-on-primary: 245 251 255;
+  --color-on-primary-container: 32 73 107;
+  --color-secondary: 79 127 168;
+  --color-secondary-container: 220 238 255;
+  --color-tertiary: 90 135 200;
+  --color-error: 184 77 96;
+  --color-outline: 127 153 178;
+  --color-outline-variant: 181 199 216;
+  --color-surface-container-lowest: 255 255 255;
+  --color-surface-container-low: 243 249 255;
+  --color-surface-container: 232 242 251;
+  --color-surface-container-high: 219 234 247;
+  --color-surface-container-highest: 207 225 241;
+  --color-surface-dim: 184 203 221;
+  --color-on-background: 31 59 83;
+  --color-on-surface: 31 59 83;
+  --color-on-surface-variant: 95 121 144;
+  --color-on-secondary-container: 53 89 120;
+  --app-background:
+    radial-gradient(circle at top left, rgba(182, 223, 255, 0.9), transparent 24%),
+    radial-gradient(circle at top right, rgba(211, 236, 255, 0.85), transparent 28%),
+    linear-gradient(180deg, #f5fbff 0%, #eef6ff 44%, #e5f0fb 100%);
+  color: rgb(var(--color-on-surface));
+  background: rgb(var(--color-background));
+}
+
+:root[data-theme='dark'] {
+  --color-background: 8 17 28;
+  --color-surface: 8 17 28;
+  --color-primary: 138 199 255;
+  --color-primary-dim: 106 175 240;
+  --color-primary-container: 18 54 84;
+  --color-on-primary: 8 25 40;
+  --color-on-primary-container: 203 228 252;
+  --color-secondary: 117 167 214;
+  --color-secondary-container: 19 44 66;
+  --color-tertiary: 124 173 237;
+  --color-error: 255 144 167;
+  --color-outline: 95 126 153;
+  --color-outline-variant: 44 66 86;
+  --color-surface-container-lowest: 12 24 37;
+  --color-surface-container-low: 16 29 44;
+  --color-surface-container: 22 36 54;
+  --color-surface-container-high: 30 47 68;
+  --color-surface-container-highest: 38 57 81;
+  --color-surface-dim: 84 107 130;
+  --color-on-background: 233 243 252;
+  --color-on-surface: 233 243 252;
+  --color-on-surface-variant: 156 180 204;
+  --color-on-secondary-container: 219 236 252;
+  --app-background:
+    radial-gradient(circle at top left, rgba(22, 73, 118, 0.48), transparent 24%),
+    radial-gradient(circle at top right, rgba(18, 44, 72, 0.64), transparent 28%),
+    linear-gradient(180deg, #0c1724 0%, #08111c 44%, #0d1c2c 100%);
 }
 
 html,
@@ -17,10 +76,8 @@ body,
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top right, rgba(220, 226, 243, 0.65), transparent 24%),
-    linear-gradient(180deg, #fbfcfc 0%, #f8f9fa 42%, #eef2f3 100%);
-  color: #2b3437;
+  background: var(--app-background);
+  color: rgb(var(--color-on-surface));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -51,10 +108,11 @@ textarea {
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgb(var(--color-surface-container-lowest) / 0.78);
   backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgb(var(--color-outline-variant) / 0.16);
 }
 
 .surface-ring {
-  border: 1px solid rgba(171, 179, 183, 0.15);
+  border: 1px solid rgb(var(--color-outline-variant) / 0.16);
 }

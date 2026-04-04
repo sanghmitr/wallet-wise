@@ -1,13 +1,25 @@
-export type PaymentSource = 'credit' | 'debit' | 'upi' | 'cash';
+export type PaymentSource = 'credit_card' | 'debit_card' | 'upi' | 'cash';
+export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP' | 'AED';
+export type ThemePreference = 'light' | 'dark' | 'system';
 
 export interface Expense {
   id: string;
   amount: number;
   category: string;
+  paymentMethodId: string;
+  paymentMethodName: string;
   source: PaymentSource;
   date: string;
   note?: string;
   merchant?: string;
+  createdAt: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  type: PaymentSource;
+  isDefault: boolean;
   createdAt: string;
 }
 
@@ -28,13 +40,26 @@ export interface Budget {
   createdAt: string;
 }
 
+export interface UserSettings {
+  currency: CurrencyCode;
+  theme: ThemePreference;
+  updatedAt: string;
+}
+
 export interface ExpenseInput {
   amount: number;
   category: string;
+  paymentMethodId: string;
+  paymentMethodName: string;
   source: PaymentSource;
   date: string;
   note?: string;
   merchant?: string;
+}
+
+export interface PaymentMethodInput {
+  name: string;
+  type: PaymentSource;
 }
 
 export interface CategoryInput {
@@ -49,10 +74,15 @@ export interface BudgetInput {
   month: string;
 }
 
+export interface UserSettingsInput {
+  currency: CurrencyCode;
+  theme: ThemePreference;
+}
+
 export interface ExpenseFilters {
   startDate?: string;
   endDate?: string;
-  source?: PaymentSource | 'all';
+  paymentMethodId?: string | 'all';
   category?: string;
 }
 
@@ -75,6 +105,7 @@ export interface ChatIntent {
   date: string | null;
   category: string | null;
   source: PaymentSource | null;
+  paymentMethodName?: string | null;
 }
 
 export interface ChatResponsePayload {

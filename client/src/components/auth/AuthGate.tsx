@@ -14,7 +14,7 @@ export function AuthGate({
 }: AuthGateProps) {
   return (
     <div className="flex min-h-screen items-center justify-center px-6 py-10">
-      <div className="w-full max-w-md rounded-[2rem] bg-white/85 p-8 shadow-ambient backdrop-blur-xl">
+      <div className="w-full max-w-md rounded-[2rem] bg-surface-container-lowest/85 p-8 shadow-ambient backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-on-primary">
             <MaterialIcon
@@ -45,7 +45,7 @@ export function AuthGate({
             className="w-full gap-3 py-4 text-base"
             onClick={() => void onGoogleSignIn()}
           >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[13px] font-bold text-[#4285F4]">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-surface-container-lowest text-[13px] font-bold text-[#4285F4]">
               G
             </span>
             Continue with Google

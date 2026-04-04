@@ -7,10 +7,10 @@ import { FilterBar } from '@/components/dashboard/FilterBar';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { SummaryCards } from '@/components/dashboard/SummaryCards';
 import { useAppData } from '@/store/AppDataContext';
-import type { DashboardPreset, PaymentSource } from '@/types/domain';
+import type { DashboardPreset } from '@/types/domain';
 import {
   filterExpensesByPreset,
-  filterExpensesBySource,
+  filterExpensesByPaymentMethod,
   getBudgetRemaining,
   getCategoryTotals,
   getMonthlySeries,
@@ -20,13 +20,22 @@ import {
 } from '@/utils/analytics';
 
 export function DashboardPage() {
-  const { expenses, budgets, openEditExpense, deleteExpense, openCreateExpense } =
-    useAppData();
+  const {
+    expenses,
+    budgets,
+    paymentMethods,
+    openEditExpense,
+    deleteExpense,
+    openCreateExpense,
+  } = useAppData();
   const [preset, setPreset] = useState<DashboardPreset>('this-month');
-  const [source, setSource] = useState<PaymentSource | 'all'>('all');
+  const [paymentMethodId, setPaymentMethodId] = useState<string | 'all'>('all');
 
   const presetExpenses = filterExpensesByPreset(expenses, preset);
-  const filteredExpenses = filterExpensesBySource(presetExpenses, source);
+  const filteredExpenses = filterExpensesByPaymentMethod(
+    presetExpenses,
+    paymentMethodId,
+  );
   const currentMonthExpenses = filterExpensesByPreset(expenses, 'this-month');
   const totalSpent = sumExpenses(currentMonthExpenses);
   const categoryTotals = getCategoryTotals(filteredExpenses);
@@ -47,9 +56,10 @@ export function DashboardPage() {
     <div className="space-y-8 animate-float-in">
       <FilterBar
         preset={preset}
-        source={source}
+        paymentMethods={paymentMethods}
+        paymentMethodId={paymentMethodId}
         onPresetChange={setPreset}
-        onSourceChange={setSource}
+        onPaymentMethodChange={setPaymentMethodId}
       />
 
       <SummaryCards

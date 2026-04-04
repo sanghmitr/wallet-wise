@@ -12,7 +12,6 @@ import type {
   Category,
   DashboardPreset,
   Expense,
-  PaymentSource,
 } from '@/types/domain';
 
 export function sumExpenses(expenses: Expense[]) {
@@ -45,15 +44,17 @@ export function filterExpensesByPreset(
   );
 }
 
-export function filterExpensesBySource(
+export function filterExpensesByPaymentMethod(
   expenses: Expense[],
-  source: PaymentSource | 'all',
+  paymentMethodId: string | 'all',
 ) {
-  if (source === 'all') {
+  if (paymentMethodId === 'all') {
     return expenses;
   }
 
-  return expenses.filter((expense) => expense.source === source);
+  return expenses.filter(
+    (expense) => expense.paymentMethodId === paymentMethodId,
+  );
 }
 
 export function getCategoryTotals(expenses: Expense[]) {

@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/Card';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { formatCompactCurrency, formatCurrency } from '@/lib/format';
+import { useAppData } from '@/store/AppDataContext';
 
 interface SummaryCardsProps {
   totalSpent: number;
@@ -15,6 +16,7 @@ export function SummaryCards({
   topCategory,
   totalBudget,
 }: SummaryCardsProps) {
+  const { settings } = useAppData();
   const usedShare =
     totalBudget > 0 ? Math.min((totalSpent / totalBudget) * 100, 100) : 0;
 
@@ -26,11 +28,11 @@ export function SummaryCards({
             Total Spent This Month
           </p>
           <h2 className="mt-3 text-4xl font-black tracking-[-0.04em] md:text-5xl">
-            {formatCurrency(totalSpent)}
+            {formatCurrency(totalSpent, settings.currency)}
           </h2>
           <div className="mt-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-white/70">
             <MaterialIcon name="public" className="text-sm" />
-            INR / Live local totals
+            {settings.currency} / Selected currency
           </div>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-bold backdrop-blur-md">
             <MaterialIcon name="timeline" className="text-sm" />
@@ -47,7 +49,7 @@ export function SummaryCards({
             Remaining Budget
           </p>
           <h3 className="mt-2 text-2xl font-bold tracking-tight text-on-surface">
-            {formatCurrency(remainingBudget)}
+            {formatCurrency(remainingBudget, settings.currency)}
           </h3>
           <div className="mt-5 h-2 overflow-hidden rounded-full bg-surface-container-highest">
             <div
@@ -66,7 +68,9 @@ export function SummaryCards({
               {topCategory?.name ?? 'No expenses'}
             </h3>
             <p className="mt-1 text-sm text-on-surface-variant">
-              {topCategory ? formatCompactCurrency(topCategory.value) : 'Start tracking'}
+              {topCategory
+                ? formatCompactCurrency(topCategory.value, settings.currency)
+                : 'Start tracking'}
             </p>
           </div>
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">

@@ -2,12 +2,15 @@ import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recha
 import { Card } from '@/components/ui/Card';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { formatCompactCurrency } from '@/lib/format';
+import { useAppData } from '@/store/AppDataContext';
 
 interface MonthlyTrendChartProps {
   data: Array<{ month: string; value: number }>;
 }
 
 export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
+  const { settings } = useAppData();
+
   return (
     <Card className="bg-surface-container-low">
       <div className="flex items-center justify-between">
@@ -22,19 +25,26 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#586064', fontSize: 12 }}
+              tick={{ fill: 'rgb(var(--color-on-surface-variant))', fontSize: 12 }}
             />
             <YAxis hide />
             <Tooltip
-              formatter={(value: number) => formatCompactCurrency(value)}
-              cursor={{ fill: 'rgba(171, 179, 183, 0.12)' }}
+              formatter={(value: number) =>
+                formatCompactCurrency(value, settings.currency)
+              }
+              cursor={{ fill: 'rgb(var(--color-outline-variant) / 0.12)' }}
               contentStyle={{
                 borderRadius: 16,
-                border: '1px solid rgba(171, 179, 183, 0.15)',
-                background: 'rgba(255,255,255,0.95)',
+                border: '1px solid rgb(var(--color-outline-variant) / 0.2)',
+                background: 'rgb(var(--color-surface-container-lowest) / 0.96)',
+                color: 'rgb(var(--color-on-surface))',
               }}
             />
-            <Bar dataKey="value" radius={[14, 14, 14, 14]} fill="#5f5e5e" />
+            <Bar
+              dataKey="value"
+              radius={[14, 14, 14, 14]}
+              fill="rgb(var(--color-primary))"
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
