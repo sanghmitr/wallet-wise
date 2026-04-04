@@ -63,14 +63,14 @@ export function FilterBar({
   showCategoryFilter = false,
 }: FilterBarProps) {
   return (
-    <section className="space-y-4">
-      <div className="no-scrollbar flex gap-3 overflow-x-auto py-2">
+    <section className="space-y-3">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto py-1">
         {rangeModes.map((item) => (
           <button
             key={item.value}
             onClick={() => onRangeModeChange(item.value)}
             className={cn(
-              'whitespace-nowrap rounded-full px-5 py-2 text-sm font-medium transition',
+              'whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition sm:px-5 sm:text-sm',
               rangeMode === item.value
                 ? 'bg-primary text-on-primary'
                 : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container',
@@ -83,13 +83,13 @@ export function FilterBar({
 
       <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap">
         {rangeMode === 'preset' ? (
-          <div className="no-scrollbar flex gap-3 overflow-x-auto">
+          <div className="no-scrollbar flex gap-2 overflow-x-auto">
             {presets.map((item) => (
               <button
                 key={item.value}
                 onClick={() => onPresetChange(item.value)}
                 className={cn(
-                  'whitespace-nowrap rounded-full px-5 py-2 text-sm font-medium transition',
+                  'whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition sm:px-5 sm:text-sm',
                   preset === item.value
                     ? 'bg-primary text-on-primary'
                     : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container',
@@ -102,8 +102,8 @@ export function FilterBar({
         ) : null}
 
         {rangeMode === 'month' ? (
-          <label className="flex min-w-[210px] flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+          <label className="flex min-w-[190px] flex-col gap-2 sm:min-w-[210px]">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant sm:text-[11px]">
               Select Month
             </span>
             <input
@@ -111,15 +111,15 @@ export function FilterBar({
               value={selectedMonth}
               max={format(new Date(), 'yyyy-MM')}
               onChange={(event) => onSelectedMonthChange(event.target.value)}
-              className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary/10"
+              className="rounded-[1rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary/10"
             />
           </label>
         ) : null}
 
         {rangeMode === 'custom' ? (
           <>
-            <label className="flex min-w-[210px] flex-col gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+            <label className="flex min-w-[190px] flex-col gap-2 sm:min-w-[210px]">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant sm:text-[11px]">
                 Start Date
               </span>
               <input
@@ -127,12 +127,12 @@ export function FilterBar({
                 value={startDate}
                 max={endDate || undefined}
                 onChange={(event) => onStartDateChange(event.target.value)}
-                className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary/10"
+                className="rounded-[1rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary/10"
               />
             </label>
 
-            <label className="flex min-w-[210px] flex-col gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+            <label className="flex min-w-[190px] flex-col gap-2 sm:min-w-[210px]">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant sm:text-[11px]">
                 End Date
               </span>
               <input
@@ -140,15 +140,15 @@ export function FilterBar({
                 value={endDate}
                 min={startDate || undefined}
                 onChange={(event) => onEndDateChange(event.target.value)}
-                className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary/10"
+                className="rounded-[1rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary/10"
               />
             </label>
           </>
         ) : null}
 
         {showPaymentMethodFilter ? (
-          <label className="flex min-w-[260px] flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+          <label className="flex min-w-[220px] flex-col gap-2 sm:min-w-[260px]">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant sm:text-[11px]">
               Payment Method
             </span>
             <select
@@ -156,7 +156,7 @@ export function FilterBar({
               onChange={(event) =>
                 onPaymentMethodChange(event.target.value as string | 'all')
               }
-              className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
+              className="rounded-[1rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
             >
               <option value="all">All Payment Methods</option>
               {paymentMethods.map((item) => (
@@ -167,19 +167,19 @@ export function FilterBar({
             </select>
           </label>
         ) : paymentMethodLabel ? (
-          <div className="flex min-w-[260px] flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+          <div className="flex min-w-[220px] flex-col gap-2 sm:min-w-[260px]">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant sm:text-[11px]">
               Payment Method
             </span>
-            <div className="rounded-[1.25rem] bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface">
+            <div className="rounded-[1rem] bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface">
               {paymentMethodLabel}
             </div>
           </div>
         ) : null}
 
         {showCategoryFilter ? (
-          <label className="flex min-w-[260px] flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+          <label className="flex min-w-[220px] flex-col gap-2 sm:min-w-[260px]">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant sm:text-[11px]">
               Category
             </span>
             <select
@@ -187,7 +187,7 @@ export function FilterBar({
               onChange={(event) =>
                 onCategoryChange?.(event.target.value as string | 'all')
               }
-              className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
+              className="rounded-[1rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
             >
               <option value="all">All Categories</option>
               {categories.map((item) => (

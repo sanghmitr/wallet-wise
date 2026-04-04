@@ -17,7 +17,20 @@ const iconOptions = [
   'home_work',
 ];
 
-const colorOptions = ['#5f5e5e', '#7a8799', '#7a778f', '#a79892', '#bf7b77'];
+const colorOptions = [
+  '#5f5e5e',
+  '#7a8799',
+  '#7a778f',
+  '#a79892',
+  '#bf7b77',
+  '#c98c5d',
+  '#b46f8c',
+  '#6f8fb5',
+  '#4f9a8f',
+  '#7ea35f',
+  '#d07a6f',
+  '#8f78c6',
+];
 
 const initialForm = {
   name: '',
@@ -160,14 +173,6 @@ export function CategoryManager() {
               );
             })}
 
-            <button
-              type="button"
-              onClick={startNewCategory}
-              className="flex min-h-32 items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-surface-container-high bg-transparent px-6 text-on-surface-variant transition hover:bg-surface-container-low"
-            >
-              <MaterialIcon name="add_circle" className="text-[22px]" />
-              <span className="font-semibold">Define New Category</span>
-            </button>
           </div>
         )}
       </section>
@@ -229,7 +234,7 @@ export function CategoryManager() {
               <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                 Accent
               </span>
-              <div className="mt-3 flex gap-3">
+              <div className="mt-3 grid grid-cols-6 gap-3">
                 {colorOptions.map((color) => (
                   <button
                     key={color}

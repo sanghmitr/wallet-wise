@@ -14,18 +14,18 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   return (
     <Card className="bg-surface-container-low">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-on-surface">Monthly Trend</h3>
+        <h3 className="text-base font-bold text-on-surface sm:text-lg">Monthly Trend</h3>
         <MaterialIcon name="more_horiz" className="text-on-surface-variant" />
       </div>
 
-      <div className="mt-8 h-64">
+      <div className="mt-5 h-56 sm:mt-8 sm:h-64">
         <ResponsiveContainer>
           <BarChart data={data} barCategoryGap={18}>
             <XAxis
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: 'rgb(var(--color-on-surface-variant))', fontSize: 12 }}
+              tick={{ fill: 'rgb(var(--color-on-surface-variant))', fontSize: 11 }}
             />
             <YAxis hide />
             <Tooltip

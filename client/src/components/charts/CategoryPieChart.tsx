@@ -25,11 +25,11 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
   return (
     <Card className="bg-surface-container-low">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-on-surface">Category Breakdown</h3>
+        <h3 className="text-base font-bold text-on-surface sm:text-lg">Category Breakdown</h3>
         <MaterialIcon name="more_horiz" className="text-on-surface-variant" />
       </div>
 
-      <div className="relative mt-8 h-60">
+      <div className="relative mt-5 h-52 sm:mt-8 sm:h-60">
         <ResponsiveContainer>
           <PieChart>
             <Pie
@@ -61,7 +61,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
         </ResponsiveContainer>
 
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <p className="text-3xl font-black tracking-tight text-on-surface">
+          <p className="text-2xl font-black tracking-tight text-on-surface sm:text-3xl">
             {leadShare}%
           </p>
           <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-on-surface-variant">
@@ -70,7 +70,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
         </div>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 space-y-2.5">
         {data.slice(0, 5).map((item, index) => (
           <div key={item.name} className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-on-surface-variant">

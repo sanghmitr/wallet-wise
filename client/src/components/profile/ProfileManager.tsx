@@ -128,7 +128,7 @@ export function ProfileManager() {
                   <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
                     Account
                   </p>
-                  <h2 className="mt-2 text-2xl font-black tracking-tight text-on-surface">
+                  <h2 className="mt-2 text-xl font-black tracking-tight text-on-surface sm:text-2xl">
                     {profileName}
                   </h2>
                   <p className="mt-1 text-sm text-on-surface-variant">
@@ -161,7 +161,7 @@ export function ProfileManager() {
           <p className="text-sm font-medium uppercase tracking-[0.24em] text-on-surface-variant">
             Profile
           </p>
-          <h1 className="mt-1 text-4xl font-extrabold tracking-tight text-on-surface">
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">
             Payment Methods
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-on-surface-variant">
@@ -273,7 +273,7 @@ export function ProfileManager() {
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
                 {editing ? 'Edit Method' : 'New Method'}
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-on-surface">
+              <h2 className="mt-2 text-xl font-bold text-on-surface sm:text-2xl">
                 {editing ? editing.name : 'Add a payment method'}
               </h2>
             </div>
@@ -353,7 +353,7 @@ export function ProfileManager() {
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
               Settings
             </p>
-            <h2 className="mt-2 text-2xl font-bold text-on-surface">
+            <h2 className="mt-2 text-xl font-bold text-on-surface sm:text-2xl">
               Preferences
             </h2>
             <p className="mt-2 text-sm leading-6 text-on-surface-variant">

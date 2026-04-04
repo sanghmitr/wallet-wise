@@ -97,7 +97,6 @@ export function AddExpenseModal() {
   }
 
   const selectedCategory = watch('category');
-  const visibleCategories = categories.slice(0, 7);
   const selectedPaymentMethodId = watch('paymentMethodId');
   const submitExpense = handleSubmit(async (values) => {
     await saveExpense(values, editingExpense?.id);
@@ -122,7 +121,7 @@ export function AddExpenseModal() {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[rgba(232,244,255,0.78)] backdrop-blur-xl">
       <div className="mx-auto min-h-screen max-w-2xl bg-background">
-        <header className="glass-panel sticky top-0 z-10 flex items-center justify-between px-6 py-4">
+        <header className="glass-panel sticky top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <button
               onClick={closeExpenseModal}
@@ -130,7 +129,7 @@ export function AddExpenseModal() {
             >
               <MaterialIcon name="close" />
             </button>
-            <h2 className="text-lg font-bold text-on-surface">
+            <h2 className="text-base font-bold text-on-surface sm:text-lg">
               {editingExpense ? 'Edit Transaction' : 'Add Transaction'}
             </h2>
           </div>
@@ -142,25 +141,25 @@ export function AddExpenseModal() {
 
         <form
           onSubmit={submitExpense}
-          className="px-6 pt-8"
+          className="px-4 pt-6 sm:px-6 sm:pt-8"
         >
           <input type="hidden" {...register('paymentMethodId')} />
           <input type="hidden" {...register('paymentMethodName')} />
           <input type="hidden" {...register('source')} />
 
-          <section className="mb-10 text-center">
+          <section className="mb-8 text-center sm:mb-10">
             <p className="mb-2 text-sm font-medium tracking-[0.22em] text-on-surface-variant">
               AMOUNT
             </p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-4xl font-light text-on-surface">
+              <span className="text-3xl font-light text-on-surface sm:text-4xl">
                 {getCurrencySymbol(settings.currency)}
               </span>
               <input
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                className="w-full border-none bg-transparent text-center text-6xl font-extrabold tracking-[-0.04em] text-primary outline-none placeholder:text-surface-dim"
+                className="w-full border-none bg-transparent text-center text-5xl font-extrabold tracking-[-0.04em] text-primary outline-none placeholder:text-surface-dim sm:text-6xl"
                 {...register('amount')}
               />
             </div>
@@ -199,8 +198,8 @@ export function AddExpenseModal() {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-4 gap-4">
-                {visibleCategories.map((category) => (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4">
+                {categories.map((category) => (
                   <button
                     key={category.id}
                     type="button"
@@ -211,17 +210,17 @@ export function AddExpenseModal() {
                   >
                     <div
                       className={cn(
-                        'flex h-14 w-14 items-center justify-center rounded-2xl shadow-ambient transition',
+                        'flex h-12 w-12 items-center justify-center rounded-[1rem] shadow-ambient transition sm:h-14 sm:w-14 sm:rounded-2xl',
                         selectedCategory === category.name
                           ? 'bg-primary text-on-primary'
                           : 'bg-surface-container-lowest text-primary',
                       )}
                     >
-                      <MaterialIcon name={category.icon} className="text-[24px]" />
+                      <MaterialIcon name={category.icon} className="text-[20px] sm:text-[24px]" />
                     </div>
                     <span
                       className={cn(
-                        'text-center text-[11px] leading-4',
+                        'text-center text-[10px] leading-4 sm:text-[11px]',
                         selectedCategory === category.name
                           ? 'font-bold text-primary'
                           : 'font-medium text-on-surface-variant',
@@ -231,21 +230,6 @@ export function AddExpenseModal() {
                     </span>
                   </button>
                 ))}
-
-                <button
-                  type="button"
-                  onClick={openCategoryManager}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <div
-                    className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-dashed border-surface-container-high bg-transparent text-primary transition hover:bg-surface-container-low"
-                  >
-                    <MaterialIcon name="add_circle" className="text-[24px]" />
-                  </div>
-                  <span className="text-center text-[11px] font-semibold leading-4 text-on-surface-variant">
-                    New
-                  </span>
-                </button>
               </div>
             )}
             {errors.category ? (
@@ -254,7 +238,7 @@ export function AddExpenseModal() {
           </section>
 
           <section className="grid gap-4">
-            <label className="rounded-[2rem] bg-surface-container-low p-6">
+            <label className="rounded-[1.5rem] bg-surface-container-low p-4 sm:rounded-[2rem] sm:p-6">
               <div className="flex items-end justify-between gap-4">
                 <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                   Payment Method
@@ -293,19 +277,19 @@ export function AddExpenseModal() {
                         key={paymentMethod.id}
                         type="button"
                         onClick={() => selectPaymentMethod(paymentMethod)}
-                        className={`flex w-full items-center justify-between rounded-[1.25rem] px-4 py-4 text-left transition ${
+                        className={`flex w-full items-center justify-between rounded-[1rem] px-4 py-3.5 text-left transition sm:rounded-[1.25rem] sm:py-4 ${
                           isSelected
                             ? 'bg-primary text-on-primary shadow-ambient'
                             : 'bg-surface-container-lowest text-on-surface'
                         }`}
                       >
                         <span className="flex items-center gap-3">
-                          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-container-lowest/70 text-primary">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-[1rem] bg-surface-container-lowest/70 text-primary sm:h-11 sm:w-11 sm:rounded-2xl">
                             <MaterialIcon
                               name={
                                 paymentMethodIcons[paymentMethod.type] || 'account_balance_wallet'
                               }
-                              className="text-[20px]"
+                              className="text-[18px] sm:text-[20px]"
                             />
                           </span>
                           <span>
@@ -336,25 +320,25 @@ export function AddExpenseModal() {
               ) : null}
             </label>
 
-            <label className="rounded-[2rem] bg-surface-container-low p-6">
+            <label className="rounded-[1.5rem] bg-surface-container-low p-4 sm:rounded-[2rem] sm:p-6">
               <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                 Transaction Date
               </span>
               <input
                 type="date"
-                className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-4 text-sm font-medium text-on-surface outline-none"
+                className="mt-3 w-full rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3.5 text-sm font-medium text-on-surface outline-none sm:rounded-[1.25rem] sm:py-4"
                 {...register('date')}
               />
             </label>
 
-            <label className="rounded-[2rem] bg-surface-container-low p-6">
+            <label className="rounded-[1.5rem] bg-surface-container-low p-4 sm:rounded-[2rem] sm:p-6">
               <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                 Merchant
               </span>
               <input
                 type="text"
                 placeholder="Where did you spend?"
-                className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-4 text-sm font-medium text-on-surface outline-none placeholder:text-outline-variant"
+                className="mt-3 w-full rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3.5 text-sm font-medium text-on-surface outline-none placeholder:text-outline-variant sm:rounded-[1.25rem] sm:py-4"
                 {...register('merchant')}
               />
             </label>
@@ -393,12 +377,12 @@ export function AddExpenseModal() {
           </div>
         </form>
 
-        <div className="sticky bottom-0 z-20 px-6 pb-6 pt-4">
+        <div className="sticky bottom-0 z-20 px-4 pb-4 pt-4 sm:px-6 sm:pb-6">
           <div className="mx-auto max-w-2xl rounded-t-[2rem] bg-[linear-gradient(180deg,rgba(238,246,255,0),rgba(238,246,255,0.78)_18%,rgba(238,246,255,0.96)_40%,rgba(238,246,255,0.98)_100%)] pt-4 backdrop-blur-xl">
             <Button
               type="button"
               disabled={isSubmitting}
-              className="w-full gap-2 py-5 text-base shadow-[0_20px_40px_rgba(47,111,163,0.22)]"
+              className="w-full gap-2 py-4 text-sm shadow-[0_20px_40px_rgba(47,111,163,0.22)] sm:py-5 sm:text-base"
               onClick={() => void submitExpense()}
             >
               <MaterialIcon name="check_circle" filled />

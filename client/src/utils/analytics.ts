@@ -115,6 +115,19 @@ export function getCategoryTotals(expenses: Expense[]) {
     .sort((left, right) => right.value - left.value);
 }
 
+export function getPaymentMethodTotals(expenses: Expense[]) {
+  return Object.entries(
+    expenses.reduce<Record<string, number>>((accumulator, expense) => {
+      accumulator[expense.paymentMethodName] =
+        (accumulator[expense.paymentMethodName] || 0) + expense.amount;
+
+      return accumulator;
+    }, {}),
+  )
+    .map(([name, value]) => ({ name, value }))
+    .sort((left, right) => right.value - left.value);
+}
+
 export function getTopCategory(expenses: Expense[]) {
   return getCategoryTotals(expenses)[0] ?? null;
 }
@@ -140,24 +153,32 @@ export function getBudgetUsage(
   expenses: Expense[],
   categories: Category[],
 ) {
-  return categories.map((category) => {
-    const budget = budgets.find((item) => item.category === category.name);
-    const spent = sumExpenses(
-      expenses.filter((expense) => expense.category === category.name),
-    );
-    const limit = budget?.limit ?? 0;
-    const usage = limit > 0 ? spent / limit : 0;
+  return categories
+    .map((category) => {
+      const budget = budgets.find((item) => item.category === category.name);
+      const spent = sumExpenses(
+        expenses.filter((expense) => expense.category === category.name),
+      );
+      const limit = budget?.limit ?? 0;
+      const usage = limit > 0 ? spent / limit : 0;
 
-    return {
-      category: category.name,
-      icon: category.icon,
-      color: category.color,
-      spent,
-      limit,
-      usage,
-      isWarning: usage >= 0.8,
-    };
-  });
+      return {
+        category: category.name,
+        icon: category.icon,
+        color: category.color,
+        spent,
+        limit,
+        usage,
+        isWarning: usage >= 0.8,
+      };
+    })
+    .sort((left, right) => {
+      if (right.spent !== left.spent) {
+        return right.spent - left.spent;
+      }
+
+      return left.category.localeCompare(right.category);
+    });
 }
 
 export function getRecentTransactions(expenses: Expense[], count = 5) {
