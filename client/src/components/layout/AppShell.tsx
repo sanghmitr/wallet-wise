@@ -13,7 +13,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen">
-      <MobileTopBar />
+      <MobileTopBar onSignOut={() => void signOut()} />
       <DesktopSidebar onAddExpense={openCreateExpense} onSignOut={() => void signOut()} />
 
       <main className="mx-auto max-w-7xl px-4 pb-28 pt-20 lg:ml-72 lg:px-8 lg:pb-10 lg:pt-8">

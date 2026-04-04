@@ -82,7 +82,7 @@ export function DesktopSidebar({ onAddExpense, onSignOut }: NavigationProps) {
   );
 }
 
-export function MobileTopBar() {
+export function MobileTopBar({ onSignOut }: Pick<NavigationProps, 'onSignOut'>) {
   return (
     <header className="glass-panel fixed left-0 top-0 z-40 flex w-full items-center justify-between px-5 py-4 lg:hidden">
       <div className="flex items-center gap-3">
@@ -93,13 +93,24 @@ export function MobileTopBar() {
           Wallet Wise
         </p>
       </div>
-      <Link
-        to="/chat"
-        className="rounded-full p-2 text-on-surface-variant transition hover:bg-primary-container hover:text-on-primary-container"
-        aria-label="Open AI assistant"
-      >
-        <MaterialIcon name="forum" />
-      </Link>
+      <div className="flex items-center gap-1">
+        <Link
+          to="/chat"
+          className="rounded-full p-2 text-on-surface-variant transition hover:bg-primary-container hover:text-on-primary-container"
+          aria-label="Open AI assistant"
+        >
+          <MaterialIcon name="forum" />
+        </Link>
+        {onSignOut ? (
+          <button
+            onClick={onSignOut}
+            className="rounded-full p-2 text-on-surface-variant transition hover:bg-primary-container hover:text-on-primary-container"
+            aria-label="Sign out"
+          >
+            <MaterialIcon name="logout" />
+          </button>
+        ) : null}
+      </div>
     </header>
   );
 }
