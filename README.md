@@ -140,6 +140,7 @@ Example:
 - The server defaults to a memory adapter so the UI works immediately during local development.
 - Switching `DATA_PROVIDER=firestore` enables the production Firestore path without changing the client.
 - The client sends `x-user-id` on each request. Default is `demo-user`.
+- In production, the API now expects Firebase bearer tokens by default and no longer trusts the dev fallback identity path.
 
 ## Verification
 

@@ -13,30 +13,45 @@ function getBearerToken(request: Request) {
 }
 
 export async function attachUser(request: Request, response: Response, next: NextFunction) {
-  const fallbackUserId =
+  const devFallbackUserId =
     (request.headers['x-user-id'] as string | undefined) || env.defaultUserId;
-
-  if (!isFirebaseConfigured()) {
-    request.userId = fallbackUserId;
-    next();
-    return;
-  }
 
   const token = getBearerToken(request);
 
-  if (!token) {
-    request.userId = fallbackUserId;
+  if (token && isFirebaseConfigured()) {
+    try {
+      const decoded = await getFirebaseAdminAuth().verifyIdToken(token);
+      request.userId = decoded.uid;
+      next();
+      return;
+    } catch (error) {
+      response.status(401).json({
+        message: 'Invalid Firebase auth token',
+      });
+      return;
+    }
+  }
+
+  if (env.requireFirebaseAuth) {
+    response.status(401).json({
+      message: 'Authentication required',
+    });
+    return;
+  }
+
+  if (!isFirebaseConfigured() && !env.isProduction) {
+    request.userId = devFallbackUserId;
     next();
     return;
   }
 
-  try {
-    const decoded = await getFirebaseAdminAuth().verifyIdToken(token);
-    request.userId = decoded.uid;
+  if (!env.isProduction) {
+    request.userId = devFallbackUserId;
     next();
-  } catch (error) {
-    response.status(401).json({
-      message: 'Invalid Firebase auth token',
-    });
+    return;
   }
+
+  response.status(401).json({
+    message: 'Authentication required',
+  });
 }

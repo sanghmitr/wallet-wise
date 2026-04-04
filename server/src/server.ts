@@ -1,9 +1,9 @@
-import cors from 'cors';
 import express from 'express';
 import { ZodError } from 'zod';
-import { env, isFirebaseConfigured } from './config/env.js';
+import { env, isFirebaseConfigured, validateRuntimeConfig } from './config/env.js';
 import { AppError } from './lib/app-error.js';
 import { createDataStore } from './lib/data-store.js';
+import { applySecurityMiddleware } from './lib/security.js';
 import { attachUser } from './middleware/auth.js';
 import { createBudgetsRouter } from './routes/budgets.js';
 import { createCategoriesRouter } from './routes/categories.js';
@@ -11,6 +11,8 @@ import { createChatRouter } from './routes/chat.js';
 import { createExpensesRouter } from './routes/expenses.js';
 import { createPaymentMethodsRouter } from './routes/payment-methods.js';
 import { createSettingsRouter } from './routes/settings.js';
+
+validateRuntimeConfig();
 
 const store = createDataStore(
   env.dataProvider === 'firestore' && isFirebaseConfigured()
@@ -20,14 +22,8 @@ const store = createDataStore(
 
 const app = express();
 
-app.use(
-  cors({
-    origin: env.clientUrl,
-    credentials: true,
-  }),
-);
-app.use(express.json());
-app.use('/api', attachUser);
+applySecurityMiddleware(app);
+app.use(express.json({ limit: env.jsonBodyLimit }));
 
 app.get('/api/health', (_request, response) => {
   response.json({
@@ -37,8 +33,9 @@ app.get('/api/health', (_request, response) => {
         ? 'firestore'
         : 'memory',
   });
-});
+      });
 
+app.use('/api', attachUser);
 app.use('/api/expenses', createExpensesRouter(store, env.defaultUserId));
 app.use('/api/categories', createCategoriesRouter(store, env.defaultUserId));
 app.use('/api/budgets', createBudgetsRouter(store, env.defaultUserId));
@@ -62,8 +59,15 @@ app.use((error: unknown, _request: express.Request, response: express.Response, 
     return;
   }
 
+  if (error instanceof Error) {
+    console.error(error);
+  }
+
   response.status(500).json({
-    message: error instanceof Error ? error.message : 'Internal server error',
+    message:
+      error instanceof Error && !env.isProduction
+        ? error.message
+        : 'Internal server error',
   });
 });
 
