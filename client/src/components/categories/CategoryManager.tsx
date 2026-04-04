@@ -100,10 +100,10 @@ export function CategoryManager() {
         <header className="mb-8">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.24em] text-on-surface-variant">
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                 Library
               </p>
-              <h1 className="mt-1 text-4xl font-extrabold tracking-tight text-on-surface">
+              <h1 className="mt-1 text-[1.7rem] font-extrabold tracking-tight text-on-surface sm:text-3xl">
                 Categories
               </h1>
             </div>
@@ -146,7 +146,7 @@ export function CategoryManager() {
                       />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-on-surface">
+                      <h3 className="text-base font-bold text-on-surface">
                         {category.name}
                       </h3>
                       <p className="text-sm font-medium text-on-surface-variant">
@@ -181,10 +181,10 @@ export function CategoryManager() {
         <Card ref={formCardRef} className="bg-surface-container-low">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                 {editing ? 'Edit Category' : 'New Category'}
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-on-surface">
+              <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
                 {editing ? editing.name : 'Define a new category'}
               </h2>
             </div>
@@ -261,7 +261,7 @@ export function CategoryManager() {
           <div className="flex items-start gap-3">
             <MaterialIcon name="auto_awesome" filled className="text-[22px]" />
             <div>
-              <h3 className="text-lg font-bold">Optimization Tip</h3>
+              <h3 className="text-base font-bold">Optimization Tip</h3>
               <p className="mt-2 text-sm leading-6 text-white/80">
                 Merge overlapping categories where possible. Cleaner taxonomy
                 improves dashboard accuracy and AI query results.

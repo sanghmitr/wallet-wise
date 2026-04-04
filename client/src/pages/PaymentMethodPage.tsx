@@ -170,10 +170,10 @@ export function PaymentMethodPage() {
                 <MaterialIcon name={meta.icon} className="text-[30px]" />
               </div>
               <div>
-                <p className="text-sm font-medium uppercase tracking-[0.24em] text-on-surface-variant">
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                   Payment Method
                 </p>
-                <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-on-surface">
+                <h1 className="mt-2 text-[1.7rem] font-extrabold tracking-tight text-on-surface sm:text-3xl">
                   {activePaymentMethod.name}
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-on-surface-variant">

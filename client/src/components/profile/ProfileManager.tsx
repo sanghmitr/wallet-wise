@@ -125,10 +125,10 @@ export function ProfileManager() {
                 )}
 
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                     Account
                   </p>
-                  <h2 className="mt-2 text-xl font-black tracking-tight text-on-surface sm:text-2xl">
+                  <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
                     {profileName}
                   </h2>
                   <p className="mt-1 text-sm text-on-surface-variant">
@@ -158,10 +158,10 @@ export function ProfileManager() {
             </div>
           </div>
 
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-on-surface-variant">
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
             Profile
           </p>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">
+          <h1 className="mt-1 text-[1.7rem] font-extrabold tracking-tight text-on-surface sm:text-3xl">
             Payment Methods
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-on-surface-variant">
@@ -208,7 +208,7 @@ export function ProfileManager() {
                       <MaterialIcon name={meta.icon} className="text-[24px]" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-on-surface">
+                      <h3 className="text-base font-bold text-on-surface">
                         {paymentMethod.name}
                       </h3>
                       <p className="text-sm font-medium text-on-surface-variant">
@@ -270,10 +270,10 @@ export function ProfileManager() {
         <Card className="bg-surface-container-low">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                 {editing ? 'Edit Method' : 'New Method'}
               </p>
-              <h2 className="mt-2 text-xl font-bold text-on-surface sm:text-2xl">
+              <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
                 {editing ? editing.name : 'Add a payment method'}
               </h2>
             </div>
@@ -350,10 +350,10 @@ export function ProfileManager() {
 
         <Card className="bg-surface-container-low">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
+            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
               Settings
             </p>
-            <h2 className="mt-2 text-xl font-bold text-on-surface sm:text-2xl">
+            <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
               Preferences
             </h2>
             <p className="mt-2 text-sm leading-6 text-on-surface-variant">
@@ -436,7 +436,7 @@ export function ProfileManager() {
           <div className="flex items-start gap-3">
             <MaterialIcon name="shield" filled className="text-[22px]" />
             <div>
-              <h3 className="text-lg font-bold">Privacy First</h3>
+              <h3 className="text-base font-bold">Privacy First</h3>
               <p className="mt-2 text-sm leading-6 text-white/80">
                 Store only safe labels like “HDFC Credit Card” or “personal@upi”.
                 No card numbers, CVV, or account-sensitive details are saved.

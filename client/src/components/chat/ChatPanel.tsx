@@ -188,13 +188,13 @@ function EmptyConversation({
       <div className="flex h-14 w-14 items-center justify-center rounded-[1.5rem] bg-primary text-on-primary shadow-ambient">
         <MaterialIcon name="forum" filled className="text-[26px]" />
       </div>
-      <p className="mt-5 text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+      <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.22em] text-primary">
         AI Assistant
       </p>
-      <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.04em] text-on-surface sm:text-4xl">
+      <h1 className="mt-4 max-w-2xl text-[1.7rem] font-extrabold tracking-tight text-on-surface sm:text-3xl">
         Ask about spending or add an expense.
       </h1>
-      <p className="mt-3 max-w-xl text-sm leading-6 text-on-surface-variant sm:text-base">
+      <p className="mt-3 max-w-xl text-sm leading-6 text-on-surface-variant">
         Try a quick summary, a budget check, or a message like "I spent 450 on
         Zomato".
       </p>

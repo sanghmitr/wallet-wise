@@ -129,7 +129,7 @@ export function AddExpenseModal() {
             >
               <MaterialIcon name="close" />
             </button>
-            <h2 className="text-base font-bold text-on-surface sm:text-lg">
+            <h2 className="text-lg font-extrabold tracking-tight text-on-surface">
               {editingExpense ? 'Edit Transaction' : 'Add Transaction'}
             </h2>
           </div>
@@ -148,7 +148,7 @@ export function AddExpenseModal() {
           <input type="hidden" {...register('source')} />
 
           <section className="mb-8 text-center sm:mb-10">
-            <p className="mb-2 text-sm font-medium tracking-[0.22em] text-on-surface-variant">
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
               AMOUNT
             </p>
             <div className="flex items-center justify-center gap-2">
@@ -170,7 +170,7 @@ export function AddExpenseModal() {
 
           <section className="mb-8">
             <div className="mb-4 flex items-end justify-between">
-              <h3 className="text-sm font-semibold tracking-[0.22em] text-on-surface">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                 CATEGORY
               </h3>
               <button
@@ -360,7 +360,7 @@ export function AddExpenseModal() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_right,_rgba(255,255,255,0.45),_transparent_35%)]" />
             <div className="relative flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-sm font-bold text-on-surface">Budget Impact</h3>
+                <h3 className="text-base font-bold text-on-surface">Budget Impact</h3>
                 <p className="mt-1 text-xs text-on-surface-variant">
                   Transactions update budget usage instantly on the dashboard.
                 </p>

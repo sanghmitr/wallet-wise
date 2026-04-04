@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
+import { CategoryPieChart } from '@/components/charts/CategoryPieChart';
 import { formatCurrency, formatMonthLabel } from '@/lib/format';
 import { useAppData } from '@/store/AppDataContext';
-import { getBudgetUsage, sumExpenses } from '@/utils/analytics';
+import { getBudgetUsage, getCategoryTotals, sumExpenses } from '@/utils/analytics';
 
 export function BudgetManager() {
   const { budgets, categories, expenses, saveBudget, settings } = useAppData();
@@ -19,6 +19,10 @@ export function BudgetManager() {
     () => getBudgetUsage(budgets, monthExpenses, categories),
     [budgets, categories, monthExpenses],
   );
+  const categoryBreakdown = useMemo(
+    () => getCategoryTotals(monthExpenses),
+    [monthExpenses],
+  );
 
   const totalBudget = budgets.reduce((total, budget) => total + budget.limit, 0);
   const totalSpent = sumExpenses(monthExpenses);
@@ -26,20 +30,23 @@ export function BudgetManager() {
   return (
     <div className="space-y-8">
       <section>
-        <h1 className="text-3xl font-extrabold tracking-tight text-on-surface">
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+          Budgets
+        </p>
+        <h1 className="mt-1 text-[1.7rem] font-extrabold tracking-tight text-on-surface sm:text-3xl">
           Monthly Limits
         </h1>
-        <p className="mt-2 text-sm font-medium text-on-surface-variant">
+        <p className="mt-2 text-sm leading-6 text-on-surface-variant">
           Curation of your financial boundaries for {formatMonthLabel(currentMonth)}
         </p>
       </section>
 
       <Card className="relative overflow-hidden bg-[linear-gradient(135deg,rgb(var(--color-primary))_0%,rgb(var(--color-primary-dim))_100%)] text-on-primary">
         <div className="relative z-10">
-          <p className="text-sm uppercase tracking-[0.24em] text-white/75">
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/75">
             Total Monthly Budget
           </p>
-          <h2 className="mt-3 text-4xl font-extrabold tracking-[-0.04em]">
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
             {formatCurrency(totalBudget, settings.currency)}
           </h2>
           <div className="mt-6 flex items-end justify-between gap-4">
@@ -49,11 +56,30 @@ export function BudgetManager() {
                 {formatCurrency(totalSpent, settings.currency)}
               </p>
             </div>
-            <Button variant="secondary">Adjust Total</Button>
           </div>
         </div>
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
       </Card>
+
+      {categoryBreakdown.length ? (
+        <CategoryPieChart data={categoryBreakdown} />
+      ) : (
+        <Card className="border border-outline-variant/20 bg-surface-container-low">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-extrabold tracking-tight text-on-surface">
+                Category Breakdown
+              </h2>
+              <p className="mt-2 text-sm text-on-surface-variant">
+                Add a few expenses in {formatMonthLabel(currentMonth)} to see how your spending is distributed across categories.
+              </p>
+            </div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-container-lowest text-primary">
+              <MaterialIcon name="pie_chart" className="text-[24px]" />
+            </div>
+          </div>
+        </Card>
+      )}
 
       <section className="grid gap-6 md:grid-cols-2">
         {usage.map((item) => (
@@ -67,7 +93,7 @@ export function BudgetManager() {
                   <MaterialIcon name={item.icon} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-on-surface">{item.category}</h3>
+                  <h3 className="text-base font-bold text-on-surface">{item.category}</h3>
                   <p className="text-xs font-medium text-on-surface-variant">
                     Monthly budget limit
                   </p>

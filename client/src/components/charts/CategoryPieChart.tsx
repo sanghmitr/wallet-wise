@@ -25,7 +25,9 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
   return (
     <Card className="bg-surface-container-low">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-on-surface sm:text-lg">Category Breakdown</h3>
+        <h3 className="text-xl font-extrabold tracking-tight text-on-surface">
+          Category Breakdown
+        </h3>
         <MaterialIcon name="more_horiz" className="text-on-surface-variant" />
       </div>
 
