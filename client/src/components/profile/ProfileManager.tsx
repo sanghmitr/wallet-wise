@@ -29,9 +29,24 @@ const themeOptions: Array<{
   { value: 'system', label: 'System', hint: 'Follow device appearance' },
 ];
 
+function getInitials(name: string) {
+  const words = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  if (!words.length) {
+    return 'WW';
+  }
+
+  return words.map((word) => word[0]?.toUpperCase() ?? '').join('');
+}
+
 export function ProfileManager() {
   const navigate = useNavigate();
   const {
+    authProfile,
     paymentMethods,
     expenses,
     settings,
@@ -52,6 +67,12 @@ export function ProfileManager() {
       theme: settings.theme,
     });
   }, [settings.currency, settings.theme]);
+
+  const profileName = authProfile?.displayName || (authProfile?.isAnonymous ? 'Guest User' : 'Wallet Wise User');
+  const profileSubtitle = authProfile?.isAnonymous
+    ? 'Signed in with Firebase guest mode'
+    : authProfile?.email || 'Signed in with Firebase';
+  const profileInitials = getInitials(profileName);
 
   function resetForm() {
     setDraft(initialForm);
@@ -87,6 +108,56 @@ export function ProfileManager() {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <section>
         <header className="mb-8">
+          <div className="mb-6 rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest/88 p-5 shadow-ambient backdrop-blur-xl">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                {authProfile?.photoURL ? (
+                  <img
+                    src={authProfile.photoURL}
+                    alt={profileName}
+                    className="h-16 w-16 rounded-[1.5rem] object-cover shadow-ambient"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-primary text-lg font-black text-on-primary shadow-ambient">
+                    {profileInitials}
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">
+                    Account
+                  </p>
+                  <h2 className="mt-2 text-2xl font-black tracking-tight text-on-surface">
+                    {profileName}
+                  </h2>
+                  <p className="mt-1 text-sm text-on-surface-variant">
+                    {profileSubtitle}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:min-w-[240px]">
+                <div className="rounded-[1.4rem] bg-surface-container-low p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+                    Account Type
+                  </p>
+                  <p className="mt-2 text-sm font-bold text-on-surface">
+                    {authProfile?.isAnonymous ? 'Guest' : 'Google'}
+                  </p>
+                </div>
+                <div className="rounded-[1.4rem] bg-surface-container-low p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+                    Payment Methods
+                  </p>
+                  <p className="mt-2 text-sm font-bold text-on-surface">
+                    {paymentMethods.length}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <p className="text-sm font-medium uppercase tracking-[0.24em] text-on-surface-variant">
             Profile
           </p>

@@ -46,6 +46,14 @@ export interface UserSettings {
   updatedAt: string;
 }
 
+export interface AuthProfile {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  isAnonymous: boolean;
+}
+
 export interface ExpenseInput {
   amount: number;
   category: string;

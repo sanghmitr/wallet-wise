@@ -9,6 +9,7 @@ import {
 import toast from 'react-hot-toast';
 import { formatISO, startOfMonth } from 'date-fns';
 import {
+  createAuthProfile,
   initializeFirebaseAuth,
   signInAsGuest,
   signInWithGoogle,
@@ -44,6 +45,7 @@ import {
 } from '@/lib/preferences';
 import { generateId } from '@/lib/utils';
 import type {
+  AuthProfile,
   Budget,
   BudgetInput,
   Category,
@@ -68,6 +70,7 @@ interface AppDataContextValue {
   isBootstrapping: boolean;
   bootstrapError: string | null;
   authUserId: string | null;
+  authProfile: AuthProfile | null;
   isAuthenticated: boolean;
   isExpenseModalOpen: boolean;
   editingExpense: Expense | null;
@@ -137,6 +140,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [bootstrapError, setBootstrapError] = useState<string | null>(null);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [authProfile, setAuthProfile] = useState<AuthProfile | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
@@ -187,6 +191,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       try {
         const user = await initializeFirebaseAuth();
         setAuthUserId(user?.uid ?? null);
+        setAuthProfile(createAuthProfile(user));
 
         if (user) {
           await refreshAll();
@@ -510,6 +515,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       }
 
       setAuthUserId(user.uid);
+      setAuthProfile(createAuthProfile(user));
       await refreshAll();
       toast.success('Signed in with Google.');
     } catch (error) {
@@ -527,6 +533,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
     try {
       const user = await signInAsGuest();
       setAuthUserId(user.uid);
+      setAuthProfile(createAuthProfile(user));
       await refreshAll();
       toast.success('Continuing as guest.');
     } catch (error) {
@@ -541,6 +548,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   async function handleSignOut() {
     await signOutFirebaseUser();
     setAuthUserId(null);
+    setAuthProfile(null);
     setExpenses([]);
     setCategories([]);
     setBudgets([]);
@@ -563,6 +571,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         isBootstrapping,
         bootstrapError,
         authUserId,
+        authProfile,
         isAuthenticated: Boolean(authUserId),
         isExpenseModalOpen,
         editingExpense,

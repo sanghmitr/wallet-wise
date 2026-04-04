@@ -11,6 +11,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { firebaseApp } from '@/lib/firebase';
+import type { AuthProfile } from '@/types/domain';
 
 export const firebaseAuth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
@@ -39,6 +40,20 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: 
       window.setTimeout(() => resolve(fallback), timeoutMs);
     }),
   ]);
+}
+
+export function createAuthProfile(user: User | null): AuthProfile | null {
+  if (!user) {
+    return null;
+  }
+
+  return {
+    uid: user.uid,
+    displayName: user.displayName,
+    email: user.email,
+    photoURL: user.photoURL,
+    isAnonymous: user.isAnonymous,
+  };
 }
 
 export async function initializeFirebaseAuth() {
