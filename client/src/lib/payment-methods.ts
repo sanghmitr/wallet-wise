@@ -10,7 +10,7 @@ export const paymentMethodOptions: Array<{
     value: 'credit_card',
     label: 'Credit Card',
     icon: 'credit_card',
-    hint: 'Card nickname only',
+    hint: 'Card nickname with billing cycle',
   },
   {
     value: 'debit_card',

@@ -1,5 +1,18 @@
-import { endOfMonth, format, startOfMonth, subDays, subMonths } from 'date-fns';
+import {
+  endOfMonth,
+  format,
+  isValid,
+  parse,
+  startOfMonth,
+  subDays,
+  subMonths,
+} from 'date-fns';
 import { env } from '../../config/env.js';
+import {
+  getBillingCycleRangeForMonth,
+  getCurrentBillingCycleRange,
+  getPreviousBillingCycleRange,
+} from '../../lib/billing-cycles.js';
 import { getGeminiClient } from '../../lib/gemini.js';
 import type { DataStore } from '../../lib/data-store.js';
 import type {
@@ -14,6 +27,7 @@ import type {
 
 const paymentSourceValues = ['credit_card', 'debit_card', 'upi', 'cash'] as const;
 const datePresetValues = ['this-month', 'last-30-days', 'last-month'] as const;
+const billingCycleModeValues = ['current', 'previous', 'month'] as const;
 
 const nullableStringSchema = {
   anyOf: [{ type: 'string' }, { type: 'null' }],
@@ -25,6 +39,10 @@ const nullableSourceSchema = {
 
 const nullablePresetSchema = {
   anyOf: [{ type: 'string', enum: datePresetValues }, { type: 'null' }],
+} as const;
+
+const nullableBillingCycleModeSchema = {
+  anyOf: [{ type: 'string', enum: billingCycleModeValues }, { type: 'null' }],
 } as const;
 
 const intentJsonSchema = {
@@ -43,6 +61,15 @@ const intentJsonSchema = {
         category: nullableStringSchema,
         source: nullableSourceSchema,
         paymentMethodName: nullableStringSchema,
+        billingCycle: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            mode: nullableBillingCycleModeSchema,
+            referenceMonth: nullableStringSchema,
+          },
+          required: ['mode', 'referenceMonth'],
+        },
         dateRange: {
           type: 'object',
           additionalProperties: false,
@@ -54,7 +81,7 @@ const intentJsonSchema = {
           required: ['start', 'end', 'preset'],
         },
       },
-      required: ['category', 'source', 'paymentMethodName', 'dateRange'],
+      required: ['category', 'source', 'paymentMethodName', 'billingCycle', 'dateRange'],
     },
     amount: {
       anyOf: [{ type: 'number' }, { type: 'null' }],
@@ -144,6 +171,13 @@ function buildDateRange(preset: string | null) {
   };
 }
 
+function buildBillingCycle(mode: 'current' | 'previous' | 'month' | null, referenceMonth: string | null = null) {
+  return {
+    mode,
+    referenceMonth: mode === 'month' ? referenceMonth : null,
+  };
+}
+
 function inferSource(message: string): PaymentSource | null {
   const lower = message.toLowerCase();
 
@@ -210,6 +244,40 @@ function inferDatePreset(message: string) {
   }
 
   return null;
+}
+
+function inferBillingCycle(message: string) {
+  const lower = message.toLowerCase();
+
+  if (!lower.includes('billing cycle') && !lower.includes('statement cycle')) {
+    return buildBillingCycle(null);
+  }
+
+  if (/\b(last|previous)\s+billing cycle\b/.test(lower)) {
+    return buildBillingCycle('previous');
+  }
+
+  if (/\b(this|current)\s+billing cycle\b/.test(lower)) {
+    return buildBillingCycle('current');
+  }
+
+  const monthMatch = lower.match(
+    /\b(january|february|march|april|may|june|july|august|september|october|november|december)\b(?:\s+(\d{4}))?/,
+  );
+
+  if (monthMatch) {
+    const parsed = parse(
+      `${monthMatch[1]} ${monthMatch[2] || format(new Date(), 'yyyy')}`,
+      'MMMM yyyy',
+      new Date(),
+    );
+
+    if (isValid(parsed)) {
+      return buildBillingCycle('month', format(parsed, 'yyyy-MM'));
+    }
+  }
+
+  return buildBillingCycle('current');
 }
 
 function inferPaymentMethodName(message: string, paymentMethods: PaymentMethod[]) {
@@ -304,6 +372,7 @@ function fallbackIntent(
   const category = normalizeCategoryIntent(inferCategory(message), categories);
   const source = inferSource(message);
   const preset = inferDatePreset(message) ?? 'this-month';
+  const billingCycle = inferBillingCycle(message);
   const merchantMatch = message.match(/on\s+(.+?)(?:\s+(?:using|via|with)\b|$)/i);
   const paymentMethodName = normalizePaymentMethodIntent(
     inferPaymentMethodName(message, paymentMethods),
@@ -317,6 +386,7 @@ function fallbackIntent(
         category,
         source,
         paymentMethodName,
+        billingCycle,
         dateRange: buildDateRange('this-month'),
       },
       amount: Number(amountMatch[1]),
@@ -336,6 +406,7 @@ function fallbackIntent(
         category,
         source,
         paymentMethodName,
+        billingCycle,
         dateRange: buildDateRange('this-month'),
       },
       amount: null,
@@ -357,6 +428,7 @@ function fallbackIntent(
         category,
         source,
         paymentMethodName,
+        billingCycle,
         dateRange: buildDateRange(preset),
       },
       amount: null,
@@ -371,12 +443,13 @@ function fallbackIntent(
 
   return {
     intent: 'unknown',
-    filters: {
-      category: null,
-      source: null,
-      paymentMethodName,
-      dateRange: buildDateRange('this-month'),
-    },
+      filters: {
+        category: null,
+        source: null,
+        paymentMethodName,
+        billingCycle,
+        dateRange: buildDateRange('this-month'),
+      },
     amount: null,
     merchant: null,
     note: null,
@@ -409,12 +482,16 @@ async function extractIntent(
         'Use only the provided categories and payment method names when possible.',
         'Prefer exact category names.',
         'For date presets use only this-month, last-30-days, or last-month.',
+        'For billing cycles use mode current, previous, or month.',
+        'If the user asks for a named month billing cycle, set mode=month and referenceMonth in YYYY-MM format.',
+        'If the user asks for current or last billing cycle, set the billingCycle object and leave dateRange empty.',
         '',
         JSON.stringify({
           availableCategories: categories.map((category) => category.name),
           availablePaymentMethods: paymentMethods.map((paymentMethod) => ({
             name: paymentMethod.name,
             type: paymentMethod.type,
+            billingCycleDay: paymentMethod.billingCycleDay ?? null,
           })),
           userMessage: message,
         }),
@@ -442,6 +519,15 @@ async function extractIntent(
       parsed.paymentMethodName ?? parsed.filters.paymentMethodName,
       paymentMethods,
     );
+    const normalizedBillingCycle =
+      parsed.filters.billingCycle?.mode === 'month'
+        ? buildBillingCycle(
+            'month',
+            /^\d{4}-\d{2}$/.test(parsed.filters.billingCycle.referenceMonth || '')
+              ? parsed.filters.billingCycle.referenceMonth
+              : null,
+          )
+        : buildBillingCycle(parsed.filters.billingCycle?.mode ?? null);
 
     return {
       ...parsed,
@@ -451,6 +537,7 @@ async function extractIntent(
         ...parsed.filters,
         category: normalizedFilterCategory,
         paymentMethodName: normalizedPaymentMethodName,
+        billingCycle: normalizedBillingCycle,
       },
     };
   } catch (error) {
@@ -469,6 +556,27 @@ function toExpenseFilters(
     endDate: intent.filters.dateRange.end || undefined,
     paymentMethodId,
   };
+}
+
+function getBillingCycleScope(intent: ChatIntent, paymentMethod: PaymentMethod) {
+  const mode = intent.filters.billingCycle.mode;
+
+  if (!mode || paymentMethod.type !== 'credit_card' || !paymentMethod.billingCycleDay) {
+    return null;
+  }
+
+  if (mode === 'previous') {
+    return getPreviousBillingCycleRange(paymentMethod.billingCycleDay);
+  }
+
+  if (mode === 'month' && intent.filters.billingCycle.referenceMonth) {
+    return getBillingCycleRangeForMonth(
+      paymentMethod.billingCycleDay,
+      intent.filters.billingCycle.referenceMonth,
+    );
+  }
+
+  return getCurrentBillingCycleRange(paymentMethod.billingCycleDay);
 }
 
 function sumExpenses(expenses: Expense[]) {
@@ -624,7 +732,7 @@ async function generateResponse(
 function buildUnknownResponse() {
   return [
     'I can help with spend summaries, card or UPI usage, budget checks, and quick expense entry.',
-    "Try asking things like 'How much did I spend this month?', 'Show HDFC Credit Card expenses', or 'I spent 450 on Zomato using HDFC Credit Card'.",
+    "Try asking things like 'How much did I spend this month?', 'Show HDFC Credit Card expenses for current billing cycle', or 'I spent 450 on Zomato using HDFC Credit Card'.",
   ].join(' ');
 }
 
@@ -683,19 +791,52 @@ export async function handleAssistantMessage(
     };
   }
 
-  const paymentMethodFilter =
-    intent.filters.paymentMethodName || intent.paymentMethodName
-      ? resolvePaymentMethod(
-          intent.filters.paymentMethodName || intent.paymentMethodName || message,
-          paymentMethods,
-          intent.source,
-        )?.id
-      : undefined;
+  const requestedPaymentMethodName =
+    intent.filters.paymentMethodName || intent.paymentMethodName || null;
+  const resolvedPaymentMethod = requestedPaymentMethodName
+    ? resolvePaymentMethod(
+        requestedPaymentMethodName,
+        paymentMethods,
+        intent.source,
+      )
+    : null;
 
-  const expenses = await store.listExpenses(
-    userId,
-    toExpenseFilters(intent, paymentMethodFilter),
-  );
+  if (intent.filters.billingCycle.mode && !requestedPaymentMethodName) {
+    return {
+      intent,
+      matches: [],
+      budgetAlerts: [],
+      response:
+        'Tell me which credit card you want to review for that billing cycle, for example: "Show HDFC Credit Card expenses for current billing cycle."',
+    };
+  }
+
+  if (
+    intent.filters.billingCycle.mode &&
+    (!resolvedPaymentMethod ||
+      resolvedPaymentMethod.type !== 'credit_card' ||
+      !resolvedPaymentMethod.billingCycleDay)
+  ) {
+    return {
+      intent,
+      matches: [],
+      budgetAlerts: [],
+      response: `${requestedPaymentMethodName || 'That card'} does not have a billing cycle configured yet. Add its billing cycle day in Profile first.`,
+    };
+  }
+
+  const billingCycleScope =
+    resolvedPaymentMethod && intent.filters.billingCycle.mode
+      ? getBillingCycleScope(intent, resolvedPaymentMethod)
+      : null;
+
+  const expenseFilters = {
+    ...toExpenseFilters(intent, resolvedPaymentMethod?.id),
+    startDate: billingCycleScope?.start || intent.filters.dateRange.start || undefined,
+    endDate: billingCycleScope?.end || intent.filters.dateRange.end || undefined,
+  };
+
+  const expenses = await store.listExpenses(userId, expenseFilters);
   const budgetAlerts = buildBudgetAlerts(expenses, budgets);
   const response = await generateResponse(
     message,
@@ -704,10 +845,17 @@ export async function handleAssistantMessage(
     settings.currency,
   );
 
+  const responseWithScope = billingCycleScope
+    ? `Billing cycle ${format(billingCycleScope.startDate, 'd MMM')} to ${format(
+        billingCycleScope.endDate,
+        'd MMM',
+      )}. ${response}`
+    : response;
+
   return {
     intent,
     matches: expenses,
     budgetAlerts,
-    response,
+    response: responseWithScope,
   };
 }

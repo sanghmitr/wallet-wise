@@ -8,6 +8,13 @@ import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { FilterBar } from '@/components/dashboard/FilterBar';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import {
+  formatBillingCycleDayLabel,
+  formatBillingCycleRangeLabel,
+  getBillingCycleRangeForMonth,
+  getCurrentBillingCycleRange,
+  getPreviousBillingCycleRange,
+} from '@/lib/billing-cycles';
+import {
   formatCurrency,
   formatExpenseDate,
   formatMonthLabel,
@@ -24,6 +31,8 @@ import {
   getSortedExpenses,
   sumExpenses,
 } from '@/utils/analytics';
+
+type BillingCycleView = 'standard' | 'current' | 'previous' | 'month';
 
 export function PaymentMethodPage() {
   const navigate = useNavigate();
@@ -45,13 +54,42 @@ export function PaymentMethodPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | 'all'>('all');
+  const [billingCycleView, setBillingCycleView] =
+    useState<BillingCycleView>('standard');
+  const [billingCycleMonth, setBillingCycleMonth] = useState(
+    format(new Date(), 'yyyy-MM'),
+  );
 
   const paymentMethodExpenses = useMemo(
     () => filterExpensesByPaymentMethod(expenses, paymentMethodId),
     [expenses, paymentMethodId],
   );
+  const isCreditCard = paymentMethod?.type === 'credit_card';
+  const hasBillingCycle =
+    isCreditCard && Boolean(paymentMethod?.billingCycleDay);
+  const billingCycleRange =
+    hasBillingCycle && paymentMethod?.billingCycleDay
+      ? billingCycleView === 'current'
+        ? getCurrentBillingCycleRange(paymentMethod.billingCycleDay)
+        : billingCycleView === 'previous'
+          ? getPreviousBillingCycleRange(paymentMethod.billingCycleDay)
+          : billingCycleView === 'month'
+            ? getBillingCycleRangeForMonth(
+                paymentMethod.billingCycleDay,
+                billingCycleMonth,
+              )
+            : null
+      : null;
 
   const dateFilteredExpenses = useMemo(() => {
+    if (billingCycleRange) {
+      return filterExpensesByDateRange(
+        paymentMethodExpenses,
+        billingCycleRange.start,
+        billingCycleRange.end,
+      );
+    }
+
     if (rangeMode === 'month') {
       return filterExpensesByMonth(paymentMethodExpenses, selectedMonth);
     }
@@ -72,6 +110,7 @@ export function PaymentMethodPage() {
     rangeMode,
     selectedMonth,
     startDate,
+    billingCycleRange,
   ]);
 
   const visibleCategories = useMemo(() => {
@@ -120,6 +159,10 @@ export function PaymentMethodPage() {
   function getTransactionDescription() {
     const categoryText =
       selectedCategory === 'all' ? '' : ` in ${selectedCategory}`;
+
+    if (billingCycleRange) {
+      return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} in the billing cycle from ${billingCycleRange.start} to ${billingCycleRange.end}.`;
+    }
 
     if (rangeMode === 'month') {
       return `Showing ${transactions.length} transactions for ${activePaymentMethod.name}${categoryText} in ${formatMonthLabel(
@@ -183,7 +226,7 @@ export function PaymentMethodPage() {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[380px]">
+            <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[420px]">
               <div className="rounded-[1.5rem] bg-surface-container-lowest p-4">
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                   Type
@@ -208,32 +251,180 @@ export function PaymentMethodPage() {
                   {latestExpense ? formatExpenseDate(latestExpense.date) : 'No transactions'}
                 </p>
               </div>
+              {isCreditCard ? (
+                <div className="rounded-[1.5rem] bg-surface-container-lowest p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                    Billing Cycle
+                  </p>
+                  <p className="mt-2 text-base font-bold text-on-surface">
+                    {activePaymentMethod.billingCycleDay
+                      ? `Day ${activePaymentMethod.billingCycleDay}`
+                      : 'Not set'}
+                  </p>
+                  <p className="mt-1 text-xs text-on-surface-variant">
+                    {activePaymentMethod.billingCycleDay
+                      ? `Closes every ${formatBillingCycleDayLabel(activePaymentMethod.billingCycleDay)}`
+                      : 'Set the billing cycle day in Profile to unlock statement filtering.'}
+                  </p>
+                </div>
+              ) : null}
             </div>
           </div>
         </Card>
       </header>
 
-      <FilterBar
-        rangeMode={rangeMode}
-        preset={preset}
-        selectedMonth={selectedMonth}
-        startDate={startDate}
-        endDate={endDate}
-        paymentMethods={[]}
-        categories={visibleCategories}
-        paymentMethodId={activePaymentMethod.id}
-        selectedCategory={selectedCategory}
-        onRangeModeChange={handleRangeModeChange}
-        onPresetChange={setPreset}
-        onSelectedMonthChange={setSelectedMonth}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-        onPaymentMethodChange={() => undefined}
-        onCategoryChange={setSelectedCategory}
-        showPaymentMethodFilter={false}
-        paymentMethodLabel={activePaymentMethod.name}
-        showCategoryFilter={visibleCategories.length > 0}
-      />
+      {isCreditCard ? (
+        <Card className="bg-surface-container-low">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+                  Billing Cycle View
+                </p>
+                <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
+                  Review statement windows
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                  Use standard filters for calendar ranges, or switch to billing-cycle
+                  mode to see spend the way your card statement closes.
+                </p>
+              </div>
+              {hasBillingCycle ? (
+                <div className="rounded-[1.25rem] bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface">
+                  Closes every {formatBillingCycleDayLabel(activePaymentMethod.billingCycleDay!)}
+                </div>
+              ) : (
+                <Link
+                  to="/profile"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-on-primary shadow-ambient"
+                >
+                  <MaterialIcon name="edit" className="text-[18px]" />
+                  Set Billing Cycle
+                </Link>
+              )}
+            </div>
+
+            <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+              {[
+                { label: 'Standard Filters', value: 'standard' },
+                { label: 'Current Cycle', value: 'current' },
+                { label: 'Previous Cycle', value: 'previous' },
+                { label: 'Billing Month', value: 'month' },
+              ].map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setBillingCycleView(item.value as BillingCycleView)}
+                  disabled={!hasBillingCycle && item.value !== 'standard'}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    billingCycleView === item.value
+                      ? 'bg-primary text-on-primary shadow-ambient'
+                      : 'bg-surface-container-lowest text-on-surface-variant'
+                  } ${!hasBillingCycle && item.value !== 'standard' ? 'cursor-not-allowed opacity-45' : ''}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {billingCycleView === 'month' && hasBillingCycle ? (
+              <label className="flex max-w-[220px] flex-col gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                  Billing Cycle Month
+                </span>
+                <input
+                  type="month"
+                  value={billingCycleMonth}
+                  max={format(new Date(), 'yyyy-MM')}
+                  onChange={(event) => setBillingCycleMonth(event.target.value)}
+                  className="rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3 text-sm font-medium text-on-surface outline-none"
+                />
+              </label>
+            ) : null}
+
+            {billingCycleRange ? (
+              <div className="rounded-[1.25rem] bg-surface-container-lowest px-4 py-3">
+                <p className="text-sm font-semibold text-on-surface">
+                  Active cycle: {formatBillingCycleRangeLabel(billingCycleRange)}
+                </p>
+                <p className="mt-1 text-xs text-on-surface-variant">
+                  Transactions are being filtered from {billingCycleRange.start} to{' '}
+                  {billingCycleRange.end}.
+                </p>
+              </div>
+            ) : !hasBillingCycle ? (
+              <div className="rounded-[1.25rem] bg-surface-container-lowest px-4 py-3">
+                <p className="text-sm font-semibold text-on-surface">
+                  Billing cycle is not configured yet
+                </p>
+                <p className="mt-1 text-xs text-on-surface-variant">
+                  Set a billing cycle day for this credit card in Profile, then you can
+                  view transactions by current cycle, previous cycle, or billing month.
+                </p>
+              </div>
+            ) : null}
+          </div>
+        </Card>
+      ) : null}
+
+      {billingCycleView === 'standard' ? (
+        <FilterBar
+          rangeMode={rangeMode}
+          preset={preset}
+          selectedMonth={selectedMonth}
+          startDate={startDate}
+          endDate={endDate}
+          paymentMethods={[]}
+          categories={visibleCategories}
+          paymentMethodId={activePaymentMethod.id}
+          selectedCategory={selectedCategory}
+          onRangeModeChange={handleRangeModeChange}
+          onPresetChange={setPreset}
+          onSelectedMonthChange={setSelectedMonth}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onPaymentMethodChange={() => undefined}
+          onCategoryChange={setSelectedCategory}
+          showPaymentMethodFilter={false}
+          paymentMethodLabel={activePaymentMethod.name}
+          showCategoryFilter={visibleCategories.length > 0}
+        />
+      ) : (
+        <Card className="bg-surface-container-low">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                Filters
+              </p>
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                Billing-cycle view is active, so calendar month and custom date filters are paused.
+              </p>
+            </div>
+
+            {visibleCategories.length ? (
+              <label className="flex min-w-[220px] flex-col gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                  Category
+                </span>
+                <select
+                  value={selectedCategory}
+                  onChange={(event) =>
+                    setSelectedCategory(event.target.value as string | 'all')
+                  }
+                  className="rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3 text-sm font-medium text-on-surface outline-none"
+                >
+                  <option value="all">All Categories</option>
+                  {visibleCategories.map((item) => (
+                    <option key={item.id} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </div>
+        </Card>
+      )}
 
       {!paymentMethodExpenses.length ? (
         <EmptyState

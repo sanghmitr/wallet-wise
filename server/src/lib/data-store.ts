@@ -117,6 +117,22 @@ function mergeMissingDefaultPaymentMethods(paymentMethods: PaymentMethod[]) {
   return paymentMethods.length ? paymentMethods : createDefaultPaymentMethods();
 }
 
+function normalizePaymentMethod(
+  paymentMethod: PaymentMethod | (Partial<PaymentMethod> & { type: PaymentSource }),
+) {
+  const normalizedBillingCycleDay =
+    paymentMethod.type === 'credit_card' &&
+    typeof paymentMethod.billingCycleDay === 'number' &&
+    Number.isFinite(paymentMethod.billingCycleDay)
+      ? Math.min(Math.max(Math.trunc(paymentMethod.billingCycleDay), 1), 28)
+      : null;
+
+  return {
+    ...paymentMethod,
+    billingCycleDay: normalizedBillingCycleDay,
+  } as PaymentMethod;
+}
+
 function getDefaultPaymentMethodByType(
   paymentMethods: PaymentMethod[],
   type: PaymentSource,
@@ -339,7 +355,7 @@ class MemoryStore implements DataStore {
       existing.categories = mergeMissingDefaultCategories(existing.categories);
       existing.paymentMethods = mergeMissingDefaultPaymentMethods(
         existing.paymentMethods,
-      );
+      ).map((paymentMethod) => normalizePaymentMethod(paymentMethod));
       existing.settings = normalizeSettings(existing.settings);
       existing.expenses = existing.expenses.map((expense) =>
         normalizeLegacyExpense(expense, existing.paymentMethods),
@@ -497,8 +513,9 @@ class MemoryStore implements DataStore {
     };
 
     const data = this.getUserData(userId);
-    data.paymentMethods.push(paymentMethod);
-    return paymentMethod;
+    const normalized = normalizePaymentMethod(paymentMethod);
+    data.paymentMethods.push(normalized);
+    return normalized;
   }
 
   async updatePaymentMethod(
@@ -515,7 +532,7 @@ class MemoryStore implements DataStore {
       throw new Error('Payment method not found');
     }
 
-    const updated = { ...current, ...input };
+    const updated = normalizePaymentMethod({ ...current, ...input });
     data.paymentMethods = data.paymentMethods.map((paymentMethod) =>
       paymentMethod.id === paymentMethodId ? updated : paymentMethod,
     );
@@ -993,7 +1010,9 @@ class FirestoreStore implements DataStore {
       this.paymentMethodsRef(userId).get(),
     );
     return snapshot.docs
-      .map((doc) => this.mapDoc(doc.id, doc.data()) as PaymentMethod)
+      .map((doc) =>
+        normalizePaymentMethod(this.mapDoc(doc.id, doc.data()) as PaymentMethod),
+      )
       .sort((left, right) => left.name.localeCompare(right.name));
   }
 
@@ -1005,12 +1024,13 @@ class FirestoreStore implements DataStore {
       isDefault: false,
       createdAt: new Date().toISOString(),
     };
+    const normalized = normalizePaymentMethod(paymentMethod);
 
     await this.withTimeout(
       'create a payment method in Firestore',
-      this.paymentMethodsRef(userId).doc(paymentMethod.id).set(paymentMethod),
+      this.paymentMethodsRef(userId).doc(normalized.id).set(normalized),
     );
-    return paymentMethod;
+    return normalized;
   }
 
   async updatePaymentMethod(
@@ -1028,11 +1048,11 @@ class FirestoreStore implements DataStore {
       throw new Error('Payment method not found');
     }
 
-    const updated = {
+    const updated = normalizePaymentMethod({
       ...(existing.data() as PaymentMethod),
       ...input,
       id: paymentMethodId,
-    };
+    });
 
     await this.withTimeout('update a payment method in Firestore', ref.set(updated));
 

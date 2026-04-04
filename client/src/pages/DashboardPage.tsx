@@ -19,6 +19,11 @@ import { Button } from '@/components/ui/Button';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import {
+  formatBillingCycleDayLabel,
+  getDaysUntilBillingCycleClose,
+  getNextBillingCycleCloseDate,
+} from '@/lib/billing-cycles';
 import { formatCompactCurrency, formatCurrency } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useAppData } from '@/store/AppDataContext';
@@ -387,6 +392,20 @@ export function DashboardPage() {
   const paymentMethodLeader = paymentMethodTotals[0] ?? null;
   const paymentMethodLeaderShare =
     totalSpent > 0 ? ((paymentMethodLeader?.value ?? 0) / totalSpent) * 100 : 0;
+  const upcomingBillingCard = useMemo(() => {
+    return paymentMethods
+      .filter(
+        (paymentMethod) =>
+          paymentMethod.type === 'credit_card' && paymentMethod.billingCycleDay,
+      )
+      .map((paymentMethod) => ({
+        paymentMethod,
+        daysUntil: getDaysUntilBillingCycleClose(paymentMethod.billingCycleDay!),
+        closeDate: getNextBillingCycleCloseDate(paymentMethod.billingCycleDay!),
+      }))
+      .filter((item) => item.daysUntil >= 0 && item.daysUntil <= 7)
+      .sort((left, right) => left.daysUntil - right.daysUntil)[0] ?? null;
+  }, [paymentMethods]);
 
   const highlightInsights = useMemo(() => {
     if (!rangeExpenses.length) {
@@ -397,13 +416,30 @@ export function DashboardPage() {
           description:
             'Add your first transactions to unlock category patterns, budget context, and smart summaries here.',
         },
+        ...(upcomingBillingCard
+          ? [
+              {
+                icon: 'credit_card',
+                title:
+                  upcomingBillingCard.daysUntil === 0
+                    ? `${upcomingBillingCard.paymentMethod.name} closes today`
+                    : `${upcomingBillingCard.paymentMethod.name} closes in ${upcomingBillingCard.daysUntil} day${upcomingBillingCard.daysUntil === 1 ? '' : 's'}`,
+                description: `Review this credit card before its ${formatBillingCycleDayLabel(
+                  upcomingBillingCard.paymentMethod.billingCycleDay!,
+                )} statement close on ${format(
+                  upcomingBillingCard.closeDate,
+                  'd MMM',
+                )}.`,
+              },
+            ]
+          : []),
         {
           icon: 'target',
           title: 'Set a monthly budget',
           description:
             'Budget tracking becomes far more useful once each important category has a limit attached to it.',
         },
-      ];
+      ].slice(0, 3);
     }
 
     const insights = [];
@@ -429,6 +465,22 @@ export function DashboardPage() {
           topCategory.value,
           settings.currency,
         )}.`,
+      });
+    }
+
+    if (upcomingBillingCard) {
+      insights.push({
+        icon: 'credit_card',
+        title:
+          upcomingBillingCard.daysUntil === 0
+            ? `${upcomingBillingCard.paymentMethod.name} closes today`
+            : `${upcomingBillingCard.paymentMethod.name} closes in ${upcomingBillingCard.daysUntil} day${upcomingBillingCard.daysUntil === 1 ? '' : 's'}`,
+        description: `Its billing cycle closes on ${format(
+          upcomingBillingCard.closeDate,
+          'd MMM',
+        )}. Review card transactions before the ${formatBillingCycleDayLabel(
+          upcomingBillingCard.paymentMethod.billingCycleDay!,
+        )} close.`,
       });
     }
 
@@ -465,6 +517,7 @@ export function DashboardPage() {
     isSpendingUp,
     paymentMethodLeader,
     paymentMethodLeaderShare,
+    upcomingBillingCard,
     previousTotal,
     range,
     rangeExpenses.length,

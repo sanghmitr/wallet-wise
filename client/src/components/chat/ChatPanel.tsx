@@ -13,6 +13,7 @@ import type { ChatMessage, ChatResponsePayload, Expense } from '@/types/domain';
 const suggestions = [
   'How much did I spend this month?',
   'Show HDFC Credit Card expenses',
+  'Show HDFC Credit Card expenses for current billing cycle',
   'Which budgets are close to the limit?',
   'I spent 450 on Zomato using HDFC Credit Card',
 ];

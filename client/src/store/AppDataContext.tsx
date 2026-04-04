@@ -113,7 +113,7 @@ function buildWelcomeMessage(): ChatMessage {
     id: generateId('assistant'),
     role: 'assistant',
     content:
-      "Welcome back. I can summarize your spending, flag budget risk, or add an expense from a natural-language message like 'I spent 450 on Zomato using HDFC Credit Card.'",
+      "Welcome back. I can summarize your spending, flag budget risk, review card billing cycles, or add an expense from a natural-language message like 'I spent 450 on Zomato using HDFC Credit Card.'",
     timestamp: new Date().toISOString(),
   };
 }
@@ -420,21 +420,10 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       const saved = paymentMethodId
         ? await updatePaymentMethod(paymentMethodId, sanitizedPayload)
         : await createPaymentMethod(sanitizedPayload);
+      const refreshedPaymentMethods = await getPaymentMethods();
 
       startTransition(() => {
-        setPaymentMethods((current) => {
-          if (paymentMethodId) {
-            return current
-              .map((paymentMethod) =>
-                paymentMethod.id === paymentMethodId ? saved : paymentMethod,
-              )
-              .sort((left, right) => left.name.localeCompare(right.name));
-          }
-
-          return [...current, saved].sort((left, right) =>
-            left.name.localeCompare(right.name),
-          );
-        });
+        setPaymentMethods(refreshedPaymentMethods);
         setExpenses((current) =>
           current.map((expense) =>
             expense.paymentMethodId === saved.id

@@ -1,9 +1,10 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatBillingCycleDayLabel } from '@/lib/billing-cycles';
 import { currencyOptions } from '@/lib/format';
 import { getPaymentMethodMeta, paymentMethodOptions } from '@/lib/payment-methods';
 import { useAppData } from '@/store/AppDataContext';
@@ -17,6 +18,7 @@ import type {
 const initialForm = {
   name: '',
   type: 'cash' as PaymentSource,
+  billingCycleDay: '' as number | '',
 };
 
 const themeOptions: Array<{
@@ -60,6 +62,7 @@ export function ProfileManager() {
     currency: settings.currency,
     theme: settings.theme,
   });
+  const formCardRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setSettingsDraft({
@@ -73,6 +76,15 @@ export function ProfileManager() {
     ? 'Signed in with Firebase guest mode'
     : authProfile?.email || 'Signed in with Firebase';
   const profileInitials = getInitials(profileName);
+
+  function focusComposer() {
+    requestAnimationFrame(() => {
+      formCardRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  }
 
   function resetForm() {
     setDraft(initialForm);
@@ -90,6 +102,10 @@ export function ProfileManager() {
       {
         name: draft.name.trim(),
         type: draft.type,
+        billingCycleDay:
+          draft.type === 'credit_card' && draft.billingCycleDay
+            ? Number(draft.billingCycleDay)
+            : null,
       },
       editing?.id,
     );
@@ -214,6 +230,15 @@ export function ProfileManager() {
                       <p className="text-sm font-medium text-on-surface-variant">
                         {meta.label} • {usageCount} transactions
                       </p>
+                      {paymentMethod.type === 'credit_card' ? (
+                        <p className="mt-1 text-xs text-on-surface-variant">
+                          {paymentMethod.billingCycleDay
+                            ? `Billing cycle closes every ${formatBillingCycleDayLabel(
+                                paymentMethod.billingCycleDay,
+                              )}`
+                            : 'Billing cycle not set yet'}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
 
@@ -231,7 +256,9 @@ export function ProfileManager() {
                           setDraft({
                             name: paymentMethod.name,
                             type: paymentMethod.type,
+                            billingCycleDay: paymentMethod.billingCycleDay ?? '',
                           });
+                          focusComposer();
                         }}
                         className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-primary"
                       >
@@ -267,7 +294,7 @@ export function ProfileManager() {
       </section>
 
       <aside className="space-y-6">
-        <Card className="bg-surface-container-low">
+        <Card ref={formCardRef} className="bg-surface-container-low">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
@@ -320,6 +347,10 @@ export function ProfileManager() {
                         setDraft((current) => ({
                           ...current,
                           type: event.target.value as PaymentSource,
+                          billingCycleDay:
+                            event.target.value === 'credit_card'
+                              ? current.billingCycleDay
+                              : '',
                         }))
                       }
                       className="w-full border-none bg-transparent text-sm font-semibold text-on-surface outline-none"
@@ -341,6 +372,34 @@ export function ProfileManager() {
                 </div>
               </div>
             </div>
+
+            {draft.type === 'credit_card' ? (
+              <label className="block">
+                <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                  Billing Cycle Day
+                </span>
+                <input
+                  type="number"
+                  min="1"
+                  max="28"
+                  value={draft.billingCycleDay}
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      billingCycleDay: event.target.value
+                        ? Number(event.target.value)
+                        : '',
+                    }))
+                  }
+                  className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-3 text-sm font-medium text-on-surface outline-none"
+                  placeholder="e.g. 15"
+                />
+                <p className="mt-2 text-xs leading-5 text-on-surface-variant">
+                  Enter the monthly statement closing day for this credit card.
+                  Use a day from 1 to 28 so billing-cycle filters stay reliable.
+                </p>
+              </label>
+            ) : null}
 
             <Button type="submit" className="w-full">
               {editing ? 'Update Payment Method' : 'Save Payment Method'}

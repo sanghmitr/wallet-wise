@@ -14,6 +14,23 @@ export const expenseInputSchema = z.object({
 export const paymentMethodInputSchema = z.object({
   name: z.string().min(1).max(80),
   type: z.enum(['credit_card', 'debit_card', 'upi', 'cash']),
+  billingCycleDay: z.number().int().min(1).max(28).nullish(),
+}).superRefine((value, context) => {
+  if (value.type === 'credit_card' && !value.billingCycleDay) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Billing cycle day is required for credit cards.',
+      path: ['billingCycleDay'],
+    });
+  }
+
+  if (value.type !== 'credit_card' && value.billingCycleDay) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Billing cycle day can only be set for credit cards.',
+      path: ['billingCycleDay'],
+    });
+  }
 });
 
 export const categoryInputSchema = z.object({

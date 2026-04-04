@@ -19,6 +19,7 @@ export interface PaymentMethod {
   id: string;
   name: string;
   type: PaymentSource;
+  billingCycleDay?: number | null;
   isDefault: boolean;
   createdAt: string;
 }
@@ -68,6 +69,7 @@ export interface ExpenseInput {
 export interface PaymentMethodInput {
   name: string;
   type: PaymentSource;
+  billingCycleDay?: number | null;
 }
 
 export interface CategoryInput {
@@ -103,6 +105,10 @@ export interface ChatIntent {
     category: string | null;
     source: string | null;
     paymentMethodName: string | null;
+    billingCycle: {
+      mode: 'current' | 'previous' | 'month' | null;
+      referenceMonth: string | null;
+    };
     dateRange: {
       start: string | null;
       end: string | null;
