@@ -10,6 +10,7 @@ import {
 } from 'date-fns';
 import type { Firestore } from 'firebase-admin/firestore';
 import { env } from '../config/env.js';
+import { AppError } from './app-error.js';
 import { getFirestoreClient } from './firebase.js';
 import type {
   Budget,
@@ -449,6 +450,23 @@ class MemoryStore implements DataStore {
 
   async deleteCategory(userId: string, categoryId: string) {
     const data = this.getUserData(userId);
+    const category = data.categories.find((item) => item.id === categoryId);
+
+    if (!category) {
+      throw new AppError(404, 'Category not found');
+    }
+
+    const isReferenced = data.expenses.some(
+      (expense) => expense.category === category.name,
+    );
+
+    if (isReferenced) {
+      throw new AppError(
+        400,
+        'This category is used by one or more transactions and cannot be deleted yet.',
+      );
+    }
+
     data.categories = data.categories.filter((category) => category.id !== categoryId);
   }
 
@@ -535,7 +553,8 @@ class MemoryStore implements DataStore {
     );
 
     if (isReferenced) {
-      throw new Error(
+      throw new AppError(
+        400,
         'This payment method is used by one or more transactions and cannot be deleted yet.',
       );
     }
@@ -878,9 +897,34 @@ class FirestoreStore implements DataStore {
   }
 
   async deleteCategory(userId: string, categoryId: string) {
+    const ref = this.categoriesRef(userId).doc(categoryId);
+    const existing = await this.withTimeout('load a category from Firestore', ref.get());
+
+    if (!existing.exists) {
+      throw new AppError(404, 'Category not found');
+    }
+
+    const current = existing.data() as Partial<Category> | undefined;
+
+    if (!current?.name) {
+      throw new AppError(404, 'Category not found');
+    }
+
+    const expenseSnapshot = await this.withTimeout(
+      'check whether a category is linked to expenses in Firestore',
+      this.expensesRef(userId).where('category', '==', current.name).limit(1).get(),
+    );
+
+    if (!expenseSnapshot.empty) {
+      throw new AppError(
+        400,
+        'This category is used by one or more transactions and cannot be deleted yet.',
+      );
+    }
+
     await this.withTimeout(
       'delete a category from Firestore',
-      this.categoriesRef(userId).doc(categoryId).delete(),
+      ref.delete(),
     );
   }
 
@@ -1012,7 +1056,8 @@ class FirestoreStore implements DataStore {
     );
 
     if (!expenseSnapshot.empty) {
-      throw new Error(
+      throw new AppError(
+        400,
         'This payment method is used by one or more transactions and cannot be deleted yet.',
       );
     }

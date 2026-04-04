@@ -345,6 +345,18 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }
 
   async function deleteCategory(categoryId: string) {
+    const category = categories.find((item) => item.id === categoryId);
+    const isReferenced = category
+      ? expenses.some((expense) => expense.category === category.name)
+      : false;
+
+    if (isReferenced) {
+      toast.error(
+        'This category has transactions. Remove or reassign those transactions first.',
+      );
+      return;
+    }
+
     try {
       await removeCategory(categoryId);
 
@@ -498,6 +510,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       role: 'user',
       content: message,
       timestamp: new Date().toISOString(),
+      status: 'complete',
     };
 
     setChatMessages((current) => [...current, userMessage]);
@@ -510,6 +523,8 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         role: 'assistant',
         content: response.response,
         timestamp: new Date().toISOString(),
+        status: 'complete',
+        payload: response,
       };
 
       startTransition(() => {
@@ -527,6 +542,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         role: 'assistant',
         content: 'I could not process that request. Please try again.',
         timestamp: new Date().toISOString(),
+        status: 'error',
       };
 
       setChatMessages((current) => [...current, assistantMessage]);

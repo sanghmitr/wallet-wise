@@ -51,7 +51,7 @@ wallet_wise/
 |  |  |- lib/
 |  |  |  |- data-store.ts
 |  |  |  |- firebase.ts
-|  |  |  |- openai.ts
+|  |  |  |- gemini.ts
 |  |  |- middleware/
 |  |  |  |- auth.ts
 |  |  |- routes/

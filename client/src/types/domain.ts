@@ -102,6 +102,7 @@ export interface ChatIntent {
   filters: {
     category: string | null;
     source: string | null;
+    paymentMethodName: string | null;
     dateRange: {
       start: string | null;
       end: string | null;
@@ -135,4 +136,6 @@ export interface ChatMessage {
   role: 'assistant' | 'user';
   content: string;
   timestamp: string;
+  status?: 'complete' | 'error';
+  payload?: ChatResponsePayload;
 }

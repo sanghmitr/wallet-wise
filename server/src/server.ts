@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { ZodError } from 'zod';
 import { env, isFirebaseConfigured } from './config/env.js';
+import { AppError } from './lib/app-error.js';
 import { createDataStore } from './lib/data-store.js';
 import { attachUser } from './middleware/auth.js';
 import { createBudgetsRouter } from './routes/budgets.js';
@@ -50,6 +51,13 @@ app.use((error: unknown, _request: express.Request, response: express.Response, 
     response.status(400).json({
       message: 'Invalid request payload',
       issues: error.issues,
+    });
+    return;
+  }
+
+  if (error instanceof AppError) {
+    response.status(error.statusCode).json({
+      message: error.message,
     });
     return;
   }

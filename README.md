@@ -7,7 +7,7 @@ Wallet Wise is a full-stack MVP expense manager with a Progressive Web App front
 - Frontend: React + Vite + Tailwind CSS + Recharts
 - Backend: Node.js + Express
 - Database: Firebase Firestore with a local memory fallback for dev
-- AI: OpenAI API with structured intent extraction
+- AI: Gemini API with structured intent extraction
 - PWA: `vite-plugin-pwa`
 
 ## Features
@@ -79,8 +79,8 @@ cp server/.env.example server/.env
 
 5. If using the AI assistant, configure:
 
-- `OPENAI_API_KEY`
-- optionally `OPENAI_MODEL`
+- `GEMINI_API_KEY` or `GOOGLE_API_KEY`
+- optionally `GEMINI_MODEL`
 
 6. Start the backend:
 
