@@ -4,7 +4,14 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { env } from '../config/env.js';
 
 function getPrivateKey() {
-  return env.firebasePrivateKey.replace(/\\n/g, '\n');
+  const trimmed = env.firebasePrivateKey.trim();
+  const unquoted =
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+      ? trimmed.slice(1, -1)
+      : trimmed;
+
+  return unquoted.replace(/\\n/g, '\n');
 }
 
 export function getFirestoreClient() {
