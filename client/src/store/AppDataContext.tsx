@@ -3,6 +3,7 @@ import {
   startTransition,
   useContext,
   useEffect,
+  useRef,
   useState,
   type PropsWithChildren,
 } from 'react';
@@ -14,6 +15,7 @@ import {
   signInAsGuest,
   signInWithGoogle,
   signOutFirebaseUser,
+  subscribeToAuthChanges,
 } from '@/lib/firebase-auth';
 import {
   createCategory,
@@ -143,6 +145,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   const [authProfile, setAuthProfile] = useState<AuthProfile | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const lastSyncedUserIdRef = useRef<string | null>(null);
 
   async function refreshAll() {
     const currentMonth = formatISO(startOfMonth(new Date()), {
@@ -193,7 +196,8 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         setAuthUserId(user?.uid ?? null);
         setAuthProfile(createAuthProfile(user));
 
-        if (user) {
+        if (user && lastSyncedUserIdRef.current !== user.uid) {
+          lastSyncedUserIdRef.current = user.uid;
           await refreshAll();
         }
       } catch (error) {
@@ -208,6 +212,33 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         setIsBootstrapping(false);
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToAuthChanges((user) => {
+      setAuthUserId(user?.uid ?? null);
+      setAuthProfile(createAuthProfile(user));
+
+      if (!user) {
+        lastSyncedUserIdRef.current = null;
+        return;
+      }
+
+      if (lastSyncedUserIdRef.current === user.uid) {
+        return;
+      }
+
+      lastSyncedUserIdRef.current = user.uid;
+
+      void refreshAll().catch((error) => {
+        console.error('Wallet Wise auth refresh failed', error);
+        setBootstrapError(
+          error instanceof Error ? error.message : 'Unable to refresh app data',
+        );
+      });
+    });
+
+    return unsubscribe;
   }, []);
 
   function openCreateExpense() {
@@ -516,6 +547,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
       setAuthUserId(user.uid);
       setAuthProfile(createAuthProfile(user));
+      lastSyncedUserIdRef.current = user.uid;
       await refreshAll();
       toast.success('Signed in with Google.');
     } catch (error) {
@@ -534,6 +566,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       const user = await signInAsGuest();
       setAuthUserId(user.uid);
       setAuthProfile(createAuthProfile(user));
+      lastSyncedUserIdRef.current = user.uid;
       await refreshAll();
       toast.success('Continuing as guest.');
     } catch (error) {
@@ -547,6 +580,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
   async function handleSignOut() {
     await signOutFirebaseUser();
+    lastSyncedUserIdRef.current = null;
     setAuthUserId(null);
     setAuthProfile(null);
     setExpenses([]);

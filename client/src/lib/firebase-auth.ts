@@ -3,6 +3,7 @@ import {
   browserLocalPersistence,
   getAuth,
   getRedirectResult,
+  onAuthStateChanged,
   setPersistence,
   signInAnonymously,
   signInWithPopup,
@@ -42,6 +43,23 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: 
   ]);
 }
 
+async function waitForAuthState(timeoutMs = 4000) {
+  if (firebaseAuth.currentUser) {
+    return firebaseAuth.currentUser;
+  }
+
+  return withTimeout(
+    new Promise<User | null>((resolve) => {
+      const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+        unsubscribe();
+        resolve(user);
+      });
+    }),
+    timeoutMs,
+    firebaseAuth.currentUser ?? null,
+  );
+}
+
 export function createAuthProfile(user: User | null): AuthProfile | null {
   if (!user) {
     return null;
@@ -79,16 +97,25 @@ export async function initializeFirebaseAuth() {
         return firebaseAuth.currentUser;
       }
 
-      return null;
+      return waitForAuthState();
     })().catch((error) => {
       console.error('Firebase auth initialization failed', error);
       return firebaseAuth.currentUser ?? null;
     });
 
-    authReadyPromise = withTimeout(authReadyPromise, 2500, firebaseAuth.currentUser ?? null);
+    authReadyPromise = withTimeout(authReadyPromise, 5000, firebaseAuth.currentUser ?? null);
   }
 
   return authReadyPromise;
+}
+
+export function subscribeToAuthChanges(
+  callback: (user: User | null) => void,
+) {
+  return onAuthStateChanged(firebaseAuth, (user) => {
+    authReadyPromise = Promise.resolve(user);
+    callback(user);
+  });
 }
 
 export async function getAuthenticatedUser() {
