@@ -1,6 +1,8 @@
 import {
   endOfMonth,
   format,
+  isAfter,
+  isBefore,
   isWithinInterval,
   parseISO,
   startOfMonth,
@@ -42,6 +44,38 @@ export function filterExpensesByPreset(
   return expenses.filter((expense) =>
     isWithinInterval(parseISO(expense.date), range),
   );
+}
+
+export function filterExpensesByMonth(expenses: Expense[], month: string) {
+  if (!month) {
+    return expenses;
+  }
+
+  return expenses.filter((expense) => expense.date.startsWith(month));
+}
+
+export function filterExpensesByDateRange(
+  expenses: Expense[],
+  startDate?: string,
+  endDate?: string,
+) {
+  if (!startDate && !endDate) {
+    return expenses;
+  }
+
+  return expenses.filter((expense) => {
+    const date = parseISO(expense.date);
+
+    if (startDate && isBefore(date, parseISO(startDate))) {
+      return false;
+    }
+
+    if (endDate && isAfter(date, parseISO(endDate))) {
+      return false;
+    }
+
+    return true;
+  });
 }
 
 export function filterExpensesByPaymentMethod(
@@ -119,6 +153,10 @@ export function getRecentTransactions(expenses: Expense[], count = 5) {
   return [...expenses]
     .sort((left, right) => right.date.localeCompare(left.date))
     .slice(0, count);
+}
+
+export function getSortedExpenses(expenses: Expense[]) {
+  return [...expenses].sort((left, right) => right.date.localeCompare(left.date));
 }
 
 export function getBudgetRemaining(budgets: Budget[], expenses: Expense[]) {

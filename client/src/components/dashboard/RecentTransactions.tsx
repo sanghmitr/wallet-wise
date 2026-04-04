@@ -6,6 +6,8 @@ import { useAppData } from '@/store/AppDataContext';
 
 interface RecentTransactionsProps {
   expenses: Expense[];
+  title?: string;
+  description?: string;
   onEdit: (expense: Expense) => void;
   onDelete: (expenseId: string) => void;
 }
@@ -19,6 +21,8 @@ const sourceIcons: Record<string, string> = {
 
 export function RecentTransactions({
   expenses,
+  title = 'Transactions',
+  description = 'All expenses matching the selected filters.',
   onEdit,
   onDelete,
 }: RecentTransactionsProps) {
@@ -28,14 +32,19 @@ export function RecentTransactions({
     <Card className="bg-surface-container-low">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-bold text-on-surface">Recent Transactions</h3>
+          <h3 className="text-lg font-bold text-on-surface">{title}</h3>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Latest ledger activity across your saved payment methods.
+            {description}
           </p>
         </div>
       </div>
 
-      <div className="mt-6 space-y-4">
+      {!expenses.length ? (
+        <div className="mt-6 rounded-[1.5rem] bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
+          No expenses found for the selected date range and payment method.
+        </div>
+      ) : (
+        <div className="mt-6 space-y-4">
         {expenses.map((expense) => (
           <div
             key={expense.id}
@@ -84,7 +93,8 @@ export function RecentTransactions({
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </Card>
   );
 }

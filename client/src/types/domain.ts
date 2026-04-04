@@ -87,6 +87,7 @@ export interface ExpenseFilters {
 }
 
 export type DashboardPreset = 'this-month' | 'last-30-days' | 'all-time';
+export type DashboardRangeMode = 'preset' | 'month' | 'custom';
 
 export interface ChatIntent {
   intent: 'get_expenses' | 'add_expense' | 'budget_status' | 'unknown';
