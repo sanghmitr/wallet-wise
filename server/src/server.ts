@@ -23,7 +23,18 @@ const store = createDataStore(
 const app = express();
 
 applySecurityMiddleware(app);
+app.set('etag', false);
 app.use(express.json({ limit: env.jsonBodyLimit }));
+app.use('/api', (_request, response, next) => {
+  response.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, proxy-revalidate',
+  );
+  response.setHeader('Pragma', 'no-cache');
+  response.setHeader('Expires', '0');
+  response.setHeader('Surrogate-Control', 'no-store');
+  next();
+});
 
 app.get('/api/health', (_request, response) => {
   response.json({
@@ -33,7 +44,7 @@ app.get('/api/health', (_request, response) => {
         ? 'firestore'
         : 'memory',
   });
-      });
+});
 
 app.use('/api', attachUser);
 app.use('/api/expenses', createExpensesRouter(store, env.defaultUserId));

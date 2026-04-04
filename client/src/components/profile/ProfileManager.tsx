@@ -16,7 +16,7 @@ import type {
 
 const initialForm = {
   name: '',
-  type: 'credit_card' as PaymentSource,
+  type: 'cash' as PaymentSource,
 };
 
 const themeOptions: Array<{
@@ -299,44 +299,46 @@ export function ProfileManager() {
 
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                Type
+                Method Type
               </span>
-              <div className="mt-3 space-y-3">
-                {paymentMethodOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() =>
-                      setDraft((current) => ({ ...current, type: option.value }))
-                    }
-                    className={`flex w-full items-center justify-between rounded-[1.25rem] px-4 py-4 text-left transition ${
-                      draft.type === option.value
-                        ? 'bg-primary text-on-primary'
-                        : 'bg-surface-container-lowest text-on-surface'
-                    }`}
-                  >
-                    <span className="flex items-center gap-3">
-                      <MaterialIcon name={option.icon} className="text-[20px]" />
-                      <span>
-                        <span className="block text-sm font-semibold">
+              <div className="mt-3 rounded-[1.25rem] bg-surface-container-lowest p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-container-high text-primary">
+                    <MaterialIcon
+                      name={
+                        paymentMethodOptions.find(
+                          (option) => option.value === draft.type,
+                        )?.icon ?? 'wallet'
+                      }
+                      className="text-[20px]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <select
+                      value={draft.type}
+                      onChange={(event) =>
+                        setDraft((current) => ({
+                          ...current,
+                          type: event.target.value as PaymentSource,
+                        }))
+                      }
+                      className="w-full border-none bg-transparent text-sm font-semibold text-on-surface outline-none"
+                    >
+                      {paymentMethodOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
                           {option.label}
-                        </span>
-                        <span
-                          className={`block text-xs ${
-                            draft.type === option.value
-                              ? 'text-white/80'
-                              : 'text-on-surface-variant'
-                          }`}
-                        >
-                          {option.hint}
-                        </span>
-                      </span>
-                    </span>
-                    {draft.type === option.value ? (
-                      <MaterialIcon name="check_circle" filled className="text-[20px]" />
-                    ) : null}
-                  </button>
-                ))}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-on-surface-variant">
+                      {
+                        paymentMethodOptions.find(
+                          (option) => option.value === draft.type,
+                        )?.hint
+                      }
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 

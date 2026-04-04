@@ -72,10 +72,7 @@ const defaultCategories: Array<Omit<Category, 'id' | 'createdAt'>> = [
 ];
 
 const defaultPaymentMethods: Array<Omit<PaymentMethod, 'id' | 'createdAt'>> = [
-  { name: 'HDFC Credit Card', type: 'credit_card', isDefault: true },
-  { name: 'SBI Debit Card', type: 'debit_card', isDefault: true },
-  { name: 'personal@upi', type: 'upi', isDefault: true },
-  { name: 'Cash Wallet', type: 'cash', isDefault: true },
+  { name: 'Cash', type: 'cash', isDefault: true },
 ];
 
 const defaultSettings: UserSettingsInput = {
@@ -117,18 +114,7 @@ function mergeMissingDefaultCategories(categories: Category[]) {
 }
 
 function mergeMissingDefaultPaymentMethods(paymentMethods: PaymentMethod[]) {
-  const existingNames = new Set(
-    paymentMethods.map((paymentMethod) => normalizeName(paymentMethod.name)),
-  );
-  const missing = defaultPaymentMethods
-    .filter((paymentMethod) => !existingNames.has(normalizeName(paymentMethod.name)))
-    .map((paymentMethod) => ({
-      ...paymentMethod,
-      id: randomUUID(),
-      createdAt: new Date().toISOString(),
-    }));
-
-  return missing.length ? [...paymentMethods, ...missing] : paymentMethods;
+  return paymentMethods.length ? paymentMethods : createDefaultPaymentMethods();
 }
 
 function getDefaultPaymentMethodByType(
@@ -701,70 +687,53 @@ class FirestoreStore implements DataStore {
         ref: doc.ref,
         value: this.mapDoc(doc.id, doc.data()) as PaymentMethod,
       }));
-      const paymentMethodsByName = new Map<
-        string,
-        Array<{ ref: FirebaseFirestore.DocumentReference; value: PaymentMethod }>
-      >();
 
-      paymentMethodDocs.forEach((paymentMethod) => {
-        const key = normalizeName(paymentMethod.value.name);
-        const group = paymentMethodsByName.get(key) ?? [];
-        group.push(paymentMethod);
-        paymentMethodsByName.set(key, group);
-      });
+      if (paymentMethodDocs.length) {
+        if (paymentMethodDocs.length === 1) {
+          return;
+        }
 
-      const missingDefaults = defaultPaymentMethods.filter(
-        (paymentMethod) =>
-          !paymentMethodsByName.has(normalizeName(paymentMethod.name)),
-      );
-      const duplicateGroups = Array.from(paymentMethodsByName.values()).filter(
-        (group) => group.length > 1,
-      );
+        const expenseSnapshot = await this.withTimeout(
+          'check whether payment methods already have expenses in Firestore',
+          this.expensesRef(userId).limit(1).get(),
+        );
 
-      if (!missingDefaults.length && !duplicateGroups.length) {
-        return;
-      }
+        if (!expenseSnapshot.empty) {
+          return;
+        }
 
-      const batch = this.db.batch();
+        const batch = this.db.batch();
+        paymentMethodDocs.forEach((paymentMethod) => {
+          batch.delete(paymentMethod.ref);
+        });
 
-      missingDefaults.forEach((paymentMethod) => {
-        const created = {
-          ...paymentMethod,
+        const cashPaymentMethod = {
+          ...defaultPaymentMethods[0],
           id: randomUUID(),
           createdAt: new Date().toISOString(),
         };
-        batch.set(this.paymentMethodsRef(userId).doc(created.id), created);
-      });
 
-      for (const group of duplicateGroups) {
-        const [canonical, ...duplicates] = [...group].sort((left, right) =>
-          left.value.createdAt.localeCompare(right.value.createdAt),
+        batch.set(
+          this.paymentMethodsRef(userId).doc(cashPaymentMethod.id),
+          cashPaymentMethod,
         );
 
-        for (const duplicate of duplicates) {
-          const expenseSnapshot = await this.withTimeout(
-            'load expenses linked to duplicate payment methods in Firestore',
-            this.expensesRef(userId)
-              .where('paymentMethodId', '==', duplicate.value.id)
-              .get(),
-          );
-
-          expenseSnapshot.docs.forEach((expenseDoc) => {
-            batch.set(expenseDoc.ref, {
-              ...(expenseDoc.data() as Expense),
-              paymentMethodId: canonical.value.id,
-              paymentMethodName: canonical.value.name,
-              source: canonical.value.type,
-            });
-          });
-
-          batch.delete(duplicate.ref);
-        }
+        await this.withTimeout(
+          'reset initial payment methods in Firestore',
+          batch.commit(),
+        );
+        return;
       }
 
+      const cashPaymentMethod = {
+        ...defaultPaymentMethods[0],
+        id: randomUUID(),
+        createdAt: new Date().toISOString(),
+      };
+
       await this.withTimeout(
-        'repair payment method defaults in Firestore',
-        batch.commit(),
+        'seed the initial payment method in Firestore',
+        this.paymentMethodsRef(userId).doc(cashPaymentMethod.id).set(cashPaymentMethod),
       );
     })().finally(() => {
       this.paymentMethodSeedTasks.delete(userId);

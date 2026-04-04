@@ -7,13 +7,36 @@ import {
 
 export const api = axios.create({
   baseURL: env.apiBaseUrl,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 api.interceptors.request.use(async (config) => {
+  if (config.method?.toLowerCase() === 'get') {
+    const currentParams =
+      config.params && typeof config.params === 'object'
+        ? Object.entries(config.params as Record<string, unknown>).reduce<
+            Record<string, unknown>
+          >((accumulator, [key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+              accumulator[key] = value;
+            }
+
+            return accumulator;
+          }, {})
+        : {};
+
+    config.params = {
+      ...currentParams,
+      _ts: Date.now(),
+    };
+    config.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    config.headers.set('Pragma', 'no-cache');
+    config.headers.set('Expires', '0');
+  }
+
   const userId = await getAuthenticatedUserId();
   const idToken = await getAuthenticatedIdToken();
 
