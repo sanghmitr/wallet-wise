@@ -7,6 +7,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { getCurrencySymbol } from '@/lib/format';
+import {
+  getPaymentMethodTypeLabel,
+  paymentMethodIcons,
+} from '@/lib/payment-methods';
 import { cn } from '@/lib/utils';
 import { useAppData } from '@/store/AppDataContext';
 import type { PaymentMethod } from '@/types/domain';
@@ -23,29 +27,6 @@ const expenseSchema = z.object({
 });
 
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
-
-const paymentMethodIcons: Record<string, string> = {
-  credit_card: 'credit_card',
-  debit_card: 'payments',
-  upi: 'qr_code_2',
-  cash: 'wallet',
-};
-
-function getPaymentMethodTypeLabel(type: string) {
-  if (type === 'credit_card') {
-    return 'Credit Card';
-  }
-
-  if (type === 'debit_card') {
-    return 'Debit Card';
-  }
-
-  if (type === 'upi') {
-    return 'UPI';
-  }
-
-  return 'Cash';
-}
 
 export function AddExpenseModal() {
   const navigate = useNavigate();

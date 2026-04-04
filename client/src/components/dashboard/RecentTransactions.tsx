@@ -1,5 +1,6 @@
 import type { Expense } from '@/types/domain';
 import { formatCurrency, formatExpenseDate, formatExpenseMeta } from '@/lib/format';
+import { paymentMethodIcons } from '@/lib/payment-methods';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { Card } from '@/components/ui/Card';
 import { useAppData } from '@/store/AppDataContext';
@@ -11,13 +12,6 @@ interface RecentTransactionsProps {
   onEdit: (expense: Expense) => void;
   onDelete: (expenseId: string) => void;
 }
-
-const sourceIcons: Record<string, string> = {
-  credit_card: 'credit_card',
-  debit_card: 'payments',
-  upi: 'qr_code_2',
-  cash: 'wallet',
-};
 
 export function RecentTransactions({
   expenses,
@@ -41,7 +35,7 @@ export function RecentTransactions({
 
       {!expenses.length ? (
         <div className="mt-6 rounded-[1.5rem] bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
-          No expenses found for the selected date range and payment method.
+          No expenses found for the selected filters.
         </div>
       ) : (
         <div className="mt-6 space-y-4">
@@ -53,7 +47,7 @@ export function RecentTransactions({
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-container-high text-primary">
-                  <MaterialIcon name={sourceIcons[expense.source] || 'payments'} />
+                  <MaterialIcon name={paymentMethodIcons[expense.source] || 'payments'} />
                 </div>
                 <div>
                   <p className="font-bold text-on-surface">

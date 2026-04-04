@@ -20,6 +20,8 @@ interface FilterBarProps {
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
   onPaymentMethodChange: (paymentMethodId: string | 'all') => void;
+  showPaymentMethodFilter?: boolean;
+  paymentMethodLabel?: string;
 }
 
 const presets: Array<{ label: string; value: DashboardPreset }> = [
@@ -48,6 +50,8 @@ export function FilterBar({
   onStartDateChange,
   onEndDateChange,
   onPaymentMethodChange,
+  showPaymentMethodFilter = true,
+  paymentMethodLabel,
 }: FilterBarProps) {
   return (
     <section className="space-y-4">
@@ -133,25 +137,36 @@ export function FilterBar({
           </>
         ) : null}
 
-        <label className="flex min-w-[260px] flex-col gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-            Payment Method
-          </span>
-          <select
-            value={paymentMethodId}
-            onChange={(event) =>
-              onPaymentMethodChange(event.target.value as string | 'all')
-            }
-            className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
-          >
-            <option value="all">All Payment Methods</option>
-            {paymentMethods.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        {showPaymentMethodFilter ? (
+          <label className="flex min-w-[260px] flex-col gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+              Payment Method
+            </span>
+            <select
+              value={paymentMethodId}
+              onChange={(event) =>
+                onPaymentMethodChange(event.target.value as string | 'all')
+              }
+              className="rounded-[1.25rem] border-none bg-surface-container-low px-4 py-3 text-sm font-medium text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/10"
+            >
+              <option value="all">All Payment Methods</option>
+              {paymentMethods.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : paymentMethodLabel ? (
+          <div className="flex min-w-[260px] flex-col gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+              Payment Method
+            </span>
+            <div className="rounded-[1.25rem] bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface">
+              {paymentMethodLabel}
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );

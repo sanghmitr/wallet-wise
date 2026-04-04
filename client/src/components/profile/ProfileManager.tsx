@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { currencyOptions } from '@/lib/format';
+import { getPaymentMethodMeta, paymentMethodOptions } from '@/lib/payment-methods';
 import { useAppData } from '@/store/AppDataContext';
 import type {
   PaymentMethod,
@@ -11,38 +13,6 @@ import type {
   ThemePreference,
   UserSettingsInput,
 } from '@/types/domain';
-
-const paymentMethodOptions: Array<{
-  value: PaymentSource;
-  label: string;
-  icon: string;
-  hint: string;
-}> = [
-  {
-    value: 'credit_card',
-    label: 'Credit Card',
-    icon: 'credit_card',
-    hint: 'Card nickname only',
-  },
-  {
-    value: 'debit_card',
-    label: 'Debit Card',
-    icon: 'payments',
-    hint: 'Bank card nickname',
-  },
-  {
-    value: 'upi',
-    label: 'UPI ID',
-    icon: 'qr_code_2',
-    hint: 'UPI handle or label',
-  },
-  {
-    value: 'cash',
-    label: 'Cash',
-    icon: 'wallet',
-    hint: 'Wallet or cash bucket',
-  },
-];
 
 const initialForm = {
   name: '',
@@ -59,11 +29,8 @@ const themeOptions: Array<{
   { value: 'system', label: 'System', hint: 'Follow device appearance' },
 ];
 
-function getPaymentMethodMeta(type: PaymentSource) {
-  return paymentMethodOptions.find((option) => option.value === type) ?? paymentMethodOptions[0];
-}
-
 export function ProfileManager() {
+  const navigate = useNavigate();
   const {
     paymentMethods,
     expenses,
@@ -151,7 +118,18 @@ export function ProfileManager() {
               return (
                 <Card
                   key={paymentMethod.id}
-                  className="group flex items-center justify-between gap-4 bg-surface-container-lowest"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    navigate(`/profile/payment-methods/${paymentMethod.id}`)
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      navigate(`/profile/payment-methods/${paymentMethod.id}`);
+                    }
+                  }}
+                  className="group flex cursor-pointer items-center justify-between gap-4 bg-surface-container-lowest transition hover:-translate-y-0.5 hover:bg-surface-container"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-container-high text-primary">
@@ -167,27 +145,37 @@ export function ProfileManager() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 opacity-100 transition lg:opacity-0 lg:group-hover:opacity-100">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditing(paymentMethod);
-                        setDraft({
-                          name: paymentMethod.name,
-                          type: paymentMethod.type,
-                        });
-                      }}
-                      className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-primary"
-                    >
-                      <MaterialIcon name="edit" className="text-[18px]" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void deletePaymentMethod(paymentMethod.id)}
-                      className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-error"
-                    >
-                      <MaterialIcon name="delete" className="text-[18px]" />
-                    </button>
+                  <div className="flex items-center gap-1">
+                    <div className="hidden items-center gap-1 text-sm font-semibold text-primary md:flex">
+                      <span>View</span>
+                      <MaterialIcon name="chevron_right" className="text-[18px]" />
+                    </div>
+                    <div className="flex gap-2 opacity-100 transition lg:opacity-0 lg:group-hover:opacity-100">
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setEditing(paymentMethod);
+                          setDraft({
+                            name: paymentMethod.name,
+                            type: paymentMethod.type,
+                          });
+                        }}
+                        className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-primary"
+                      >
+                        <MaterialIcon name="edit" className="text-[18px]" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void deletePaymentMethod(paymentMethod.id);
+                        }}
+                        className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-error"
+                      >
+                        <MaterialIcon name="delete" className="text-[18px]" />
+                      </button>
+                    </div>
                   </div>
                 </Card>
               );

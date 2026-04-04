@@ -29,6 +29,11 @@ const ProfilePage = lazy(() =>
     default: module.ProfilePage,
   })),
 );
+const PaymentMethodPage = lazy(() =>
+  import('@/pages/PaymentMethodPage').then((module) => ({
+    default: module.PaymentMethodPage,
+  })),
+);
 
 function LoadingScreen() {
   return (
@@ -72,6 +77,10 @@ export function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/profile/payment-methods/:paymentMethodId"
+            element={<PaymentMethodPage />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
