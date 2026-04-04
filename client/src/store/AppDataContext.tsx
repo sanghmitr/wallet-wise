@@ -385,6 +385,17 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }
 
   async function deletePaymentMethod(paymentMethodId: string) {
+    const isReferenced = expenses.some(
+      (expense) => expense.paymentMethodId === paymentMethodId,
+    );
+
+    if (isReferenced) {
+      toast.error(
+        'This payment method has transactions. Remove those transactions first.',
+      );
+      return;
+    }
+
     try {
       await removePaymentMethod(paymentMethodId);
 

@@ -113,6 +113,7 @@ export function ProfileManager() {
               const usageCount = expenses.filter(
                 (expense) => expense.paymentMethodId === paymentMethod.id,
               ).length;
+              const canDelete = usageCount === 0;
               const meta = getPaymentMethodMeta(paymentMethod.type);
 
               return (
@@ -171,7 +172,17 @@ export function ProfileManager() {
                           event.stopPropagation();
                           void deletePaymentMethod(paymentMethod.id);
                         }}
-                        className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-error"
+                        aria-disabled={!canDelete}
+                        title={
+                          canDelete
+                            ? 'Delete payment method'
+                            : 'This payment method has transactions and cannot be deleted'
+                        }
+                        className={`rounded-full p-2 transition ${
+                          canDelete
+                            ? 'text-on-surface-variant hover:bg-surface-container-low hover:text-error'
+                            : 'cursor-not-allowed text-on-surface-variant/45'
+                        }`}
                       >
                         <MaterialIcon name="delete" className="text-[18px]" />
                       </button>
