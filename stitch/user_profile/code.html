@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-secondary-container": "#4b525f",
+                "secondary-container": "#dce2f3",
+                "tertiary": "#5f5c78",
+                "outline": "#737c7f",
+                "inverse-primary": "#ffffff",
+                "surface-bright": "#f8f9fa",
+                "surface-tint": "#5f5e5e",
+                "error-container": "#fe8983",
+                "tertiary-dim": "#53506b",
+                "on-surface-variant": "#586064",
+                "primary-fixed-dim": "#d6d4d3",
+                "on-primary-fixed-variant": "#5c5b5b",
+                "on-secondary-fixed": "#39404c",
+                "outline-variant": "#abb3b7",
+                "secondary": "#585f6d",
+                "on-surface": "#2b3437",
+                "background": "#f8f9fa",
+                "surface": "#f8f9fa",
+                "surface-container-low": "#f1f4f6",
+                "on-error": "#fff7f6",
+                "primary-dim": "#535252",
+                "surface-container-highest": "#dbe4e7",
+                "error": "#9f403d",
+                "on-error-container": "#752121",
+                "tertiary-fixed-dim": "#cac6e6",
+                "primary-container": "#e5e2e1",
+                "tertiary-container": "#d8d3f4",
+                "surface-variant": "#dbe4e7",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed": "#403f3f",
+                "on-primary": "#faf7f6",
+                "on-primary-container": "#525151",
+                "inverse-surface": "#0c0f10",
+                "on-tertiary-fixed": "#37354f",
+                "inverse-on-surface": "#9b9d9e",
+                "surface-dim": "#d1dce0",
+                "secondary-dim": "#4c5361",
+                "tertiary-fixed": "#d8d3f4",
+                "on-secondary": "#f8f8ff",
+                "surface-container-high": "#e2e9ec",
+                "secondary-fixed": "#dce2f3",
+                "primary-fixed": "#e5e2e1",
+                "on-tertiary-fixed-variant": "#54516d",
+                "on-background": "#2b3437",
+                "error-dim": "#4e0309",
+                "on-tertiary": "#fcf7ff",
+                "on-tertiary-container": "#4a4863",
+                "on-secondary-fixed-variant": "#555c69",
+                "surface-container": "#eaeff1",
+                "primary": "#5f5e5e",
+                "secondary-fixed-dim": "#ced4e4"
+            },
+            "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Inter"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .tonal-transition { background-color: transparent; }
+        .no-border { border: none !important; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#f8f9fa]/70 dark:bg-gray-900/70 backdrop-blur-xl no-border tonal-transition">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<img alt="User profile avatar" class="w-10 h-10 rounded-full object-cover" data-alt="portrait of a professional man with short dark hair in soft studio lighting on a neutral gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9bqYxKksKDKW49MJt_w3l_GBkVG1AH76bPXlUAc5ueqiC82ceKtyLgW_L26IRPRqAcQqwf5pWZva0zOdYjE2PMMEzvwFCHpUNC8yvjjVZGL30Fk9EgXL-j2agOa-pnaxE0zLn-3NK9qLkvWjszu6Ty_2FD0RmsBeU0PYuiyJP0MapuZJ_cCh9Gs6L6_5YHiCxOFeqeRLndyofME0bM5HB06yPuIEYJkyz-JXL2aiF3R2BEw84HnlwouU23JYhxZuHEGTDp7rNB18"/>
+<h1 class="text-lg font-bold text-[#5f5e5e] dark:text-white font-['Inter'] tracking-tight">The Ledger</h1>
+</div>
+<button class="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#5f5e5e] dark:text-gray-300" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-12">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative">
+<div class="w-28 h-28 rounded-full overflow-hidden ring-4 ring-surface-container-low shadow-xl">
+<img alt="Curator Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a thoughtful man with a soft beard against a minimal light gray studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC87uy3WPvM7RAE0hzTb9zr9fMiB6G5Eb1Ek6u95UWTChyAmF4jbS87Ot2Np8acTOBl1fSVA2VSZll2y5Hyhv645OOIO-ynblUqqthZZ7rtXbchUJpiTqs6eGbxD_Is7Yg7M9Ia0fAnHHrFzIjyrVybNtz71Awsc2GJ0D-o-tD3DuEmVXANMmyCjhEk1PT4nP0FhXqIRTsKjHg5-KDtcK7FgwVdS-XtMoC7Hw8LXxYKOYf7W1mmEG3z7JcuMt4sG4_gQ-G066RFdBk"/>
+</div>
+<button class="absolute bottom-0 right-0 bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight text-primary">Curator</h2>
+<p class="text-on-surface-variant font-medium">curator@linearledger.io</p>
+</div>
+</section>
+<!-- Personal Information Section -->
+<section class="space-y-6">
+<h3 class="text-sm font-semibold uppercase tracking-[0.2em] text-on-surface-variant px-2">Personal Information</h3>
+<div class="bg-surface-container-lowest rounded-lg p-6 space-y-8 shadow-[0px_4px_24px_rgba(0,0,0,0.02)]">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-2">
+<label class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/70">Full Name</label>
+<input class="w-full bg-surface-container-low border-0 rounded-lg px-4 py-3 focus:bg-surface-container-lowest focus:ring-1 focus:ring-outline-variant/30 transition-all font-medium text-primary" type="text" value="Curator"/>
+</div>
+<div class="space-y-2">
+<label class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/70">Phone Number</label>
+<input class="w-full bg-surface-container-low border-0 rounded-lg px-4 py-3 focus:bg-surface-container-lowest focus:ring-1 focus:ring-outline-variant/30 transition-all font-medium text-primary" type="tel" value="+91 98765 43210"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/70">Primary Currency</label>
+<div class="flex items-center justify-between bg-surface-container-low px-4 py-3 rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="payments">payments</span>
+<span class="font-medium text-primary">INR - Indian Rupee</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="keyboard_arrow_right">keyboard_arrow_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Security Section -->
+<section class="space-y-6">
+<h3 class="text-sm font-semibold uppercase tracking-[0.2em] text-on-surface-variant px-2">Security</h3>
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0px_4px_24px_rgba(0,0,0,0.02)]">
+<button class="w-full flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="lock_reset">lock_reset</span>
+</div>
+<span class="font-semibold text-primary">Change Password</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<div class="w-full flex items-center justify-between p-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="fingerprint">fingerprint</span>
+</div>
+<div>
+<span class="font-semibold text-primary block">Biometric Login</span>
+<span class="text-[11px] text-on-surface-variant">Use FaceID or Fingerprint</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Preferences Section -->
+<section class="space-y-6">
+<h3 class="text-sm font-semibold uppercase tracking-[0.2em] text-on-surface-variant px-2">Preferences</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest rounded-lg p-6 space-y-4 shadow-[0px_4px_24px_rgba(0,0,0,0.02)]">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary" data-icon="palette">palette</span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Theme</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full text-xs font-bold border border-primary bg-primary text-on-primary">Light</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors">Dark</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors">System</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-6 space-y-4 shadow-[0px_4px_24px_rgba(0,0,0,0.02)]">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary" data-icon="language">language</span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Language</span>
+</div>
+<div class="flex items-center justify-between w-full p-2 bg-surface-container-low rounded-lg">
+<span class="text-sm font-medium px-2">English (US)</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="unfold_more">unfold_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Account Actions Section -->
+<section class="pt-8 space-y-4">
+<button class="w-full py-4 rounded-full bg-surface-container-highest text-primary font-bold tracking-wide active:scale-95 duration-200 transition-all">
+                Log Out
+            </button>
+<button class="w-full py-4 rounded-full text-error font-bold tracking-wide hover:bg-error-container/10 active:scale-95 duration-200 transition-all">
+                Delete Account
+            </button>
+</section>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-[#f8f9fa]/80 dark:bg-gray-900/80 backdrop-blur-2xl no-border bg-surface-container-low shadow-[0px_-12px_32px_rgba(43,52,55,0.06)] rounded-t-[2rem]">
+<div class="flex justify-around items-center px-4 pb-6 pt-3">
+<a class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-3 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-3 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-3 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-3xl" data-icon="add_circle">add_circle</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-3 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Chat</span>
+</a>
+<!-- Active State for Settings -->
+<a class="flex flex-col items-center justify-center bg-[#eaeff1] dark:bg-gray-800 text-[#5f5e5e] dark:text-white rounded-2xl px-3 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

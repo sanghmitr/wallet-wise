@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Insights - The Ethereal Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#9b9d9e",
+                        "on-background": "#2b3437",
+                        "secondary-container": "#dce2f3",
+                        "on-secondary": "#f8f8ff",
+                        "on-primary": "#faf7f6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#0c0f10",
+                        "surface-dim": "#d1dce0",
+                        "outline": "#737c7f",
+                        "primary-container": "#e5e2e1",
+                        "secondary-fixed": "#dce2f3",
+                        "inverse-primary": "#ffffff",
+                        "primary-fixed-dim": "#d6d4d3",
+                        "on-tertiary": "#fcf7ff",
+                        "primary-fixed": "#e5e2e1",
+                        "on-tertiary-container": "#4a4863",
+                        "on-secondary-fixed": "#39404c",
+                        "surface-tint": "#5f5e5e",
+                        "error-container": "#fe8983",
+                        "on-primary-fixed": "#403f3f",
+                        "surface-container": "#eaeff1",
+                        "primary": "#5f5e5e",
+                        "outline-variant": "#abb3b7",
+                        "on-error": "#fff7f6",
+                        "on-tertiary-fixed-variant": "#54516d",
+                        "surface-bright": "#f8f9fa",
+                        "background": "#f8f9fa",
+                        "secondary-dim": "#4c5361",
+                        "surface-container-high": "#e2e9ec",
+                        "on-primary-container": "#525151",
+                        "surface-variant": "#dbe4e7",
+                        "on-secondary-container": "#4b525f",
+                        "error": "#9f403d",
+                        "tertiary-dim": "#53506b",
+                        "surface-container-low": "#f1f4f6",
+                        "tertiary": "#5f5c78",
+                        "error-dim": "#4e0309",
+                        "surface-container-highest": "#dbe4e7",
+                        "surface": "#f8f9fa",
+                        "on-surface-variant": "#586064",
+                        "tertiary-fixed": "#d8d3f4",
+                        "on-secondary-fixed-variant": "#555c69",
+                        "secondary-fixed-dim": "#ced4e4",
+                        "tertiary-fixed-dim": "#cac6e6",
+                        "on-tertiary-fixed": "#37354f",
+                        "primary-dim": "#535252",
+                        "on-error-container": "#752121",
+                        "on-surface": "#2b3437",
+                        "tertiary-container": "#d8d3f4",
+                        "secondary": "#585f6d",
+                        "on-primary-fixed-variant": "#5c5b5b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/70 backdrop-blur-xl">
+<div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional woman with a minimalist aesthetic in a bright, modern architectural setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAO0dY44PuMpauNycymR1kg_DJ7lq7RrA-hvf8hFbmpMk1ovchUAIIGsdN4VHHP6FjzjaZcEEw5tgSFBKR-n76WIQOd7vxRbzOC7fqCbx_QTgl0vRKnpXlUF9iiS1o3mOHqbC4c9FklrvkOJh-Hnzb6WEqqY7NRRP2BEjwzK_17tp4YYlZAlAjeg798mFZj6wf0KYvUitTwoOChsslZdUQXRnIavGuGeI7mpg7OFHkShp9y-qf_uuyOOde3QEPgpQmsBbekAZtakE"/>
+</div>
+<span class="text-lg font-bold text-neutral-800 tracking-tight font-sans">The Ethereal Ledger</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-neutral-600" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- NavigationDrawer (Desktop) -->
+<nav class="hidden lg:flex flex-col p-6 fixed left-0 top-0 h-full border-r border-neutral-100 bg-slate-50 w-72 z-40">
+<div class="text-xl font-black text-neutral-800 mb-8">The Ethereal Ledger</div>
+<div class="mb-10 flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-primary-container overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional woman with a minimalist aesthetic in a bright, modern architectural setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjx-jfIGXNGG5C7s9JbvBKEXHEu3LI3uQM0C4qRWIoRzciKuWstoRnJUa2lR491OepYTlA1b2zh_KvKgqPOf9dxq3ifQ4dzSGufqQ2SivSTOBv5LgOsjjlbQ_wnQgRCSTvkbwc0Oer4q2zjBRhBuAgJx37dolhySnZ6B4FVj8haqIGUXhfcREFkE7y3nrQMrheEMQO_zBcI-XA-aCgJp7HGammzIb4qg80fSPjUaJWBSmBgZMHzclszsJNX1wfW4OcUyr2T6o8lQY"/>
+</div>
+<div>
+<p class="text-sm font-bold text-neutral-900">The Curator</p>
+<p class="text-[11px] text-neutral-500 uppercase tracking-widest">Premium Member</p>
+</div>
+</div>
+<div class="space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 text-neutral-500 hover:bg-neutral-100 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-sans text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 bg-white text-neutral-900 font-bold rounded-xl shadow-sm border border-neutral-100/50" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="font-sans text-sm">Insights</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-neutral-500 hover:bg-neutral-100 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="font-sans text-sm">Add Transaction</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-neutral-500 hover:bg-neutral-100 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="font-sans text-sm">Assistant</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-neutral-500 hover:bg-neutral-100 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-sans text-sm">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-6 lg:ml-72 max-w-5xl mx-auto">
+<!-- Hero Header -->
+<header class="mb-10">
+<h1 class="text-4xl font-extrabold tracking-tight text-on-background mb-2">Insights</h1>
+<p class="text-on-surface-variant text-sm font-medium">Your financial narrative for October 2023</p>
+</header>
+<!-- Bento Grid Insights -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Monthly Comparison (Main Highlight) -->
+<section class="md:col-span-8 bg-surface-container-lowest p-8 rounded-lg shadow-[0_12px_32px_rgba(43,52,55,0.04)] flex flex-col justify-between">
+<div>
+<h2 class="text-lg font-bold mb-1">Monthly Trajectory</h2>
+<p class="text-xs text-on-surface-variant mb-8 uppercase tracking-widest">Current vs. Previous Period</p>
+<div class="flex items-baseline gap-4 mb-12">
+<span class="text-5xl font-black tracking-tighter text-primary">$4,280.00</span>
+<span class="text-tertiary font-bold flex items-center gap-1 bg-tertiary-container px-3 py-1 rounded-full text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_downward">arrow_downward</span> 12%
+                        </span>
+</div>
+</div>
+<!-- Custom Minimal Bar Chart -->
+<div class="flex items-end justify-between h-48 gap-4 px-2">
+<div class="flex-1 group relative">
+<div class="bg-surface-container h-[40%] rounded-t-full transition-all group-hover:bg-primary-container"></div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-on-surface-variant">JUN</div>
+</div>
+<div class="flex-1 group relative">
+<div class="bg-surface-container h-[55%] rounded-t-full transition-all group-hover:bg-primary-container"></div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-on-surface-variant">JUL</div>
+</div>
+<div class="flex-1 group relative">
+<div class="bg-surface-container h-[45%] rounded-t-full transition-all group-hover:bg-primary-container"></div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-on-surface-variant">AUG</div>
+</div>
+<div class="flex-1 group relative">
+<div class="bg-surface-container-high h-[75%] rounded-t-full transition-all group-hover:bg-primary-container"></div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-on-surface-variant">SEP</div>
+</div>
+<div class="flex-1 group relative">
+<div class="bg-primary h-[65%] rounded-t-full transition-all"></div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-on-surface">OCT</div>
+</div>
+</div>
+</section>
+<!-- Payment Methods Split -->
+<section class="md:col-span-4 bg-surface-container-low p-8 rounded-lg flex flex-col">
+<h2 class="text-lg font-bold mb-1">Source Logic</h2>
+<p class="text-xs text-on-surface-variant mb-8 uppercase tracking-widest">Card vs UPI Usage</p>
+<div class="flex-1 flex flex-col justify-center gap-8">
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-sm font-bold">Credit Cards</span>
+<span class="text-xs font-medium text-on-surface-variant">68%</span>
+</div>
+<div class="h-3 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[68%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-sm font-bold">UPI / Instant</span>
+<span class="text-xs font-medium text-on-surface-variant">32%</span>
+</div>
+<div class="h-3 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-dim w-[32%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<p class="text-[11px] text-on-surface-variant leading-relaxed">
+                        Your UPI usage has decreased by <span class="font-bold text-on-surface">15%</span> this month, favoring loyalty point accumulation on cards.
+                    </p>
+</div>
+</section>
+<!-- Category Breakdown -->
+<section class="md:col-span-12 bg-surface-container-lowest p-8 rounded-lg shadow-[0_12px_32px_rgba(43,52,55,0.02)]">
+<div class="flex justify-between items-start mb-10">
+<div>
+<h2 class="text-lg font-bold mb-1">Categorical Intent</h2>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">Top Spending Sectors</p>
+</div>
+<button class="px-4 py-2 bg-surface-container-low rounded-full text-xs font-bold text-primary hover:bg-surface-container transition-colors">
+                        View Detailed Log
+                    </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Category 1 -->
+<div class="group cursor-pointer">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-10 h-10 rounded-2xl bg-secondary-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<div>
+<h3 class="text-sm font-bold">Gastronomy</h3>
+<p class="text-[10px] text-on-surface-variant font-medium">18 Transactions</p>
+</div>
+</div>
+<div class="text-xl font-black mb-3">$1,120.50</div>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary-dim w-[85%] rounded-full group-hover:w-[90%] transition-all"></div>
+</div>
+</div>
+<!-- Category 2 -->
+<div class="group cursor-pointer">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-10 h-10 rounded-2xl bg-tertiary-container flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" data-icon="commute">commute</span>
+</div>
+<div>
+<h3 class="text-sm font-bold">Mobility</h3>
+<p class="text-[10px] text-on-surface-variant font-medium">42 Transactions</p>
+</div>
+</div>
+<div class="text-xl font-black mb-3">$450.20</div>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-dim w-[40%] rounded-full group-hover:w-[45%] transition-all"></div>
+</div>
+</div>
+<!-- Category 3 -->
+<div class="group cursor-pointer">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-10 h-10 rounded-2xl bg-primary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<div>
+<h3 class="text-sm font-bold">Lifestyle</h3>
+<p class="text-[10px] text-on-surface-variant font-medium">12 Transactions</p>
+</div>
+</div>
+<div class="text-xl font-black mb-3">$890.00</div>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] rounded-full group-hover:w-[70%] transition-all"></div>
+</div>
+</div>
+<!-- Category 4 -->
+<div class="group cursor-pointer">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-10 h-10 rounded-2xl bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+</div>
+<div>
+<h3 class="text-sm font-bold">Residence</h3>
+<p class="text-[10px] text-on-surface-variant font-medium">4 Transactions</p>
+</div>
+</div>
+<div class="text-xl font-black mb-3">$1,820.00</div>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-outline-variant w-[95%] rounded-full group-hover:w-[100%] transition-all"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Insight Tip (Full Width Glassmorphism) -->
+<section class="md:col-span-12 glass-card p-8 rounded-lg border border-white/20 shadow-sm overflow-hidden relative">
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="max-w-xl">
+<div class="flex items-center gap-2 text-tertiary mb-3">
+<span class="material-symbols-outlined text-lg" data-icon="auto_awesome">auto_awesome</span>
+<span class="text-xs font-black uppercase tracking-widest">Curator Insight</span>
+</div>
+<h3 class="text-xl font-bold mb-2">Automated Optimization Potential</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                            We've detected a <span class="font-bold text-on-surface">22% surge</span> in subscription-based services. By consolidating your media bundles, you could save approximately $45 per month without losing access.
+                        </p>
+</div>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-bold text-sm shadow-lg hover:brightness-110 active:scale-95 transition-all self-start md:self-center">
+                        Optimize Now
+                    </button>
+</div>
+<!-- Abstract visual element -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-secondary-container/30 blur-3xl rounded-full -mr-20 -mt-20"></div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50">
+<div class="bg-white/80 backdrop-blur-xl flex justify-around items-center px-4 pb-8 pt-2 rounded-t-[2rem] shadow-[0_-12px_32px_rgba(43,52,55,0.06)]">
+<button class="flex flex-col items-center justify-center text-neutral-400 p-3 hover:text-neutral-700 transition-colors">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-neutral-200 text-neutral-900 rounded-full p-3 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Insights</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-400 p-3 hover:text-neutral-700 transition-colors">
+<div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg -mt-8 mb-1">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</div>
+<span class="text-[11px] font-medium tracking-wide">Add</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-400 p-3 hover:text-neutral-700 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Chat</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-400 p-3 hover:text-neutral-700 transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Settings</span>
+</button>
+</div>
+</nav>
+</body></html>

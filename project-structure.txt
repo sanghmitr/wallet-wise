@@ -1,0 +1,82 @@
+wallet_wise/
+|- package.json
+|- requirement.txt
+|- project-structure.txt
+|- README.md
+|- client/
+|  |- package.json
+|  |- index.html
+|  |- vite.config.ts
+|  |- tailwind.config.js
+|  |- postcss.config.js
+|  |- .env.example
+|  |- public/
+|  |  |- icons/
+|  |- src/
+|  |  |- app/
+|  |  |  |- App.tsx
+|  |  |- components/
+|  |  |  |- auth/
+|  |  |  |- budgets/
+|  |  |  |- categories/
+|  |  |  |- charts/
+|  |  |  |- chat/
+|  |  |  |- dashboard/
+|  |  |  |- expenses/
+|  |  |  |- layout/
+|  |  |  |- ui/
+|  |  |- config/
+|  |  |- features/
+|  |  |  |- budgets/
+|  |  |  |- categories/
+|  |  |  |- chat/
+|  |  |  |- dashboard/
+|  |  |  |- expenses/
+|  |  |- hooks/
+|  |  |- lib/
+|  |  |- pages/
+|  |  |- services/
+|  |  |- store/
+|  |  |- styles/
+|  |  |- types/
+|  |  |- utils/
+|  |  |- main.tsx
+|- server/
+|  |- package.json
+|  |- tsconfig.json
+|  |- .env.example
+|  |- src/
+|  |  |- config/
+|  |  |- controllers/
+|  |  |- lib/
+|  |  |  |- data-store.ts
+|  |  |  |- firebase.ts
+|  |  |  |- openai.ts
+|  |  |- middleware/
+|  |  |  |- auth.ts
+|  |  |- routes/
+|  |  |  |- budgets.ts
+|  |  |  |- categories.ts
+|  |  |  |- chat.ts
+|  |  |  |- expenses.ts
+|  |  |- schemas/
+|  |  |- services/
+|  |  |  |- ai/
+|  |  |     |- assistant.ts
+|  |  |- types/
+|  |  |- utils/
+|  |  |- server.ts
+|- shared/
+|  |- constants/
+|  |- schemas/
+|  |- types/
+|- stitch/
+|  |- add_expense/
+|  |- ai_assistant/
+|  |- analytics_insights/
+|  |- budget_goals/
+|  |- categories/
+|  |- dashboard_inr/
+|  |- insights_inr/
+|  |- linear_ledger/
+|  |- user_profile/

@@ -1,0 +1,87 @@
+Wallet Wise MVP Requirements
+
+Overview
+- Monorepo workspace with `client` and `server`
+- Frontend: React + Vite + Tailwind CSS + TypeScript
+- Backend: Express + TypeScript
+- Database: Firebase Firestore with memory fallback
+- AI: OpenAI API
+- Charts: Recharts
+- PWA: `vite-plugin-pwa`
+
+Environment
+- Node.js 20+
+- npm 10+
+- Firebase project with Firestore enabled
+- Firebase Authentication enabled for Google and/or Anonymous sign-in
+- OpenAI API key
+
+Root Workspace Install
+- `npm install`
+
+Root Workspace Packages
+- Workspace management is handled from the root `package.json`
+- Root scripts:
+- `npm run dev:client`
+- `npm run dev:server`
+- `npm run build`
+
+Frontend Runtime Packages (`client`)
+- `react`
+- `react-dom`
+- `react-router-dom`
+- `axios`
+- `clsx`
+- `tailwind-merge`
+- `lucide-react`
+- `react-hook-form`
+- `@hookform/resolvers`
+- `zod`
+- `react-hot-toast`
+- `recharts`
+- `firebase`
+- `date-fns`
+- `vite-plugin-pwa`
+
+Frontend Dev Packages (`client`)
+- `vite`
+- `@vitejs/plugin-react`
+- `typescript`
+- `tailwindcss`
+- `postcss`
+- `autoprefixer`
+- `eslint`
+- `@types/react`
+- `@types/react-dom`
+
+Backend Runtime Packages (`server`)
+- `express`
+- `cors`
+- `dotenv`
+- `firebase-admin`
+- `openai`
+- `zod`
+- `date-fns`
+
+Backend Dev Packages (`server`)
+- `typescript`
+- `tsx`
+- `nodemon`
+- `eslint`
+- `@types/node`
+- `@types/express`
+- `@types/cors`
+
+Optional Explicit Install Commands
+- `npm install --workspace client react react-dom react-router-dom axios clsx tailwind-merge lucide-react react-hook-form @hookform/resolvers zod react-hot-toast recharts firebase date-fns vite-plugin-pwa`
+- `npm install --workspace server express cors dotenv firebase-admin openai zod date-fns`
+- `npm install -D --workspace client vite @vitejs/plugin-react typescript tailwindcss postcss autoprefixer eslint @types/react @types/react-dom`
+- `npm install -D --workspace server typescript tsx nodemon eslint @types/node @types/express @types/cors`
+
+Environment Files
+- `client/.env.example`
+- `server/.env.example`
+
+Build Verification
+- `npm --workspace client run build`
+- `npm --workspace server run build`

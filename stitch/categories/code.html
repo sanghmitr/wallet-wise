@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Categories — The Ethereal Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#9b9d9e",
+                    "on-background": "#2b3437",
+                    "secondary-container": "#dce2f3",
+                    "on-secondary": "#f8f8ff",
+                    "on-primary": "#faf7f6",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#0c0f10",
+                    "surface-dim": "#d1dce0",
+                    "outline": "#737c7f",
+                    "primary-container": "#e5e2e1",
+                    "secondary-fixed": "#dce2f3",
+                    "inverse-primary": "#ffffff",
+                    "primary-fixed-dim": "#d6d4d3",
+                    "on-tertiary": "#fcf7ff",
+                    "primary-fixed": "#e5e2e1",
+                    "on-tertiary-container": "#4a4863",
+                    "on-secondary-fixed": "#39404c",
+                    "surface-tint": "#5f5e5e",
+                    "error-container": "#fe8983",
+                    "on-primary-fixed": "#403f3f",
+                    "surface-container": "#eaeff1",
+                    "primary": "#5f5e5e",
+                    "outline-variant": "#abb3b7",
+                    "on-error": "#fff7f6",
+                    "on-tertiary-fixed-variant": "#54516d",
+                    "surface-bright": "#f8f9fa",
+                    "background": "#f8f9fa",
+                    "secondary-dim": "#4c5361",
+                    "surface-container-high": "#e2e9ec",
+                    "on-primary-container": "#525151",
+                    "surface-variant": "#dbe4e7",
+                    "on-secondary-container": "#4b525f",
+                    "error": "#9f403d",
+                    "tertiary-dim": "#53506b",
+                    "surface-container-low": "#f1f4f6",
+                    "tertiary": "#5f5c78",
+                    "error-dim": "#4e0309",
+                    "surface-container-highest": "#dbe4e7",
+                    "surface": "#f8f9fa",
+                    "on-surface": "#2b3437",
+                    "on-surface-variant": "#586064",
+                    "tertiary-fixed": "#d8d3f4",
+                    "on-secondary-fixed-variant": "#555c69",
+                    "secondary-fixed-dim": "#ced4e4",
+                    "tertiary-fixed-dim": "#cac6e6",
+                    "on-tertiary-fixed": "#37354f",
+                    "primary-dim": "#535252",
+                    "on-error-container": "#752121",
+                    "on-surface": "#2b3437",
+                    "tertiary-container": "#d8d3f4",
+                    "secondary": "#585f6d",
+                    "on-primary-fixed-variant": "#5c5b5b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl fixed top-0 w-full z-50">
+<div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a professional man with a neutral expression in a minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlT7nl2LCxsWb_r52hHIwgZ9cxn_dTxQL53dZIsT1RsI5joZMz7I6hRwTChGvehV3Ipp0cYpUHmPcFQV4HMqKSvBbxWZkj7SSxlIVwNCEazsgqrSIb5Lzw7lVppFx30NPLpXY7KtVwGPa2vcEh_mo1W6P88H4StsOgv-uf4pORKb2CILGBw7Wmtp6SmI40pCewsCCCCW3lH1oNG-aTR0VUGiZr-wXRei6EzJlQhMm6WYh2G3f3rgtqdz2FyQdfO8vtgt7jEFSea5I"/>
+</div>
+<h1 class="text-lg font-bold text-neutral-800 dark:text-neutral-100 tracking-tight">The Ethereal Ledger</h1>
+</div>
+<button class="text-neutral-600 dark:text-neutral-400 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<!-- NavigationDrawer (Web Only) -->
+<aside class="hidden lg:flex flex-col p-6 fixed left-0 top-0 h-full border-r border-neutral-100 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-950 w-72 z-40">
+<div class="text-xl font-black text-neutral-800 dark:text-neutral-100 mb-8">The Ethereal Ledger</div>
+<div class="flex items-center gap-4 mb-10 p-2">
+<div class="w-12 h-12 rounded-2xl bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile photo of a refined professional looking at the camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKk7aZf2w-gVD0P2BzzuYboUouWAgHdJN5MjatlgzpnirT1ElJvDsRjf3MfS4XpExkJbB2g1hAYxEhoS5JuTbJk3RummHFcZRo80KrPOMg57_fDcJFdoO1D2c-Za5p_xMmOUws4Jy0oADOHZE2x5iYqKTcqIVtv2JRF1L1EKV9q09xX9egfEqAzhl3YxfGzrQu-vTjyJo6Jnb33Fv627fwlX9Qy3ryDf7PYK5UZxAb3xMB8UFjEu5ednh7anoLMCHJZuQrFGEmGhU"/>
+</div>
+<div>
+<p class="font-bold text-neutral-900 dark:text-white text-sm">The Curator</p>
+<p class="text-xs text-neutral-500">Financial Mindfulness</p>
+</div>
+</div>
+<nav class="space-y-2">
+<a class="flex items-center gap-4 p-3 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 p-3 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="text-sm font-medium">Insights</span>
+</a>
+<a class="flex items-center gap-4 p-3 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold rounded-xl shadow-sm" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="text-sm">Categories</span>
+</a>
+<a class="flex items-center gap-4 p-3 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto lg:pl-80">
+<!-- Hero Header -->
+<header class="mb-10">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-sm font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Library</p>
+<h2 class="text-4xl font-extrabold text-on-surface tracking-tight">Categories</h2>
+</div>
+<button class="bg-primary text-on-primary px-6 py-3 rounded-full flex items-center gap-2 font-semibold shadow-lg shadow-primary/10 hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>New Class</span>
+</button>
+</div>
+<div class="mt-8 h-[2px] w-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-primary w-1/4 rounded-full"></div>
+</div>
+</header>
+<!-- Category Grid/List -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Category Item: Food -->
+<div class="group bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between transition-all hover:bg-surface-container-low">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center relative">
+<span class="material-symbols-outlined text-primary text-2xl">restaurant</span>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-tertiary rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface text-lg">Food &amp; Dining</h3>
+<p class="text-sm text-on-surface-variant font-medium">12 transactions this month</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item: Transport -->
+<div class="group bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between transition-all hover:bg-surface-container-low">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center relative">
+<span class="material-symbols-outlined text-primary text-2xl">directions_car</span>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface text-lg">Transport</h3>
+<p class="text-sm text-on-surface-variant font-medium">8 transactions this month</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item: Rent -->
+<div class="group bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between transition-all hover:bg-surface-container-low">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center relative">
+<span class="material-symbols-outlined text-primary text-2xl">home_work</span>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-outline rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface text-lg">Rent &amp; Utilities</h3>
+<p class="text-sm text-on-surface-variant font-medium">2 transactions this month</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item: Shopping -->
+<div class="group bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between transition-all hover:bg-surface-container-low">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center relative">
+<span class="material-symbols-outlined text-primary text-2xl">shopping_bag</span>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-primary-dim rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface text-lg">Shopping</h3>
+<p class="text-sm text-on-surface-variant font-medium">15 transactions this month</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Category Item: Health -->
+<div class="group bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between transition-all hover:bg-surface-container-low">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center relative">
+<span class="material-symbols-outlined text-primary text-2xl">medical_services</span>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-error rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface text-lg">Health</h3>
+<p class="text-sm text-on-surface-variant font-medium">3 transactions this month</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Add New Placeholder -->
+<button class="border-2 border-dashed border-surface-container-high p-6 rounded-lg flex items-center justify-center gap-3 text-on-surface-variant hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-semibold">Define New Category</span>
+</button>
+</section>
+<!-- Insight Card (Bento Style) -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-surface-container-low rounded-lg p-8 relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="text-2xl font-bold text-on-surface mb-2 tracking-tight">Category Distribution</h4>
+<p class="text-on-surface-variant max-w-xs mb-6">Your spending is heavily concentrated in <span class="text-primary font-bold">Food &amp; Dining</span> this month.</p>
+<div class="flex gap-1 h-2 w-full rounded-full overflow-hidden bg-surface-container-highest">
+<div class="bg-tertiary w-[45%]"></div>
+<div class="bg-secondary w-[25%]"></div>
+<div class="bg-primary-dim w-[20%]"></div>
+<div class="bg-error w-[10%]"></div>
+</div>
+</div>
+<!-- Decorative element -->
+<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/40 blur-3xl rounded-full"></div>
+</div>
+<div class="bg-primary text-on-primary rounded-lg p-8 flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-4xl mb-4">auto_awesome</span>
+<h4 class="text-xl font-bold leading-tight">Optimization Tip</h4>
+</div>
+<p class="text-sm text-on-primary/80 leading-relaxed">Consider merging 'Transport' and 'Fuel' for cleaner insights.</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl flex justify-around items-center px-4 pb-6 pt-2 z-50 rounded-t-[2rem] shadow-[0_-12px_32px_rgba(43,52,55,0.06)]">
+<a class="flex flex-col items-center justify-center text-neutral-400 dark:text-neutral-500 p-3 hover:text-neutral-700 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-400 dark:text-neutral-500 p-3 hover:text-neutral-700 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-full p-3 shadow-sm transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="text-[11px] font-bold tracking-wide mt-1">Settings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-400 dark:text-neutral-500 p-3 hover:text-neutral-700 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-400 dark:text-neutral-500 p-3 hover:text-neutral-700 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[11px] font-medium tracking-wide mt-1">Settings</span>
+</a>
+</nav>
+</body></html>
