@@ -258,10 +258,10 @@ export function AuthGate({
                   </div>
                 </div>
 
-                <p className="mt-6 text-xs leading-5 text-on-surface-variant">
+                {/* <p className="mt-6 text-xs leading-5 text-on-surface-variant">
                   For Google login to work, enable Google in Firebase Authentication
                   and add your local domain to Authorized domains.
-                </p>
+                </p> */}
 
                 {bootstrapError ? (
                   <pre className="mt-4 overflow-x-auto rounded-[1.5rem] bg-error/8 p-4 text-xs text-error">

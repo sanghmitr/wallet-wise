@@ -97,7 +97,7 @@ export function CategoryManager() {
 
             <Button className="gap-2" onClick={startNewCategory}>
               <MaterialIcon name="add" filled className="text-[18px]" />
-              New Class
+              New Category
             </Button>
           </div>
           <div className="mt-8 h-[2px] w-full bg-surface-container-highest">

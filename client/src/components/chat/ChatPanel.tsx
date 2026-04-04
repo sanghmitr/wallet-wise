@@ -179,34 +179,32 @@ function AssistantResultCards({ payload }: { payload: ChatResponsePayload }) {
 }
 
 function EmptyConversation({
-  title,
   onPrompt,
 }: {
-  title: string;
   onPrompt: (prompt: string) => void;
 }) {
   return (
-    <div className="flex min-h-[58vh] flex-col items-center justify-center px-1 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-[1.75rem] bg-primary text-on-primary shadow-ambient">
-        <MaterialIcon name="forum" filled className="text-[30px]" />
+    <div className="mx-auto flex min-h-[46vh] w-full max-w-3xl flex-col items-center justify-center px-2 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-[1.5rem] bg-primary text-on-primary shadow-ambient">
+        <MaterialIcon name="forum" filled className="text-[26px]" />
       </div>
-      <p className="mt-6 text-sm font-semibold uppercase tracking-[0.28em] text-primary">
+      <p className="mt-5 text-xs font-semibold uppercase tracking-[0.28em] text-primary">
         AI Assistant
       </p>
-      <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-[-0.04em] text-on-surface sm:text-5xl">
-        {title}
+      <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.04em] text-on-surface sm:text-4xl">
+        Ask about spending or add an expense.
       </h1>
-      <p className="mt-4 max-w-2xl text-base leading-7 text-on-surface-variant">
-        Ask for summaries, budget risks, category totals, or log an expense in
-        natural language.
+      <p className="mt-3 max-w-xl text-sm leading-6 text-on-surface-variant sm:text-base">
+        Try a quick summary, a budget check, or a message like "I spent 450 on
+        Zomato".
       </p>
 
-      <div className="mt-8 grid w-full gap-3 sm:grid-cols-2">
+      <div className="mt-7 grid w-full gap-3 sm:grid-cols-2">
         {suggestions.map((item) => (
           <button
             key={item}
             onClick={() => onPrompt(item)}
-            className="rounded-[1.5rem] border border-outline-variant/20 bg-surface-container-lowest/90 px-5 py-4 text-left text-sm font-semibold text-on-surface shadow-ambient transition hover:-translate-y-0.5 hover:bg-surface-container-low"
+            className="rounded-[1.25rem] border border-outline-variant/20 bg-surface-container-lowest/90 px-4 py-3 text-left text-sm font-semibold text-on-surface shadow-ambient transition hover:-translate-y-0.5 hover:bg-surface-container-low"
           >
             {item}
           </button>
@@ -227,9 +225,6 @@ export function ChatPanel() {
     () => chatMessages.some((message) => message.role === 'user'),
     [chatMessages],
   );
-  const introMessage =
-    chatMessages.find((message) => message.role === 'assistant')?.content ??
-    'Ask me about your spending.';
   const conversationMessages = useMemo(() => {
     if (!hasConversation) {
       return [] as ChatMessage[];
@@ -282,7 +277,7 @@ export function ChatPanel() {
         className="no-scrollbar flex-1 overflow-y-auto pb-52"
       >
         {!hasConversation ? (
-          <EmptyConversation title={introMessage} onPrompt={(item) => void handleSend(item)} />
+          <EmptyConversation onPrompt={(item) => void handleSend(item)} />
         ) : (
           <div className="space-y-6 pt-2">
             {conversationMessages.map((message) => (
@@ -336,20 +331,6 @@ export function ChatPanel() {
 
       <div className="glass-panel fixed bottom-24 left-0 right-0 z-20 px-4 pb-2 pt-4 lg:bottom-6 lg:left-72 lg:px-8">
         <div className="mx-auto max-w-5xl">
-          {!hasConversation ? (
-            <div className="mb-3 no-scrollbar flex gap-2 overflow-x-auto pb-1">
-              {suggestions.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => void handleSend(item)}
-                  className="whitespace-nowrap rounded-full bg-secondary-container px-4 py-2 text-sm font-medium text-on-secondary-container transition hover:bg-surface-container-high"
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
           <div className="rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest p-3 shadow-ambient">
             <div className="flex items-end gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-container text-primary">
