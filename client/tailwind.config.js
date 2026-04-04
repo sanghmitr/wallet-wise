@@ -38,7 +38,7 @@ export default {
         xl: '3rem',
       },
       boxShadow: {
-        ambient: '0 18px 45px rgba(55, 108, 156, 0.14)',
+        ambient: '0 18px 45px rgba(96, 67, 43, 0.18)',
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],

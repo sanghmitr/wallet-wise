@@ -22,7 +22,7 @@ export function SummaryCards({
 
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <div className="relative overflow-hidden rounded-[2rem] bg-primary p-8 text-on-primary shadow-ambient md:col-span-2">
+      <div className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,rgb(var(--color-primary))_0%,rgb(var(--color-primary-dim))_100%)] p-8 text-on-primary shadow-ambient md:col-span-2">
         <div className="relative z-10">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
             Total Spent This Month
@@ -34,13 +34,13 @@ export function SummaryCards({
             <MaterialIcon name="public" className="text-sm" />
             {settings.currency} / Selected currency
           </div>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-bold backdrop-blur-md">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[rgba(255,248,242,0.16)] px-3 py-1 text-xs font-bold backdrop-blur-md">
             <MaterialIcon name="timeline" className="text-sm" />
             Tracking spending momentum
           </div>
         </div>
-        <div className="absolute -right-12 -top-14 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-10 left-0 h-32 w-32 rounded-full bg-primary-dim/40 blur-2xl" />
+        <div className="absolute -right-12 -top-14 h-44 w-44 rounded-full bg-[rgba(255,244,234,0.12)] blur-3xl" />
+        <div className="absolute -bottom-10 left-0 h-32 w-32 rounded-full bg-primary-container/35 blur-2xl" />
       </div>
 
       <div className="grid gap-4">

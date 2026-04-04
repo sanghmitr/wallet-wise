@@ -6,65 +6,75 @@
 
 :root {
   font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --color-background: 238 246 255;
-  --color-surface: 238 246 255;
-  --color-primary: 47 111 163;
-  --color-primary-dim: 37 90 133;
-  --color-primary-container: 216 235 255;
-  --color-on-primary: 245 251 255;
-  --color-on-primary-container: 32 73 107;
-  --color-secondary: 79 127 168;
-  --color-secondary-container: 220 238 255;
-  --color-tertiary: 90 135 200;
+  --color-background: 245 240 234;
+  --color-surface: 245 240 234;
+  --color-primary: 168 122 84;
+  --color-primary-dim: 143 100 64;
+  --color-primary-container: 238 222 205;
+  --color-on-primary: 255 248 242;
+  --color-on-primary-container: 96 61 33;
+  --color-secondary: 184 146 112;
+  --color-secondary-container: 244 232 220;
+  --color-tertiary: 151 111 79;
   --color-error: 184 77 96;
-  --color-outline: 127 153 178;
-  --color-outline-variant: 181 199 216;
-  --color-surface-container-lowest: 255 255 255;
-  --color-surface-container-low: 243 249 255;
-  --color-surface-container: 232 242 251;
-  --color-surface-container-high: 219 234 247;
-  --color-surface-container-highest: 207 225 241;
-  --color-surface-dim: 184 203 221;
-  --color-on-background: 31 59 83;
-  --color-on-surface: 31 59 83;
-  --color-on-surface-variant: 95 121 144;
-  --color-on-secondary-container: 53 89 120;
+  --color-outline: 166 145 126;
+  --color-outline-variant: 219 204 190;
+  --color-surface-container-lowest: 255 251 246;
+  --color-surface-container-low: 249 241 232;
+  --color-surface-container: 241 231 220;
+  --color-surface-container-high: 230 217 202;
+  --color-surface-container-highest: 219 203 186;
+  --color-surface-dim: 190 171 152;
+  --color-on-background: 55 42 32;
+  --color-on-surface: 55 42 32;
+  --color-on-surface-variant: 123 101 83;
+  --color-on-secondary-container: 106 77 51;
+  --color-chart-1: 168 122 84;
+  --color-chart-2: 196 150 111;
+  --color-chart-3: 143 100 64;
+  --color-chart-4: 214 181 152;
+  --color-chart-5: 122 87 59;
   --app-background:
-    radial-gradient(circle at top left, rgba(182, 223, 255, 0.9), transparent 24%),
-    radial-gradient(circle at top right, rgba(211, 236, 255, 0.85), transparent 28%),
-    linear-gradient(180deg, #f5fbff 0%, #eef6ff 44%, #e5f0fb 100%);
+    radial-gradient(circle at top left, rgba(231, 209, 187, 0.72), transparent 24%),
+    radial-gradient(circle at top right, rgba(249, 239, 229, 0.94), transparent 28%),
+    linear-gradient(180deg, #fcf8f2 0%, #f5eee6 44%, #ece1d6 100%);
   color: rgb(var(--color-on-surface));
   background: rgb(var(--color-background));
 }
 
 :root[data-theme='dark'] {
-  --color-background: 8 17 28;
-  --color-surface: 8 17 28;
-  --color-primary: 138 199 255;
-  --color-primary-dim: 106 175 240;
-  --color-primary-container: 18 54 84;
-  --color-on-primary: 8 25 40;
-  --color-on-primary-container: 203 228 252;
-  --color-secondary: 117 167 214;
-  --color-secondary-container: 19 44 66;
-  --color-tertiary: 124 173 237;
-  --color-error: 255 144 167;
-  --color-outline: 95 126 153;
-  --color-outline-variant: 44 66 86;
-  --color-surface-container-lowest: 12 24 37;
-  --color-surface-container-low: 16 29 44;
-  --color-surface-container: 22 36 54;
-  --color-surface-container-high: 30 47 68;
-  --color-surface-container-highest: 38 57 81;
-  --color-surface-dim: 84 107 130;
-  --color-on-background: 233 243 252;
-  --color-on-surface: 233 243 252;
-  --color-on-surface-variant: 156 180 204;
-  --color-on-secondary-container: 219 236 252;
+  --color-background: 28 21 18;
+  --color-surface: 28 21 18;
+  --color-primary: 198 154 118;
+  --color-primary-dim: 177 133 98;
+  --color-primary-container: 92 64 42;
+  --color-on-primary: 39 24 16;
+  --color-on-primary-container: 246 226 207;
+  --color-secondary: 181 146 113;
+  --color-secondary-container: 70 49 33;
+  --color-tertiary: 218 181 146;
+  --color-error: 255 154 174;
+  --color-outline: 138 111 89;
+  --color-outline-variant: 73 56 43;
+  --color-surface-container-lowest: 37 28 23;
+  --color-surface-container-low: 45 34 28;
+  --color-surface-container: 54 41 33;
+  --color-surface-container-high: 67 51 40;
+  --color-surface-container-highest: 83 63 50;
+  --color-surface-dim: 112 88 69;
+  --color-on-background: 243 230 218;
+  --color-on-surface: 243 230 218;
+  --color-on-surface-variant: 190 165 142;
+  --color-on-secondary-container: 239 221 202;
+  --color-chart-1: 198 154 118;
+  --color-chart-2: 171 125 88;
+  --color-chart-3: 220 187 156;
+  --color-chart-4: 136 97 67;
+  --color-chart-5: 242 216 191;
   --app-background:
-    radial-gradient(circle at top left, rgba(22, 73, 118, 0.48), transparent 24%),
-    radial-gradient(circle at top right, rgba(18, 44, 72, 0.64), transparent 28%),
-    linear-gradient(180deg, #0c1724 0%, #08111c 44%, #0d1c2c 100%);
+    radial-gradient(circle at top left, rgba(116, 82, 55, 0.34), transparent 24%),
+    radial-gradient(circle at top right, rgba(73, 53, 39, 0.46), transparent 28%),
+    linear-gradient(180deg, #211915 0%, #1c1512 44%, #17110e 100%);
 }
 
 html,

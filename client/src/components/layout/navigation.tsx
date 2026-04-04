@@ -24,7 +24,7 @@ interface NavigationProps {
 
 export function DesktopSidebar({ onAddExpense, onSignOut }: NavigationProps) {
   return (
-    <aside className="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-72 lg:flex-col lg:border-r lg:border-outline-variant/20 lg:bg-surface-container-lowest/70 lg:p-6 lg:backdrop-blur-xl">
+    <aside className="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-72 lg:flex-col lg:border-r lg:border-outline-variant/20 lg:bg-surface-container-low/88 lg:p-6 lg:backdrop-blur-xl">
       <div>
         <p className="text-xl font-black tracking-tight text-on-surface">
           Wallet Wise
@@ -46,7 +46,7 @@ export function DesktopSidebar({ onAddExpense, onSignOut }: NavigationProps) {
               cn(
                 'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition',
                 isActive
-                  ? 'translate-x-1 bg-surface-container-lowest text-on-surface shadow-ambient'
+                  ? 'translate-x-1 bg-primary-container text-on-primary-container shadow-ambient'
                   : 'text-on-surface-variant hover:bg-surface-container-low',
               )
             }
@@ -95,7 +95,7 @@ export function MobileTopBar() {
           Wallet Wise
         </p>
       </div>
-      <button className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low">
+      <button className="rounded-full p-2 text-on-surface-variant transition hover:bg-primary-container hover:text-on-primary-container">
         <MaterialIcon name="notifications" />
       </button>
     </header>
@@ -124,7 +124,7 @@ export function BottomNavigation({ onAddExpense }: NavigationProps) {
       ))}
       <button
         onClick={onAddExpense}
-        className="flex min-w-0 flex-col items-center gap-1 rounded-[1.2rem] bg-surface-container-high px-1 py-3 text-[10px] font-semibold text-on-surface shadow-ambient"
+        className="flex min-w-0 flex-col items-center gap-1 rounded-[1.2rem] bg-primary px-1 py-3 text-[10px] font-semibold text-on-primary shadow-ambient"
       >
         <MaterialIcon name="add_circle" filled />
         Add

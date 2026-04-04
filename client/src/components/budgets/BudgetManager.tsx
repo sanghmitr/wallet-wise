@@ -34,7 +34,7 @@ export function BudgetManager() {
         </p>
       </section>
 
-      <Card className="relative overflow-hidden bg-primary text-on-primary">
+      <Card className="relative overflow-hidden bg-[linear-gradient(135deg,rgb(var(--color-primary))_0%,rgb(var(--color-primary-dim))_100%)] text-on-primary">
         <div className="relative z-10">
           <p className="text-sm uppercase tracking-[0.24em] text-white/75">
             Total Monthly Budget

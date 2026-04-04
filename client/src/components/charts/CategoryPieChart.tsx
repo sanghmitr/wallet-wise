@@ -4,7 +4,13 @@ import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { formatCurrency } from '@/lib/format';
 import { useAppData } from '@/store/AppDataContext';
 
-const colors = ['#5f5e5e', '#7a8799', '#7a778f', '#a79892', '#bf7b77'];
+const colors = [
+  'rgb(var(--color-chart-1))',
+  'rgb(var(--color-chart-2))',
+  'rgb(var(--color-chart-3))',
+  'rgb(var(--color-chart-4))',
+  'rgb(var(--color-chart-5))',
+];
 
 interface CategoryPieChartProps {
   data: Array<{ name: string; value: number }>;
