@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@google/genai": "^1.48.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.8.1",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
@@ -18,15 +21,12 @@
     "express-rate-limit": "^8.3.2",
     "firebase-admin": "^12.7.0",
     "helmet": "^8.1.0",
+    "typescript": "^5.6.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.8.1",
     "eslint": "^9.13.0",
     "nodemon": "^3.1.7",
-    "tsx": "^4.19.1",
-    "typescript": "^5.6.3"
+    "tsx": "^4.19.1"
   }
 }
