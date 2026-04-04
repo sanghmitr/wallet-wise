@@ -16,11 +16,67 @@ import type { AuthProfile } from '@/types/domain';
 
 export const firebaseAuth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
+const REDIRECT_SIGN_IN_KEY = 'wallet-wise-google-redirect';
+const REDIRECT_PENDING_TIMEOUT_MS = 45_000;
+
 googleProvider.setCustomParameters({
   prompt: 'select_account',
 });
 
 let authReadyPromise: Promise<User | null> | null = null;
+
+function isBrowser() {
+  return typeof window !== 'undefined';
+}
+
+function setRedirectSignInPending() {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    REDIRECT_SIGN_IN_KEY,
+    String(Date.now()),
+  );
+}
+
+function clearRedirectSignInPending() {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.sessionStorage.removeItem(REDIRECT_SIGN_IN_KEY);
+}
+
+function isRedirectSignInPending() {
+  if (!isBrowser()) {
+    return false;
+  }
+
+  const raw = window.sessionStorage.getItem(REDIRECT_SIGN_IN_KEY);
+
+  if (!raw) {
+    return false;
+  }
+
+  const startedAt = Number(raw);
+
+  if (!Number.isFinite(startedAt)) {
+    clearRedirectSignInPending();
+    return false;
+  }
+
+  if (Date.now() - startedAt > REDIRECT_PENDING_TIMEOUT_MS) {
+    clearRedirectSignInPending();
+    return false;
+  }
+
+  return true;
+}
+
+export function isFirebaseRedirectPending() {
+  return isRedirectSignInPending();
+}
 
 async function trySetPersistence() {
   try {
@@ -77,33 +133,50 @@ export function createAuthProfile(user: User | null): AuthProfile | null {
 export async function initializeFirebaseAuth() {
   if (!authReadyPromise) {
     authReadyPromise = (async (): Promise<User | null> => {
+      const redirectPending = isRedirectSignInPending();
+      const redirectTimeoutMs = redirectPending ? 10000 : 1500;
+      const authStateTimeoutMs = redirectPending ? 10000 : 4000;
+
       await withTimeout(trySetPersistence(), 2000, undefined);
 
       try {
         const redirectResult = await withTimeout(
           getRedirectResult(firebaseAuth),
-          1500,
+          redirectTimeoutMs,
           null,
         );
 
         if (redirectResult?.user) {
+          clearRedirectSignInPending();
           return redirectResult.user;
         }
       } catch (error) {
         console.error('Firebase redirect sign-in failed', error);
+        clearRedirectSignInPending();
       }
 
       if (firebaseAuth.currentUser) {
+        clearRedirectSignInPending();
         return firebaseAuth.currentUser;
       }
 
-      return waitForAuthState();
+      const user = await waitForAuthState(authStateTimeoutMs);
+
+      if (user) {
+        clearRedirectSignInPending();
+      }
+
+      return user;
     })().catch((error) => {
       console.error('Firebase auth initialization failed', error);
       return firebaseAuth.currentUser ?? null;
     });
 
-    authReadyPromise = withTimeout(authReadyPromise, 5000, firebaseAuth.currentUser ?? null);
+    authReadyPromise = withTimeout(
+      authReadyPromise,
+      isRedirectSignInPending() ? 12000 : 5000,
+      firebaseAuth.currentUser ?? null,
+    );
   }
 
   return authReadyPromise;
@@ -113,6 +186,14 @@ export function subscribeToAuthChanges(
   callback: (user: User | null) => void,
 ) {
   return onAuthStateChanged(firebaseAuth, (user) => {
+    if (!user && isRedirectSignInPending()) {
+      return;
+    }
+
+    if (user) {
+      clearRedirectSignInPending();
+    }
+
     authReadyPromise = Promise.resolve(user);
     callback(user);
   });
@@ -143,18 +224,35 @@ export async function getAuthenticatedIdToken() {
 export async function signInWithGoogle() {
   await trySetPersistence();
 
-  const shouldRedirect =
-    window.matchMedia('(max-width: 768px)').matches ||
-    /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent);
+  try {
+    const credential = await signInWithPopup(firebaseAuth, googleProvider);
+    clearRedirectSignInPending();
+    authReadyPromise = Promise.resolve(credential.user);
+    return credential.user;
+  } catch (error) {
+    const code =
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      typeof error.code === 'string'
+        ? error.code
+        : '';
 
-  if (shouldRedirect) {
+    const shouldFallbackToRedirect = [
+      'auth/popup-blocked',
+      'auth/popup-closed-by-user',
+      'auth/cancelled-popup-request',
+      'auth/operation-not-supported-in-this-environment',
+    ].includes(code);
+
+    if (!shouldFallbackToRedirect) {
+      throw error;
+    }
+
+    setRedirectSignInPending();
     await signInWithRedirect(firebaseAuth, googleProvider);
     return null;
   }
-
-  const credential = await signInWithPopup(firebaseAuth, googleProvider);
-  authReadyPromise = Promise.resolve(credential.user);
-  return credential.user;
 }
 
 export async function signInAsGuest() {
@@ -165,6 +263,7 @@ export async function signInAsGuest() {
 }
 
 export async function signOutFirebaseUser() {
+  clearRedirectSignInPending();
   await signOut(firebaseAuth);
   authReadyPromise = Promise.resolve(null);
 }

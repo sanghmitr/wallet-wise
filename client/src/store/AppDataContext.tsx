@@ -12,6 +12,7 @@ import { formatISO, startOfMonth } from 'date-fns';
 import {
   createAuthProfile,
   initializeFirebaseAuth,
+  isFirebaseRedirectPending,
   signInAsGuest,
   signInWithGoogle,
   signOutFirebaseUser,
@@ -190,9 +191,16 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }, [settings.currency, settings.theme]);
 
   useEffect(() => {
+    let isMounted = true;
+
     void (async () => {
       try {
         const user = await initializeFirebaseAuth();
+
+        if (!isMounted) {
+          return;
+        }
+
         setAuthUserId(user?.uid ?? null);
         setAuthProfile(createAuthProfile(user));
 
@@ -202,16 +210,24 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         }
       } catch (error) {
         console.error('Wallet Wise bootstrap failed', error);
-        setBootstrapError(
-          error instanceof Error
-            ? error.message
-            : 'Unknown bootstrap error',
-        );
-        toast.error('Unable to initialize Firebase or load app data.');
+        if (isMounted) {
+          setBootstrapError(
+            error instanceof Error
+              ? error.message
+              : 'Unknown bootstrap error',
+          );
+          toast.error('Unable to initialize Firebase or load app data.');
+        }
       } finally {
-        setIsBootstrapping(false);
+        if (isMounted && !isFirebaseRedirectPending()) {
+          setIsBootstrapping(false);
+        }
       }
     })();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -221,10 +237,16 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
       if (!user) {
         lastSyncedUserIdRef.current = null;
+
+        if (!isFirebaseRedirectPending()) {
+          setIsBootstrapping(false);
+        }
+
         return;
       }
 
       if (lastSyncedUserIdRef.current === user.uid) {
+        setIsBootstrapping(false);
         return;
       }
 
@@ -235,6 +257,8 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         setBootstrapError(
           error instanceof Error ? error.message : 'Unable to refresh app data',
         );
+      }).finally(() => {
+        setIsBootstrapping(false);
       });
     });
 
@@ -553,6 +577,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
   async function handleGoogleSignIn() {
     setBootstrapError(null);
+    setIsBootstrapping(true);
 
     try {
       const user = await signInWithGoogle();
@@ -577,6 +602,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
   async function handleGuestSignIn() {
     setBootstrapError(null);
+    setIsBootstrapping(true);
 
     try {
       const user = await signInAsGuest();
