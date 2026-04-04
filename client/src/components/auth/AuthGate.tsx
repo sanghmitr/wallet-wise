@@ -177,7 +177,10 @@ export function AuthGate({
 
           <aside className="order-1 lg:order-2">
             <div className="relative overflow-hidden rounded-[2.4rem] border border-outline-variant/20 bg-surface-container-lowest/82 p-6 shadow-ambient backdrop-blur-2xl sm:p-7">
-              <div className="absolute inset-x-6 top-0 h-24 rounded-b-[2rem] bg-[linear-gradient(180deg,rgba(168,122,84,0.16),transparent)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,122,84,0.16),transparent_32%),radial-gradient(circle_at_top_left,rgba(255,255,255,0.44),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.14),transparent_34%)]" />
+              <div className="absolute right-[-2.5rem] top-[-3rem] h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+              <div className="absolute left-10 top-0 h-16 w-40 rounded-full bg-white/25 blur-2xl" />
+              <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary/28 to-transparent" />
 
               <div className="relative">
                 <div className="flex items-start justify-between gap-4">
