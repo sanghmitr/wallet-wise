@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,6 @@ export interface NavigationItem {
 export const navigationItems: NavigationItem[] = [
   { label: 'Dashboard', to: '/', icon: 'dashboard' },
   { label: 'Budgets', to: '/budgets', icon: 'query_stats' },
-  { label: 'Chat', to: '/chat', icon: 'forum' },
   { label: 'Categories', to: '/categories', icon: 'category' },
   { label: 'Profile', to: '/profile', icon: 'person' },
 ];
@@ -62,10 +61,17 @@ export function DesktopSidebar({ onAddExpense, onSignOut }: NavigationProps) {
           Ask for spend summaries, category totals, or add expenses in plain
           language.
         </p>
+        <Link
+          to="/chat"
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-on-primary shadow-ambient transition hover:bg-primary-dim"
+        >
+          <MaterialIcon name="forum" className="text-[18px]" />
+          Open Assistant
+        </Link>
         {onSignOut ? (
           <button
             onClick={onSignOut}
-            className="mt-4 inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-lowest hover:text-on-surface"
+            className="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-lowest hover:text-on-surface"
           >
             <MaterialIcon name="logout" className="text-[18px]" />
             Sign out
@@ -87,16 +93,20 @@ export function MobileTopBar() {
           Wallet Wise
         </p>
       </div>
-      <button className="rounded-full p-2 text-on-surface-variant transition hover:bg-primary-container hover:text-on-primary-container">
-        <MaterialIcon name="notifications" />
-      </button>
+      <Link
+        to="/chat"
+        className="rounded-full p-2 text-on-surface-variant transition hover:bg-primary-container hover:text-on-primary-container"
+        aria-label="Open AI assistant"
+      >
+        <MaterialIcon name="forum" />
+      </Link>
     </header>
   );
 }
 
 export function BottomNavigation({ onAddExpense }: NavigationProps) {
   return (
-    <nav className="glass-panel fixed bottom-0 left-0 z-40 grid w-full grid-cols-6 items-center gap-1 rounded-t-[2rem] px-3 pb-6 pt-2 shadow-ambient lg:hidden">
+    <nav className="glass-panel fixed bottom-0 left-0 z-40 grid w-full grid-cols-5 items-center gap-1 rounded-t-[2rem] px-3 pb-6 pt-2 shadow-ambient lg:hidden">
       {navigationItems.slice(0, 2).map((item) => (
         <NavLink
           key={item.to}
@@ -121,7 +131,7 @@ export function BottomNavigation({ onAddExpense }: NavigationProps) {
         <MaterialIcon name="add_circle" filled />
         Add
       </button>
-      {navigationItems.slice(2, 4).map((item) => (
+      {navigationItems.slice(2).map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
@@ -138,20 +148,6 @@ export function BottomNavigation({ onAddExpense }: NavigationProps) {
           {item.label}
         </NavLink>
       ))}
-      <NavLink
-        to={navigationItems[4].to}
-        className={({ isActive }) =>
-          cn(
-            'flex min-w-0 flex-col items-center gap-1 rounded-[1.2rem] px-1 py-3 text-[10px] font-medium tracking-wide transition',
-            isActive
-              ? 'text-on-surface'
-              : 'text-on-surface-variant hover:text-on-surface',
-          )
-        }
-      >
-        <MaterialIcon name={navigationItems[4].icon} />
-        {navigationItems[4].label}
-      </NavLink>
     </nav>
   );
 }
