@@ -39,7 +39,13 @@ const initialForm = {
 };
 
 export function CategoryManager() {
-  const { categories, expenses, saveCategory, deleteCategory } = useAppData();
+  const {
+    categories,
+    expenses,
+    saveCategory,
+    deleteCategory,
+    canPerformServerActions,
+  } = useAppData();
   const [draft, setDraft] = useState(initialForm);
   const [editing, setEditing] = useState<Category | null>(null);
   const formCardRef = useRef<HTMLDivElement | null>(null);
@@ -108,7 +114,11 @@ export function CategoryManager() {
               </h1>
             </div>
 
-            <Button className="gap-2" onClick={startNewCategory}>
+            <Button
+              className="gap-2"
+              onClick={startNewCategory}
+              disabled={!canPerformServerActions}
+            >
               <MaterialIcon name="add" filled className="text-[18px]" />
               New Category
             </Button>
@@ -158,13 +168,15 @@ export function CategoryManager() {
                   <div className="flex gap-2 opacity-100 transition lg:opacity-0 lg:group-hover:opacity-100">
                     <button
                       onClick={() => startEditingCategory(category)}
+                      disabled={!canPerformServerActions}
                       className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-primary"
                     >
                       <MaterialIcon name="edit" className="text-[18px]" />
                     </button>
                     <button
                       onClick={() => deleteCategory(category.id)}
-                      className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-error"
+                      disabled={!canPerformServerActions}
+                      className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-error disabled:opacity-45"
                     >
                       <MaterialIcon name="delete" className="text-[18px]" />
                     </button>
@@ -188,10 +200,20 @@ export function CategoryManager() {
                 {editing ? editing.name : 'Define a new category'}
               </h2>
             </div>
-            <Button variant="secondary" onClick={resetForm}>
+            <Button
+              variant="secondary"
+              onClick={resetForm}
+              disabled={!canPerformServerActions}
+            >
               Clear
             </Button>
           </div>
+
+          {!canPerformServerActions ? (
+            <div className="mt-4 rounded-[1.25rem] border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface-variant">
+              Category changes are disabled until the backend is online.
+            </div>
+          ) : null}
 
           <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
             <label className="block">
@@ -203,6 +225,7 @@ export function CategoryManager() {
                 onChange={(event) =>
                   setDraft((current) => ({ ...current, name: event.target.value }))
                 }
+                disabled={!canPerformServerActions}
                 className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-3 text-sm font-medium text-on-surface outline-none"
                 placeholder="Food"
               />
@@ -218,6 +241,7 @@ export function CategoryManager() {
                     key={icon}
                     type="button"
                     onClick={() => setDraft((current) => ({ ...current, icon }))}
+                    disabled={!canPerformServerActions}
                     className={`flex h-12 w-full items-center justify-center rounded-2xl transition ${
                       draft.icon === icon
                         ? 'bg-primary text-on-primary'
@@ -240,6 +264,7 @@ export function CategoryManager() {
                     key={color}
                     type="button"
                     onClick={() => setDraft((current) => ({ ...current, color }))}
+                    disabled={!canPerformServerActions}
                     className="h-10 w-10 rounded-full border-4 border-white shadow-ambient"
                     style={{
                       backgroundColor: color,
@@ -251,7 +276,7 @@ export function CategoryManager() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={!canPerformServerActions}>
               {editing ? 'Update Category' : 'Create Category'}
             </Button>
           </form>

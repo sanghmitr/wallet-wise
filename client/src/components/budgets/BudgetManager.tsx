@@ -8,7 +8,14 @@ import { useAppData } from '@/store/AppDataContext';
 import { getBudgetUsage, getCategoryTotals, sumExpenses } from '@/utils/analytics';
 
 export function BudgetManager() {
-  const { budgets, categories, expenses, saveBudget, settings } = useAppData();
+  const {
+    budgets,
+    categories,
+    expenses,
+    saveBudget,
+    settings,
+    canPerformServerActions,
+  } = useAppData();
   const currentMonth = format(new Date(), 'yyyy-MM');
 
   const monthExpenses = useMemo(
@@ -39,6 +46,12 @@ export function BudgetManager() {
         <p className="mt-2 text-sm leading-6 text-on-surface-variant">
           Curation of your financial boundaries for {formatMonthLabel(currentMonth)}
         </p>
+
+        {!canPerformServerActions ? (
+          <div className="mt-4 rounded-[1.5rem] border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface-variant">
+            Budget edits are paused until the backend is online.
+          </div>
+        ) : null}
       </section>
 
       <Card className="relative overflow-hidden bg-[linear-gradient(135deg,rgb(var(--color-primary))_0%,rgb(var(--color-primary-dim))_100%)] text-on-primary">
@@ -105,6 +118,7 @@ export function BudgetManager() {
                 <input
                   type="number"
                   defaultValue={item.limit || ''}
+                  disabled={!canPerformServerActions}
                   onBlur={(event) =>
                     void saveBudget({
                       category: item.category,

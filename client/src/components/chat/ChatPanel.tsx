@@ -216,7 +216,13 @@ function EmptyConversation({
 }
 
 export function ChatPanel() {
-  const { chatMessages, submitChatMessage } = useAppData();
+  const {
+    chatMessages,
+    submitChatMessage,
+    canPerformServerActions,
+    wakeServer,
+    isWakingServer,
+  } = useAppData();
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -332,6 +338,28 @@ export function ChatPanel() {
 
       <div className="glass-panel fixed bottom-24 left-0 right-0 z-20 px-4 pb-2 pt-4 lg:bottom-6 lg:left-72 lg:px-8">
         <div className="mx-auto max-w-5xl">
+          {!canPerformServerActions ? (
+            <div className="mb-3 rounded-[1.5rem] border border-outline-variant/20 bg-surface-container-lowest/88 px-4 py-3 shadow-ambient">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-on-surface-variant">
+                  Wake the server before sending chat actions or AI expense commands.
+                </p>
+                <Button
+                  variant="secondary"
+                  className="shrink-0 gap-2"
+                  onClick={() => void wakeServer()}
+                  disabled={isWakingServer}
+                >
+                  <MaterialIcon
+                    name={isWakingServer ? 'autorenew' : 'power'}
+                    className={isWakingServer ? 'animate-spin' : 'text-[18px]'}
+                  />
+                  {isWakingServer ? 'Waking' : 'Wake server'}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
           <div className="rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest p-3 shadow-ambient">
             <div className="flex items-end gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-container text-primary">
@@ -344,11 +372,12 @@ export function ChatPanel() {
                 rows={1}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter' && !event.shiftKey) {
+                  if (event.key === 'Enter' && !event.shiftKey && canPerformServerActions) {
                     event.preventDefault();
                     void handleSend(draft);
                   }
                 }}
+                disabled={!canPerformServerActions}
                 className="max-h-[180px] min-h-[52px] flex-1 resize-none border-none bg-transparent py-3 text-base leading-7 text-on-surface outline-none placeholder:text-on-surface-variant/60"
                 placeholder="Message Wallet Wise about your spending..."
               />
@@ -356,7 +385,7 @@ export function ChatPanel() {
               <Button
                 className="h-12 w-12 shrink-0 rounded-full p-0"
                 onClick={() => void handleSend(draft)}
-                disabled={isSending || !draft.trim()}
+                disabled={isSending || !draft.trim() || !canPerformServerActions}
                 aria-label="Send message"
               >
                 <MaterialIcon name="arrow_upward" />

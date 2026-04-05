@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { BootScreen } from '@/components/app/BootScreen';
 import { AuthGate } from '@/components/auth/AuthGate';
 import { AppShell } from '@/components/layout/AppShell';
 import { useAppData } from '@/store/AppDataContext';
@@ -35,27 +36,30 @@ const PaymentMethodPage = lazy(() =>
   })),
 );
 
-function LoadingScreen() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="rounded-[2rem] bg-surface-container-lowest/85 px-6 py-4 text-sm font-semibold text-on-surface shadow-ambient backdrop-blur-xl">
-        Loading Wallet Wise...
-      </div>
-    </div>
-  );
-}
-
 export function App() {
   const {
     isBootstrapping,
+    bootstrapStage,
     bootstrapError,
+    hasCompletedInitialSync,
     isAuthenticated,
+    retryBootstrap,
     signInWithGoogle,
     continueAsGuest,
   } = useAppData();
 
   if (isBootstrapping) {
-    return <LoadingScreen />;
+    return <BootScreen variant={bootstrapStage} />;
+  }
+
+  if (isAuthenticated && !hasCompletedInitialSync) {
+    return (
+      <BootScreen
+        variant="error"
+        errorMessage={bootstrapError}
+        onRetry={retryBootstrap}
+      />
+    );
   }
 
   if (!isAuthenticated) {
@@ -69,7 +73,7 @@ export function App() {
   }
 
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={<BootScreen variant="loading" />}>
       <Routes>
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />

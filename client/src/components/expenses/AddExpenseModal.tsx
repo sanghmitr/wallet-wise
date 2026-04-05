@@ -36,8 +36,11 @@ export function AddExpenseModal() {
     settings,
     editingExpense,
     isExpenseModalOpen,
+    canPerformServerActions,
     closeExpenseModal,
     saveExpense,
+    wakeServer,
+    isWakingServer,
   } = useAppData();
 
   const {
@@ -143,6 +146,30 @@ export function AddExpenseModal() {
           onSubmit={submitExpense}
           className="px-4 pt-6 sm:px-6 sm:pt-8"
         >
+          {!canPerformServerActions ? (
+            <div className="mb-6 rounded-[1.5rem] border border-outline-variant/20 bg-surface-container-low p-4">
+              <p className="text-sm font-bold text-on-surface">
+                Wake the server before saving a transaction.
+              </p>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                This form stays open, but the save action is disabled until the backend responds.
+              </p>
+              <Button
+                type="button"
+                variant="secondary"
+                className="mt-4 gap-2"
+                onClick={() => void wakeServer()}
+                disabled={isWakingServer}
+              >
+                <MaterialIcon
+                  name={isWakingServer ? 'autorenew' : 'power'}
+                  className={isWakingServer ? 'animate-spin' : 'text-[18px]'}
+                />
+                {isWakingServer ? 'Waking server...' : 'Wake server'}
+              </Button>
+            </div>
+          ) : null}
+
           <input type="hidden" {...register('paymentMethodId')} />
           <input type="hidden" {...register('paymentMethodName')} />
           <input type="hidden" {...register('source')} />
@@ -381,7 +408,7 @@ export function AddExpenseModal() {
           <div className="mx-auto max-w-2xl rounded-t-[2rem] bg-[linear-gradient(180deg,rgba(238,246,255,0),rgba(238,246,255,0.78)_18%,rgba(238,246,255,0.96)_40%,rgba(238,246,255,0.98)_100%)] pt-4 backdrop-blur-xl">
             <Button
               type="button"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !canPerformServerActions}
               className="w-full gap-2 py-4 text-sm shadow-[0_20px_40px_rgba(47,111,163,0.22)] sm:py-5 sm:text-base"
               onClick={() => void submitExpense()}
             >
