@@ -55,6 +55,7 @@ export function ProfileManager() {
     savePaymentMethod,
     deletePaymentMethod,
     saveSettings,
+    canPerformServerActions,
   } = useAppData();
   const [draft, setDraft] = useState(initialForm);
   const [editing, setEditing] = useState<PaymentMethod | null>(null);
@@ -260,6 +261,7 @@ export function ProfileManager() {
                           });
                           focusComposer();
                         }}
+                        disabled={!canPerformServerActions}
                         className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-primary"
                       >
                         <MaterialIcon name="edit" className="text-[18px]" />
@@ -270,7 +272,8 @@ export function ProfileManager() {
                           event.stopPropagation();
                           void deletePaymentMethod(paymentMethod.id);
                         }}
-                        aria-disabled={!canDelete}
+                        disabled={!canDelete || !canPerformServerActions}
+                        aria-disabled={!canDelete || !canPerformServerActions}
                         title={
                           canDelete
                             ? 'Delete payment method'
@@ -304,10 +307,20 @@ export function ProfileManager() {
                 {editing ? editing.name : 'Add a payment method'}
               </h2>
             </div>
-            <Button variant="secondary" onClick={resetForm}>
+            <Button
+              variant="secondary"
+              onClick={resetForm}
+              disabled={!canPerformServerActions}
+            >
               Clear
             </Button>
           </div>
+
+          {!canPerformServerActions ? (
+            <div className="mt-4 rounded-[1.25rem] border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface-variant">
+              Payment method changes are disabled until the backend is online.
+            </div>
+          ) : null}
 
           <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
             <label className="block">
@@ -319,6 +332,7 @@ export function ProfileManager() {
                 onChange={(event) =>
                   setDraft((current) => ({ ...current, name: event.target.value }))
                 }
+                disabled={!canPerformServerActions}
                 className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-3 text-sm font-medium text-on-surface outline-none"
                 placeholder="HDFC Credit Card"
               />
@@ -353,6 +367,7 @@ export function ProfileManager() {
                               : '',
                         }))
                       }
+                      disabled={!canPerformServerActions}
                       className="w-full border-none bg-transparent text-sm font-semibold text-on-surface outline-none"
                     >
                       {paymentMethodOptions.map((option) => (
@@ -391,6 +406,7 @@ export function ProfileManager() {
                         : '',
                     }))
                   }
+                  disabled={!canPerformServerActions}
                   className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-3 text-sm font-medium text-on-surface outline-none"
                   placeholder="e.g. 15"
                 />
@@ -401,7 +417,7 @@ export function ProfileManager() {
               </label>
             ) : null}
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={!canPerformServerActions}>
               {editing ? 'Update Payment Method' : 'Save Payment Method'}
             </Button>
           </form>
@@ -434,6 +450,7 @@ export function ProfileManager() {
                     currency: event.target.value as UserSettingsInput['currency'],
                   }))
                 }
+                disabled={!canPerformServerActions}
                 className="mt-3 w-full rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-3 text-sm font-medium text-on-surface outline-none"
               >
                 {currencyOptions.map((option) => (
@@ -459,6 +476,7 @@ export function ProfileManager() {
                         theme: option.value,
                       }))
                     }
+                    disabled={!canPerformServerActions}
                     className={`flex w-full items-center justify-between rounded-[1.25rem] px-4 py-4 text-left transition ${
                       settingsDraft.theme === option.value
                         ? 'bg-primary text-on-primary'
@@ -485,7 +503,7 @@ export function ProfileManager() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={!canPerformServerActions}>
               Save Preferences
             </Button>
           </form>

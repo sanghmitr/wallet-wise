@@ -6,28 +6,28 @@
 
 :root {
   font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --color-background: 245 240 234;
-  --color-surface: 245 240 234;
+  --color-background: 251 248 244;
+  --color-surface: 250 247 243;
   --color-primary: 168 122 84;
   --color-primary-dim: 143 100 64;
-  --color-primary-container: 238 222 205;
+  --color-primary-container: 241 229 216;
   --color-on-primary: 255 248 242;
   --color-on-primary-container: 96 61 33;
-  --color-secondary: 184 146 112;
-  --color-secondary-container: 244 232 220;
+  --color-secondary: 190 153 119;
+  --color-secondary-container: 247 238 229;
   --color-tertiary: 151 111 79;
   --color-error: 184 77 96;
-  --color-outline: 166 145 126;
-  --color-outline-variant: 219 204 190;
-  --color-surface-container-lowest: 255 251 246;
-  --color-surface-container-low: 249 241 232;
-  --color-surface-container: 241 231 220;
-  --color-surface-container-high: 230 217 202;
-  --color-surface-container-highest: 219 203 186;
-  --color-surface-dim: 190 171 152;
-  --color-on-background: 55 42 32;
-  --color-on-surface: 55 42 32;
-  --color-on-surface-variant: 123 101 83;
+  --color-outline: 181 163 146;
+  --color-outline-variant: 229 218 207;
+  --color-surface-container-lowest: 255 253 250;
+  --color-surface-container-low: 252 247 241;
+  --color-surface-container: 247 239 231;
+  --color-surface-container-high: 238 228 216;
+  --color-surface-container-highest: 229 216 202;
+  --color-surface-dim: 199 181 164;
+  --color-on-background: 63 49 38;
+  --color-on-surface: 63 49 38;
+  --color-on-surface-variant: 133 111 93;
   --color-on-secondary-container: 106 77 51;
   --color-chart-1: 168 122 84;
   --color-chart-2: 196 150 111;
@@ -35,9 +35,9 @@
   --color-chart-4: 214 181 152;
   --color-chart-5: 122 87 59;
   --app-background:
-    radial-gradient(circle at top left, rgba(231, 209, 187, 0.72), transparent 24%),
-    radial-gradient(circle at top right, rgba(249, 239, 229, 0.94), transparent 28%),
-    linear-gradient(180deg, #fcf8f2 0%, #f5eee6 44%, #ece1d6 100%);
+    radial-gradient(circle at top left, rgba(230, 205, 181, 0.42), transparent 24%),
+    radial-gradient(circle at top right, rgba(255, 250, 245, 0.96), transparent 28%),
+    linear-gradient(180deg, #fffdf9 0%, #fbf6ef 44%, #f4ece2 100%);
   color: rgb(var(--color-on-surface));
   background: rgb(var(--color-background));
 }
