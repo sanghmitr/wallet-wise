@@ -750,39 +750,6 @@ class FirestoreStore implements DataStore {
       }));
 
       if (paymentMethodDocs.length) {
-        if (paymentMethodDocs.length === 1) {
-          return;
-        }
-
-        const expenseSnapshot = await this.withTimeout(
-          'check whether payment methods already have expenses in Firestore',
-          this.expensesRef(userId).limit(1).get(),
-        );
-
-        if (!expenseSnapshot.empty) {
-          return;
-        }
-
-        const batch = this.db.batch();
-        paymentMethodDocs.forEach((paymentMethod) => {
-          batch.delete(paymentMethod.ref);
-        });
-
-        const cashPaymentMethod = {
-          ...defaultPaymentMethods[0],
-          id: randomUUID(),
-          createdAt: new Date().toISOString(),
-        };
-
-        batch.set(
-          this.paymentMethodsRef(userId).doc(cashPaymentMethod.id),
-          cashPaymentMethod,
-        );
-
-        await this.withTimeout(
-          'reset initial payment methods in Firestore',
-          batch.commit(),
-        );
         return;
       }
 
