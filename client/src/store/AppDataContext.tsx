@@ -120,6 +120,18 @@ const unavailableServerMessage =
   'Server is unavailable right now. Wake it up before making changes.';
 const activeServerStatusPollIntervalMs = 5000;
 
+function ensureList<T>(value: T[] | unknown): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function confirmDestructiveAction(message: string) {
+  if (typeof window === 'undefined') {
+    return true;
+  }
+
+  return window.confirm(message);
+}
+
 function normalizeCategoryName(name: string) {
   return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 }
@@ -200,10 +212,10 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       ]);
 
     startTransition(() => {
-      setExpenses(expenseData);
-      setCategories(categoryData);
-      setBudgets(budgetData);
-      setPaymentMethods(paymentMethodData);
+      setExpenses(ensureList<Expense>(expenseData));
+      setCategories(ensureList<Category>(categoryData));
+      setBudgets(ensureList<Budget>(budgetData));
+      setPaymentMethods(ensureList<PaymentMethod>(paymentMethodData));
       setSettings(settingsData);
       setBootstrapError(null);
     });
@@ -462,6 +474,12 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }, [authUserId, hasCompletedInitialSync, serverStatus]);
 
   async function openCreateExpense() {
+    if (serverStatus === 'ready') {
+      setEditingExpense(null);
+      setIsExpenseModalOpen(true);
+      return;
+    }
+
     const isReady = await probeServerStatus({
       notifyOnFailure: true,
       failureMessage: 'Server is offline. Wake it up before adding a transaction.',
@@ -476,6 +494,12 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }
 
   async function openEditExpense(expense: Expense) {
+    if (serverStatus === 'ready') {
+      setEditingExpense(expense);
+      setIsExpenseModalOpen(true);
+      return;
+    }
+
     const isReady = await probeServerStatus({
       notifyOnFailure: true,
       failureMessage: 'Server is offline. Wake it up before editing a transaction.',
@@ -506,13 +530,15 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
       startTransition(() => {
         setExpenses((current) => {
+          const currentExpenses = ensureList<Expense>(current);
+
           if (expenseId) {
-            return current.map((expense) =>
+            return currentExpenses.map((expense) =>
               expense.id === expenseId ? saved : expense,
             );
           }
 
-          return [saved, ...current].sort((left, right) =>
+          return [saved, ...currentExpenses].sort((left, right) =>
             right.date.localeCompare(left.date),
           );
         });
@@ -529,6 +555,18 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }
 
   async function deleteExpense(expenseId: string) {
+    const expense = expenses.find((item) => item.id === expenseId);
+
+    if (
+      !confirmDestructiveAction(
+        expense
+          ? `Delete "${expense.note || expense.merchant || expense.category}"?`
+          : 'Delete this transaction?',
+      )
+    ) {
+      return;
+    }
+
     if (!(await requireReadyServerAction())) {
       return;
     }
@@ -538,7 +576,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
       startTransition(() => {
         setExpenses((current) =>
-          current.filter((expense) => expense.id !== expenseId),
+          ensureList<Expense>(current).filter((expense) => expense.id !== expenseId),
         );
       });
 
@@ -613,6 +651,16 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    if (
+      !confirmDestructiveAction(
+        category
+          ? `Delete the "${category.name}" category?`
+          : 'Delete this category?',
+      )
+    ) {
+      return;
+    }
+
     if (!(await requireReadyServerAction())) {
       return;
     }
@@ -665,9 +713,9 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       const refreshedPaymentMethods = await getPaymentMethods();
 
       startTransition(() => {
-        setPaymentMethods(refreshedPaymentMethods);
+        setPaymentMethods(ensureList<PaymentMethod>(refreshedPaymentMethods));
         setExpenses((current) =>
-          current.map((expense) =>
+          ensureList<Expense>(current).map((expense) =>
             expense.paymentMethodId === saved.id
               ? {
                   ...expense,
@@ -690,6 +738,9 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }
 
   async function deletePaymentMethod(paymentMethodId: string) {
+    const paymentMethod = paymentMethods.find(
+      (item) => item.id === paymentMethodId,
+    );
     const isReferenced = expenses.some(
       (expense) => expense.paymentMethodId === paymentMethodId,
     );
@@ -698,6 +749,16 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       toast.error(
         'This payment method has transactions. Remove those transactions first.',
       );
+      return;
+    }
+
+    if (
+      !confirmDestructiveAction(
+        paymentMethod
+          ? `Delete the "${paymentMethod.name}" payment method?`
+          : 'Delete this payment method?',
+      )
+    ) {
       return;
     }
 
@@ -810,7 +871,10 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         setChatMessages((current) => [...current, assistantMessage]);
 
         if (response.expense) {
-          setExpenses((current) => [response.expense!, ...current]);
+          setExpenses((current) => [
+            response.expense!,
+            ...ensureList<Expense>(current),
+          ]);
         }
       });
 

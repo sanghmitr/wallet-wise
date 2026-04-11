@@ -23,6 +23,8 @@ interface RecentTransactionsProps {
   expenses: Expense[];
   title?: string;
   description?: string;
+  summaryLabel?: string;
+  summaryValue?: string;
   onEdit: (expense: Expense) => void;
   onDelete: (expenseId: string) => void;
 }
@@ -31,29 +33,43 @@ export function RecentTransactions({
   expenses,
   title = 'Transactions',
   description = 'All expenses matching the selected filters.',
+  summaryLabel,
+  summaryValue,
   onEdit,
   onDelete,
 }: RecentTransactionsProps) {
   const { settings, categories } = useAppData();
+  const visibleExpenses = expenses.filter((expense) => Boolean(expense?.id));
 
   return (
     <Card className="bg-surface-container-low">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-base font-bold text-on-surface sm:text-lg">{title}</h3>
           <p className="mt-1 text-sm text-on-surface-variant">
             {description}
           </p>
         </div>
+
+        {summaryLabel && summaryValue ? (
+          <div className="rounded-[1rem] bg-surface-container-low px-3.5 py-2.5 text-right">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+              {summaryLabel}
+            </p>
+            <p className="mt-1 text-[1.05rem] font-black text-on-surface">
+              {summaryValue}
+            </p>
+          </div>
+        ) : null}
       </div>
 
-      {!expenses.length ? (
+      {!visibleExpenses.length ? (
         <div className="mt-5 rounded-[1.25rem] bg-surface-container-lowest p-5 text-sm text-on-surface-variant">
           No expenses found for the selected filters.
         </div>
       ) : (
-        <div className="mt-5 space-y-3">
-        {expenses.map((expense) => (
+        <div className="mt-4 space-y-2.5">
+        {visibleExpenses.map((expense) => (
           (() => {
             const category = categories.find((item) => item.name === expense.category);
             const accentColor = category?.color ?? '#a79892';
@@ -64,17 +80,17 @@ export function RecentTransactions({
             return (
               <div
                 key={expense.id}
-                className="rounded-[1.25rem] border bg-surface-container-lowest p-3.5 sm:p-4"
+                className="rounded-[1.2rem] border bg-surface-container-lowest p-3 sm:p-3.5"
                 style={{
                   borderColor: accentBorder,
                   boxShadow: `0 14px 30px ${accentGlow}`,
                   backgroundImage: `linear-gradient(135deg, ${accentSurface} 0%, rgba(255,255,255,0) 42%)`,
                 }}
               >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2.5">
                 <div
-                  className="flex h-10 w-10 items-center justify-center rounded-[1rem] sm:h-11 sm:w-11 sm:rounded-2xl"
+                  className="flex h-9 w-9 items-center justify-center rounded-[0.95rem] sm:h-10 sm:w-10 sm:rounded-[1rem]"
                   style={{
                     backgroundColor: accentSurface,
                     color: accentColor,
@@ -83,7 +99,7 @@ export function RecentTransactions({
                 >
                   <MaterialIcon
                     name={paymentMethodIcons[expense.source] || 'payments'}
-                    className="text-[18px] sm:text-[20px]"
+                    className="text-[17px] sm:text-[18px]"
                   />
                 </div>
                 <div>
@@ -104,20 +120,20 @@ export function RecentTransactions({
                 <p className="text-sm font-bold text-on-surface sm:text-base">
                   {formatCurrency(expense.amount, settings.currency)}
                 </p>
-                <div className="mt-2.5 flex justify-end gap-1">
+                <div className="mt-2 flex justify-end gap-0.5">
                   <button
                     onClick={() => onEdit(expense)}
-                    className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low"
+                    className="rounded-full p-1.5 text-on-surface-variant transition hover:bg-surface-container-low"
                     aria-label="Edit expense"
                   >
-                    <MaterialIcon name="edit" className="text-[18px]" />
+                    <MaterialIcon name="edit" className="text-[17px]" />
                   </button>
                   <button
                     onClick={() => onDelete(expense.id)}
-                    className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-error"
+                    className="rounded-full p-1.5 text-on-surface-variant transition hover:bg-surface-container-low hover:text-error"
                     aria-label="Delete expense"
                   >
-                    <MaterialIcon name="delete" className="text-[18px]" />
+                    <MaterialIcon name="delete" className="text-[17px]" />
                   </button>
                 </div>
               </div>

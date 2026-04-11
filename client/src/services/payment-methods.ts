@@ -1,9 +1,9 @@
-import { api } from '@/services/api';
+import { api, unwrapListResponse } from '@/services/api';
 import type { PaymentMethod, PaymentMethodInput } from '@/types/domain';
 
 export async function getPaymentMethods() {
-  const { data } = await api.get<PaymentMethod[]>('/payment-methods');
-  return data;
+  const { data } = await api.get<PaymentMethod[] | { paymentMethods?: PaymentMethod[] }>('/payment-methods');
+  return unwrapListResponse<PaymentMethod>(data, ['paymentMethods']);
 }
 
 export async function createPaymentMethod(payload: PaymentMethodInput) {

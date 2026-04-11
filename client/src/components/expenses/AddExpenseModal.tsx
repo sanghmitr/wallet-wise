@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +28,26 @@ const expenseSchema = z.object({
 
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
 
+function buildDefaultExpenseValues(
+  categories: Array<{ name: string }>,
+  paymentMethods: PaymentMethod[],
+): Partial<ExpenseFormValues> {
+  const defaultPaymentMethod =
+    paymentMethods.find((paymentMethod) => paymentMethod.isDefault) ??
+    paymentMethods[0];
+
+  return {
+    amount: undefined,
+    category: categories[0]?.name ?? '',
+    paymentMethodId: defaultPaymentMethod?.id ?? '',
+    paymentMethodName: defaultPaymentMethod?.name ?? '',
+    source: defaultPaymentMethod?.type ?? 'cash',
+    date: format(new Date(), 'yyyy-MM-dd'),
+    note: '',
+    merchant: '',
+  };
+}
+
 export function AddExpenseModal() {
   const navigate = useNavigate();
   const {
@@ -42,6 +62,7 @@ export function AddExpenseModal() {
     wakeServer,
     isWakingServer,
   } = useAppData();
+  const amountInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
@@ -63,8 +84,13 @@ export function AddExpenseModal() {
       merchant: '',
     },
   });
+  const amountField = register('amount');
 
   useEffect(() => {
+    if (!isExpenseModalOpen) {
+      return;
+    }
+
     if (editingExpense) {
       reset({
         amount: editingExpense.amount,
@@ -79,21 +105,26 @@ export function AddExpenseModal() {
       return;
     }
 
-    const defaultPaymentMethod =
-      paymentMethods.find((paymentMethod) => paymentMethod.isDefault) ??
-      paymentMethods[0];
+    reset(buildDefaultExpenseValues(categories, paymentMethods));
+  }, [categories, editingExpense, isExpenseModalOpen, paymentMethods, reset]);
 
-    reset({
-      amount: undefined,
-      category: categories[0]?.name ?? '',
-      paymentMethodId: defaultPaymentMethod?.id ?? '',
-      paymentMethodName: defaultPaymentMethod?.name ?? '',
-      source: defaultPaymentMethod?.type ?? 'cash',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      note: '',
-      merchant: '',
-    });
-  }, [categories, editingExpense, paymentMethods, reset]);
+  useEffect(() => {
+    if (!isExpenseModalOpen || editingExpense || typeof window === 'undefined') {
+      return;
+    }
+
+    if (window.innerWidth >= 1024) {
+      return;
+    }
+
+    const focusTimer = window.setTimeout(() => {
+      amountInputRef.current?.focus();
+    }, 180);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+    };
+  }, [editingExpense, isExpenseModalOpen]);
 
   if (!isExpenseModalOpen) {
     return null;
@@ -103,6 +134,10 @@ export function AddExpenseModal() {
   const selectedPaymentMethodId = watch('paymentMethodId');
   const submitExpense = handleSubmit(async (values) => {
     await saveExpense(values, editingExpense?.id);
+
+    if (!editingExpense) {
+      reset(buildDefaultExpenseValues(categories, paymentMethods));
+    }
   });
 
   function openCategoryManager() {
@@ -122,7 +157,7 @@ export function AddExpenseModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[rgba(232,244,255,0.78)] backdrop-blur-xl">
+    <div className="modal-screen-overlay fixed inset-0 z-50 overflow-y-auto backdrop-blur-xl">
       <div className="mx-auto min-h-screen max-w-2xl bg-background">
         <header className="glass-panel sticky top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
@@ -144,7 +179,7 @@ export function AddExpenseModal() {
 
         <form
           onSubmit={submitExpense}
-          className="px-4 pt-6 sm:px-6 sm:pt-8"
+          className="px-4 pb-40 pt-6 sm:px-6 sm:pb-44 sm:pt-8"
         >
           {!canPerformServerActions ? (
             <div className="mb-6 rounded-[1.5rem] border border-outline-variant/20 bg-surface-container-low p-4">
@@ -183,11 +218,17 @@ export function AddExpenseModal() {
                 {getCurrencySymbol(settings.currency)}
               </span>
               <input
+                autoFocus={!editingExpense}
                 type="number"
                 step="0.01"
+                inputMode="decimal"
                 placeholder="0.00"
                 className="w-full border-none bg-transparent text-center text-5xl font-extrabold tracking-[-0.04em] text-primary outline-none placeholder:text-surface-dim sm:text-6xl"
-                {...register('amount')}
+                {...amountField}
+                ref={(element) => {
+                  amountField.ref(element);
+                  amountInputRef.current = element;
+                }}
               />
             </div>
             {errors.amount ? (
@@ -404,12 +445,12 @@ export function AddExpenseModal() {
           </div>
         </form>
 
-        <div className="sticky bottom-0 z-20 px-4 pb-4 pt-4 sm:px-6 sm:pb-6">
-          <div className="mx-auto max-w-2xl rounded-t-[2rem] bg-[linear-gradient(180deg,rgba(238,246,255,0),rgba(238,246,255,0.78)_18%,rgba(238,246,255,0.96)_40%,rgba(238,246,255,0.98)_100%)] pt-4 backdrop-blur-xl">
+        <div className="sticky bottom-0 z-20 rounded-t-[1.75rem] border-t border-outline-variant/12 bg-background/94 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 backdrop-blur-xl sm:px-6 sm:pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+          <div className="mx-auto max-w-2xl">
             <Button
               type="button"
               disabled={isSubmitting || !canPerformServerActions}
-              className="w-full gap-2 py-4 text-sm shadow-[0_20px_40px_rgba(47,111,163,0.22)] sm:py-5 sm:text-base"
+              className="w-full gap-2 py-4 text-base shadow-[0_20px_40px_rgba(89,60,38,0.18)] sm:py-5"
               onClick={() => void submitExpense()}
             >
               <MaterialIcon name="check_circle" filled />

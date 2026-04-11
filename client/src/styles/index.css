@@ -43,25 +43,25 @@
 }
 
 :root[data-theme='dark'] {
-  --color-background: 28 21 18;
-  --color-surface: 28 21 18;
-  --color-primary: 198 154 118;
-  --color-primary-dim: 177 133 98;
-  --color-primary-container: 92 64 42;
-  --color-on-primary: 39 24 16;
+  --color-background: 21 16 13;
+  --color-surface: 21 16 13;
+  --color-primary: 194 147 108;
+  --color-primary-dim: 166 121 85;
+  --color-primary-container: 77 54 37;
+  --color-on-primary: 32 20 14;
   --color-on-primary-container: 246 226 207;
-  --color-secondary: 181 146 113;
-  --color-secondary-container: 70 49 33;
+  --color-secondary: 168 132 101;
+  --color-secondary-container: 58 41 29;
   --color-tertiary: 218 181 146;
   --color-error: 255 154 174;
-  --color-outline: 138 111 89;
-  --color-outline-variant: 73 56 43;
-  --color-surface-container-lowest: 37 28 23;
-  --color-surface-container-low: 45 34 28;
-  --color-surface-container: 54 41 33;
-  --color-surface-container-high: 67 51 40;
-  --color-surface-container-highest: 83 63 50;
-  --color-surface-dim: 112 88 69;
+  --color-outline: 124 98 79;
+  --color-outline-variant: 61 46 36;
+  --color-surface-container-lowest: 29 22 18;
+  --color-surface-container-low: 36 28 23;
+  --color-surface-container: 46 35 29;
+  --color-surface-container-high: 58 44 36;
+  --color-surface-container-highest: 73 56 46;
+  --color-surface-dim: 98 76 61;
   --color-on-background: 243 230 218;
   --color-on-surface: 243 230 218;
   --color-on-surface-variant: 190 165 142;
@@ -72,9 +72,9 @@
   --color-chart-4: 136 97 67;
   --color-chart-5: 242 216 191;
   --app-background:
-    radial-gradient(circle at top left, rgba(116, 82, 55, 0.34), transparent 24%),
-    radial-gradient(circle at top right, rgba(73, 53, 39, 0.46), transparent 28%),
-    linear-gradient(180deg, #211915 0%, #1c1512 44%, #17110e 100%);
+    radial-gradient(circle at top left, rgba(97, 67, 45, 0.3), transparent 24%),
+    radial-gradient(circle at top right, rgba(58, 41, 31, 0.44), transparent 28%),
+    linear-gradient(180deg, #1a130f 0%, #15100d 44%, #110d0a 100%);
 }
 
 html,
@@ -103,6 +103,14 @@ textarea {
   font: inherit;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
   line-height: 1;
@@ -125,4 +133,22 @@ textarea {
 
 .surface-ring {
   border: 1px solid rgb(var(--color-outline-variant) / 0.16);
+}
+
+.modal-screen-overlay {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--color-background) / 0.74) 0%,
+    rgb(var(--color-background) / 0.9) 100%
+  );
+}
+
+.modal-action-dock {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--color-background) / 0) 0%,
+    rgb(var(--color-background) / 0.82) 18%,
+    rgb(var(--color-background) / 0.95) 42%,
+    rgb(var(--color-background) / 0.985) 100%
+  );
 }

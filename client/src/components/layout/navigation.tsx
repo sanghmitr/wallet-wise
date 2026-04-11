@@ -149,8 +149,8 @@ export function MobileTopBar({
   serverStatus,
 }: Pick<NavigationProps, 'onSignOut' | 'onWakeServer' | 'serverStatus'>) {
   return (
-    <header className="glass-panel fixed left-0 top-0 z-40 flex w-full items-center justify-between px-5 py-4 lg:hidden">
-      <div className="flex items-center gap-3">
+    <header className="glass-panel fixed left-0 top-0 z-40 flex w-full items-center justify-between px-4 py-3 lg:hidden">
+      <div className="flex items-center gap-2.5">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-on-primary">
           <MaterialIcon name="account_balance_wallet" filled className="text-[20px]" />
         </div>

@@ -1,11 +1,11 @@
-import { api } from '@/services/api';
+import { api, unwrapListResponse } from '@/services/api';
 import type { Budget, BudgetInput } from '@/types/domain';
 
 export async function getBudgets(month?: string) {
-  const { data } = await api.get<Budget[]>('/budgets', {
+  const { data } = await api.get<Budget[] | { budgets?: Budget[] }>('/budgets', {
     params: month ? { month } : undefined,
   });
-  return data;
+  return unwrapListResponse<Budget>(data, ['budgets']);
 }
 
 export async function upsertBudget(payload: BudgetInput) {
