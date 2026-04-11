@@ -1,12 +1,12 @@
-import { api } from '@/services/api';
+import { api, unwrapListResponse } from '@/services/api';
 import type { Expense, ExpenseFilters, ExpenseInput } from '@/types/domain';
 
 export async function getExpenses(filters?: ExpenseFilters) {
-  const { data } = await api.get<Expense[]>('/expenses', {
+  const { data } = await api.get<Expense[] | { expenses?: Expense[] }>('/expenses', {
     params: filters,
   });
 
-  return data;
+  return unwrapListResponse<Expense>(data, ['expenses']);
 }
 
 export async function createExpense(payload: ExpenseInput) {

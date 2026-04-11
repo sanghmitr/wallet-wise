@@ -5,7 +5,6 @@ import { MaterialIcon } from '@/components/ui/MaterialIcon';
 import {
   BottomNavigation,
   DesktopSidebar,
-  FloatingActionButton,
   MobileTopBar,
 } from '@/components/layout/navigation';
 import { useAppData } from '@/store/AppDataContext';
@@ -37,7 +36,7 @@ export function AppShell() {
         onWakeServer={() => void wakeServer()}
       />
 
-      <main className="mx-auto max-w-7xl px-4 pb-28 pt-20 lg:ml-72 lg:px-8 lg:pb-10 lg:pt-8">
+      <main className="mx-auto max-w-7xl px-5 pb-28 pt-[5.5rem] sm:px-6 lg:ml-72 lg:px-8 lg:pb-10 lg:pt-8">
         {bootstrapError ? (
           <div className="mb-6 rounded-[1.5rem] border border-error/15 bg-error/5 px-5 py-4 text-sm text-error">
             {bootstrapError}
@@ -86,10 +85,6 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      <FloatingActionButton
-        onAddExpense={openCreateExpense}
-        isAddDisabled={!isServerReady}
-      />
       <BottomNavigation
         onAddExpense={openCreateExpense}
         isAddDisabled={!isServerReady}

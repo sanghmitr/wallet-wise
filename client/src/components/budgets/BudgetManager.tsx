@@ -35,7 +35,7 @@ export function BudgetManager() {
   const totalSpent = sumExpenses(monthExpenses);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-2 sm:pt-0">
       <section>
         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
           Budgets
@@ -98,11 +98,11 @@ export function BudgetManager() {
         {usage.map((item) => (
           <Card
             key={item.category}
-            className="border border-outline-variant/20 bg-surface-container-lowest"
+            className="border border-outline-variant/20 bg-surface-container-lowest p-4 sm:p-5"
           >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-container-low text-primary">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-surface-container-low text-primary">
                   <MaterialIcon name={item.icon} />
                 </div>
                 <div>
@@ -126,14 +126,14 @@ export function BudgetManager() {
                       month: currentMonth,
                     })
                   }
-                  className="w-24 rounded-xl border-none bg-surface-container-low px-3 py-2 text-right text-sm font-bold text-primary outline-none"
+                  className="w-24 rounded-xl border-none bg-surface-container-low px-3 py-1.5 text-right text-sm font-bold text-primary outline-none"
                   placeholder="0"
                 />
               </label>
             </div>
 
-            <div className="mt-6 space-y-3">
-              <div className="flex items-end justify-between gap-4">
+            <div className="mt-5 space-y-2.5">
+              <div className="flex items-end justify-between gap-3">
                 <span className="text-xs font-bold text-on-surface">
                   {formatCurrency(item.spent, settings.currency)} spent
                 </span>

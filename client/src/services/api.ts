@@ -148,3 +148,26 @@ export function getApiErrorMessage(error: unknown) {
 
   return error instanceof Error ? error.message : 'Unexpected error';
 }
+
+export function unwrapListResponse<T>(
+  data: unknown,
+  expectedKeys: string[] = [],
+): T[] {
+  if (Array.isArray(data)) {
+    return data as T[];
+  }
+
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>;
+
+    for (const key of [...expectedKeys, 'items', 'data', 'results']) {
+      const candidate = record[key];
+
+      if (Array.isArray(candidate)) {
+        return candidate as T[];
+      }
+    }
+  }
+
+  return [];
+}

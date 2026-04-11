@@ -122,7 +122,7 @@ export function ProfileManager() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid gap-6 pt-2 sm:pt-0 lg:grid-cols-[minmax(0,1fr)_360px]">
       <section>
         <header className="mb-8">
           <div className="mb-6 rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest/88 p-5 shadow-ambient backdrop-blur-xl">
@@ -185,9 +185,6 @@ export function ProfileManager() {
             Add the names of the cards and UPI handles you actually use. The app
             stores only the nickname, never card numbers or sensitive banking data.
           </p>
-          <div className="mt-8 h-[2px] w-full bg-surface-container-highest">
-            <div className="h-full w-1/4 rounded-full bg-primary" />
-          </div>
         </header>
 
         {!paymentMethods.length ? (

@@ -116,9 +116,9 @@ function ProgressBar({ value, tone }: ProgressBarProps) {
 
 function InsightRow({ icon, title, description }: InsightRowProps) {
   return (
-    <div className="flex items-start gap-3 rounded-[1.25rem] bg-surface-container-lowest/92 p-3.5 transition-transform duration-200 active:scale-[0.99]">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary-container text-primary">
-        <MaterialIcon name={icon} className="text-[20px]" />
+    <div className="flex items-start gap-3 rounded-[1.1rem] bg-surface-container-lowest/92 p-3 transition-transform duration-200 active:scale-[0.99]">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[1rem] bg-primary-container text-primary">
+        <MaterialIcon name={icon} className="text-[18px]" />
       </div>
       <div className="min-w-0">
         <p className="text-sm font-semibold text-on-surface">{title}</p>
@@ -142,7 +142,7 @@ function PaymentMethodBar({
           ? `/profile/payment-methods/${paymentMethod.id}`
           : '/profile'
       }
-      className="block rounded-[1.35rem] border border-outline-variant/18 bg-surface-container-lowest/88 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20"
+      className="block rounded-[1.2rem] border border-outline-variant/18 bg-surface-container-lowest/88 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
@@ -158,13 +158,13 @@ function PaymentMethodBar({
           className="shrink-0 text-[18px] text-on-surface-variant"
         />
       </div>
-      <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-primary/10">
+      <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-primary/10">
         <div
           className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
           style={{ width: `${Math.max(8, share)}%` }}
         />
       </div>
-      <p className="mt-3 text-sm font-semibold text-on-surface">
+      <p className="mt-2.5 text-sm font-semibold text-on-surface">
         {amount}
       </p>
     </Link>
@@ -248,7 +248,9 @@ function getPreviousRange(bounds: DateRange, range: DashboardRange): DateRange {
 }
 
 function filterExpensesByDateBounds(expenses: Expense[], bounds: DateRange) {
-  return expenses.filter((expense) =>
+  const expenseList = Array.isArray(expenses) ? expenses : [];
+
+  return expenseList.filter((expense) =>
     isWithinInterval(parseISO(expense.date), bounds),
   );
 }
@@ -358,28 +360,32 @@ export function DashboardPage() {
     .slice(0, 4);
 
   const paymentMethodOptions = paymentMethods.filter((paymentMethod) =>
-    rangeExpenses.some((expense) => expense.paymentMethodId === paymentMethod.id),
+    rangeExpenses.some((expense) => expense?.paymentMethodId === paymentMethod.id),
   );
   const categoryOptions = categories.filter((category) =>
-    rangeExpenses.some((expense) => expense.category === category.name),
+    rangeExpenses.some((expense) => expense?.category === category.name),
   );
 
   const transactionExpenses = getSortedExpenses(
     rangeExpenses.filter((expense) => {
+      const paymentMethodId = expense?.paymentMethodId ?? '';
+      const categoryName = expense?.category ?? '';
+
       if (
         selectedPaymentMethodId !== 'all' &&
-        expense.paymentMethodId !== selectedPaymentMethodId
+        paymentMethodId !== selectedPaymentMethodId
       ) {
         return false;
       }
 
-      if (selectedCategory !== 'all' && expense.category !== selectedCategory) {
+      if (selectedCategory !== 'all' && categoryName !== selectedCategory) {
         return false;
       }
 
       return true;
     }),
   );
+  const focusedTransactionTotal = sumExpenses(transactionExpenses);
 
   const totalBudget = budgets.reduce((sum, budget) => sum + budget.limit, 0);
   const remainingBudget = totalBudget - totalSpent;
@@ -763,7 +769,7 @@ export function DashboardPage() {
       </section>
 
       <section ref={insightsRef} className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-        <Card className="surface-ring bg-surface-container-low p-5 sm:p-6">
+        <Card className="surface-ring bg-surface-container-low p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
@@ -789,7 +795,7 @@ export function DashboardPage() {
             </Link>
           </div>
 
-          <div className="mt-5 space-y-3">
+          <div className="mt-4 space-y-2.5">
             {highlightInsights.map((insight) => (
               <InsightRow
                 key={insight.title}
@@ -801,7 +807,7 @@ export function DashboardPage() {
           </div>
         </Card>
 
-        <Card className="surface-ring bg-surface-container-low p-5 sm:p-6">
+        <Card className="surface-ring bg-surface-container-low p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
@@ -817,11 +823,11 @@ export function DashboardPage() {
           </div>
 
           {!paymentMethodTotals.length ? (
-            <div className="mt-5 rounded-[1.4rem] bg-surface-container-lowest p-4 text-sm text-on-surface-variant">
+            <div className="mt-4 rounded-[1.25rem] bg-surface-container-lowest p-3.5 text-sm text-on-surface-variant">
               Spend will start grouping by payment method once you add transactions.
             </div>
           ) : (
-            <div className="mt-5 space-y-3">
+            <div className="mt-4 space-y-2.5">
               {paymentMethodTotals.map((item) => (
                 <PaymentMethodBar
                   key={item.name}
@@ -956,6 +962,8 @@ export function DashboardPage() {
               range,
               bounds,
             ).toLowerCase()}.`}
+            summaryLabel="Filtered total"
+            summaryValue={formatCurrency(focusedTransactionTotal, settings.currency)}
             onEdit={openEditExpense}
             onDelete={(expenseId) => void deleteExpense(expenseId)}
           />

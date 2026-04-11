@@ -1,9 +1,9 @@
-import { api } from '@/services/api';
+import { api, unwrapListResponse } from '@/services/api';
 import type { Category, CategoryInput } from '@/types/domain';
 
 export async function getCategories() {
-  const { data } = await api.get<Category[]>('/categories');
-  return data;
+  const { data } = await api.get<Category[] | { categories?: Category[] }>('/categories');
+  return unwrapListResponse<Category>(data, ['categories']);
 }
 
 export async function createCategory(payload: CategoryInput) {

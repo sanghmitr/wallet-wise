@@ -101,7 +101,7 @@ export function CategoryManager() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid gap-6 pt-2 sm:pt-0 lg:grid-cols-[minmax(0,1fr)_360px]">
       <section>
         <header className="mb-8">
           <div className="flex items-end justify-between gap-4">
@@ -122,9 +122,6 @@ export function CategoryManager() {
               <MaterialIcon name="add" filled className="text-[18px]" />
               New Category
             </Button>
-          </div>
-          <div className="mt-8 h-[2px] w-full bg-surface-container-highest">
-            <div className="h-full w-1/4 rounded-full bg-primary" />
           </div>
         </header>
 
