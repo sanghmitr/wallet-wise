@@ -4,7 +4,7 @@ const SETTINGS_STORAGE_KEY = 'wallet-wise-settings';
 
 export const defaultUserSettings: UserSettingsInput = {
   currency: 'INR',
-  theme: 'system',
+  theme: 'dark',
 };
 
 function isValidThemePreference(value: unknown): value is ThemePreference {

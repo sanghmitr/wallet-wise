@@ -77,7 +77,7 @@ const defaultPaymentMethods: Array<Omit<PaymentMethod, 'id' | 'createdAt'>> = [
 
 const defaultSettings: UserSettingsInput = {
   currency: 'INR',
-  theme: 'system',
+  theme: 'dark',
 };
 
 function normalizeName(name: string) {

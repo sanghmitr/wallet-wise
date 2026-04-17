@@ -23,7 +23,8 @@ export function AppShell() {
   const isWakingServer = serverStatus === 'waking-server';
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen font-display">
+      <div className="app-shell-backdrop" />
       <MobileTopBar
         onSignOut={() => void signOut()}
         serverStatus={serverStatus}
@@ -36,25 +37,25 @@ export function AppShell() {
         onWakeServer={() => void wakeServer()}
       />
 
-      <main className="mx-auto max-w-7xl px-5 pb-28 pt-[5.5rem] sm:px-6 lg:ml-72 lg:px-8 lg:pb-10 lg:pt-8">
+      <main className="relative mx-auto max-w-7xl px-5 pb-28 pt-24 sm:px-6 lg:ml-[19rem] lg:px-8 lg:pb-10 lg:pt-6">
         {bootstrapError ? (
-          <div className="mb-6 rounded-[1.5rem] border border-error/15 bg-error/5 px-5 py-4 text-sm text-error">
+          <div className="mb-6 rounded-[1.5rem] border border-error/20 bg-error/6 px-5 py-4 text-sm text-error shadow-ambient">
             {bootstrapError}
           </div>
         ) : null}
 
         {!isServerReady ? (
-          <div className="mb-6 rounded-[1.75rem] border border-outline-variant/20 bg-surface-container-lowest/88 px-5 py-4 shadow-ambient backdrop-blur-xl">
+          <div className="mb-6 overflow-hidden rounded-[1.75rem] border border-outline-variant/70 bg-surface-container-lowest/84 px-5 py-4 shadow-ambient backdrop-blur-xl">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-container text-primary">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-container text-primary">
                   <MaterialIcon
                     name={isWakingServer ? 'cloud_sync' : 'cloud_off'}
                     className={`text-[21px] ${isWakingServer ? 'animate-pulse' : ''}`}
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-on-surface">
+                  <p className="font-display text-base font-medium tracking-[-0.02em] text-on-surface">
                     {isWakingServer
                       ? 'Server is waking up'
                       : serverStatus === 'checking'
