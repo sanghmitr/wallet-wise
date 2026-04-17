@@ -9,7 +9,7 @@ export const Card = forwardRef<
     <div
       ref={ref}
       className={cn(
-        'rounded-[1.5rem] bg-surface-container-lowest p-4 shadow-ambient sm:rounded-[1.6rem] sm:p-5 md:rounded-[1.75rem] md:p-6',
+        'rounded-[1.5rem] border border-outline-variant/70 bg-surface-container-lowest/88 p-4 shadow-ambient backdrop-blur-xl sm:rounded-[1.6rem] sm:p-5 md:rounded-[1.75rem] md:p-6',
         className,
       )}
       {...props}

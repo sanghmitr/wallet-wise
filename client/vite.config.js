@@ -18,8 +18,8 @@ export default defineConfig({
                 name: 'Wallet Wise',
                 short_name: 'WalletWise',
                 description: 'A minimalist expense tracker with budgets, dashboards, and an AI assistant.',
-                theme_color: '#f8f9fa',
-                background_color: '#f8f9fa',
+                theme_color: '#191c1f',
+                background_color: '#0f1117',
                 display: 'standalone',
                 start_url: '/',
                 icons: [

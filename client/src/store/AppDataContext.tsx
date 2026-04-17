@@ -91,6 +91,7 @@ interface AppDataContextValue {
   refreshAll: () => Promise<void>;
   retryBootstrap: () => Promise<void>;
   wakeServer: () => Promise<boolean>;
+  setThemePreference: (theme: UserSettingsInput['theme']) => void;
   signInWithGoogle: () => Promise<void>;
   continueAsGuest: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -294,6 +295,17 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
     wakeServerPromiseRef.current = wakePromise;
     return wakePromise;
+  }
+
+  function setThemePreference(theme: UserSettingsInput['theme']) {
+    startTransition(() => {
+      setSettings((current) =>
+        createSettingsState({
+          ...current,
+          theme,
+        }),
+      );
+    });
   }
 
   async function requireReadyServerAction() {
@@ -1019,6 +1031,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
         refreshAll,
         retryBootstrap,
         wakeServer,
+        setThemePreference,
         signInWithGoogle: handleGoogleSignIn,
         continueAsGuest: handleGuestSignIn,
         signOut: handleSignOut,

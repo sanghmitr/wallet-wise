@@ -34,23 +34,41 @@ export default {
       },
       borderRadius: {
         DEFAULT: '1rem',
-        lg: '2rem',
-        xl: '3rem',
+        lg: '1.5rem',
+        xl: '2rem',
+        '2xl': '2rem',
+        '3xl': '2.5rem',
       },
       boxShadow: {
-        ambient: '0 18px 45px rgba(96, 67, 43, 0.18)',
+        ambient: '0 24px 80px rgba(17, 20, 33, 0.08)',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Sora', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Sora', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         floatIn: {
           '0%': { opacity: '0', transform: 'translateY(12px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        slowFloat: {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
+          '50%': { transform: 'translate3d(0, -12px, 0)' },
+        },
+        glowPulse: {
+          '0%, 100%': { opacity: '0.75', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.06)' },
+        },
+        gridPan: {
+          '0%': { transform: 'translate3d(0, 0, 0)' },
+          '100%': { transform: 'translate3d(48px, 48px, 0)' },
+        },
       },
       animation: {
         'float-in': 'floatIn 320ms ease-out',
+        'slow-float': 'slowFloat 8s ease-in-out infinite',
+        'glow-pulse': 'glowPulse 7s ease-in-out infinite',
+        'grid-pan': 'gridPan 18s linear infinite',
       },
     },
   },
