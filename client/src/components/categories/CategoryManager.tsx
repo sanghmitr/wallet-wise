@@ -36,6 +36,7 @@ const initialForm = {
   name: '',
   icon: 'restaurant',
   color: '#5f5e5e',
+  includeInMonthlyBudget: true,
 };
 
 export function CategoryManager() {
@@ -75,6 +76,7 @@ export function CategoryManager() {
       name: category.name,
       icon: category.icon,
       color: category.color,
+      includeInMonthlyBudget: category.includeInMonthlyBudget,
     });
     focusComposer();
   }
@@ -91,6 +93,7 @@ export function CategoryManager() {
         name: draft.name.trim(),
         icon: draft.icon,
         color: draft.color,
+        includeInMonthlyBudget: draft.includeInMonthlyBudget,
       },
       editing?.id,
     );
@@ -158,6 +161,17 @@ export function CategoryManager() {
                       </h3>
                       <p className="text-sm font-medium text-on-surface-variant">
                         {transactionCount} transactions
+                      </p>
+                      <p
+                        className={`mt-1 text-[11px] font-bold uppercase tracking-[0.18em] ${
+                          category.includeInMonthlyBudget
+                            ? 'text-tertiary'
+                            : 'text-secondary'
+                        }`}
+                      >
+                        {category.includeInMonthlyBudget
+                          ? 'Budget tracked'
+                          : 'Budget excluded'}
                       </p>
                     </div>
                   </div>
@@ -228,6 +242,30 @@ export function CategoryManager() {
               />
             </label>
 
+            <label className="flex items-start gap-3 rounded-[1.25rem] bg-surface-container-lowest px-4 py-4">
+              <input
+                type="checkbox"
+                checked={draft.includeInMonthlyBudget}
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    includeInMonthlyBudget: event.target.checked,
+                  }))
+                }
+                disabled={!canPerformServerActions}
+                className="mt-1 h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary/30"
+              />
+              <span className="block">
+                <span className="text-sm font-semibold text-on-surface">
+                  Include this category in monthly budgets
+                </span>
+                <span className="mt-1 block text-sm leading-6 text-on-surface-variant">
+                  Turn this off for tracking buckets like investments, savings, or
+                  internal transfers that should stay out of monthly budget usage.
+                </span>
+              </span>
+            </label>
+
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                 Icon
@@ -287,6 +325,22 @@ export function CategoryManager() {
               <p className="mt-2 text-sm leading-6 text-white/80">
                 Merge overlapping categories where possible. Cleaner taxonomy
                 improves dashboard accuracy and AI query results.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="bg-surface-container-lowest">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-primary-container text-primary">
+              <MaterialIcon name="savings" className="text-[20px]" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-on-surface">Budget Exclusions</h3>
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                Excluded categories still appear in transactions, filters, and charts,
+                but they do not affect monthly budget remaining, budget cards, or
+                budget warnings.
               </p>
             </div>
           </div>

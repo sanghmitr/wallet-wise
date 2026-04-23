@@ -201,10 +201,14 @@ export function MobileTopBar({
         ) : null}
         <Link
           to="/chat"
-          className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-on-surface"
+          className="group relative inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-primary/18 bg-primary/10 text-primary shadow-[0_0_0_1px_rgba(168,122,84,0.08),0_0_18px_rgba(168,122,84,0.18)] transition duration-200 hover:scale-[1.03] hover:shadow-[0_0_0_1px_rgba(168,122,84,0.14),0_0_24px_rgba(168,122,84,0.28)]"
           aria-label="Open AI assistant"
         >
-          <MaterialIcon name="forum" />
+          <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(168,122,84,0.26)_0%,rgba(168,122,84,0.1)_48%,transparent_76%)] opacity-95 animate-heartbeat" />
+          <span className="absolute inset-[7px] rounded-full bg-primary/10 blur-md transition duration-200 group-hover:bg-primary/14 animate-heartbeat [animation-delay:140ms]" />
+          <span className="relative z-10 animate-heartbeat">
+            <MaterialIcon name="forum" filled className="text-[20px]" />
+          </span>
         </Link>
         {onSignOut ? (
           <button

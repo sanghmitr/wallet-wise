@@ -131,6 +131,9 @@ export function AddExpenseModal() {
   }
 
   const selectedCategory = watch('category');
+  const selectedCategoryRecord = categories.find(
+    (category) => category.name === selectedCategory,
+  );
   const selectedPaymentMethodId = watch('paymentMethodId');
   const submitExpense = handleSubmit(async (values) => {
     await saveExpense(values, editingExpense?.id);
@@ -430,7 +433,9 @@ export function AddExpenseModal() {
               <div>
                 <h3 className="text-base font-bold text-on-surface">Budget Impact</h3>
                 <p className="mt-1 text-xs text-on-surface-variant">
-                  Transactions update budget usage instantly on the dashboard.
+                  {selectedCategoryRecord?.includeInMonthlyBudget === false
+                    ? 'This category is excluded from monthly budgets, so this transaction will stay out of budget usage.'
+                    : 'Transactions update budget usage instantly on the dashboard.'}
                 </p>
               </div>
               <div className="flex items-center gap-2">

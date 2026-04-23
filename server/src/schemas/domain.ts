@@ -37,6 +37,7 @@ export const categoryInputSchema = z.object({
   name: z.string().min(1),
   icon: z.string().min(1),
   color: z.string().min(1),
+  includeInMonthlyBudget: z.boolean(),
 });
 
 export const budgetInputSchema = z.object({
