@@ -18,6 +18,33 @@ const suggestions = [
   'I spent 450 on Zomato using HDFC Credit Card',
 ];
 
+const composerActions = [
+  {
+    label: 'Monthly summary',
+    hint: 'Draft a spending summary question.',
+    icon: 'query_stats',
+    prompt: 'How much did I spend this month?',
+  },
+  {
+    label: 'Budget check',
+    hint: 'Ask which budgets are near the limit.',
+    icon: 'savings',
+    prompt: 'Which budgets are close to the limit?',
+  },
+  {
+    label: 'Card cycle',
+    hint: 'Review the current billing cycle.',
+    icon: 'credit_card',
+    prompt: 'Show HDFC Credit Card expenses for current billing cycle',
+  },
+  {
+    label: 'Add expense',
+    hint: 'Start a natural-language expense command.',
+    icon: 'receipt_long',
+    prompt: 'I spent 450 on Zomato using HDFC Credit Card',
+  },
+] as const;
+
 function buildExpenseTitle(expense: Expense) {
   return expense.note || expense.merchant || expense.category;
 }
@@ -225,7 +252,9 @@ export function ChatPanel() {
   } = useAppData();
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isComposerActionsOpen, setIsComposerActionsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const composerRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const hasConversation = useMemo(
@@ -260,6 +289,58 @@ export function ChatPanel() {
     textarea.style.height = `${Math.min(textarea.scrollHeight, 180)}px`;
   }, [draft]);
 
+  useEffect(() => {
+    if (!isComposerActionsOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent | TouchEvent) {
+      const target = event.target;
+
+      if (!(target instanceof Node) || composerRef.current?.contains(target)) {
+        return;
+      }
+
+      setIsComposerActionsOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsComposerActionsOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isComposerActionsOpen]);
+
+  function focusComposerAtEnd() {
+    requestAnimationFrame(() => {
+      const textarea = textareaRef.current;
+
+      if (!textarea) {
+        return;
+      }
+
+      textarea.focus();
+      const cursor = textarea.value.length;
+      textarea.setSelectionRange(cursor, cursor);
+    });
+  }
+
+  function applyComposerAction(prompt: string) {
+    setDraft(prompt);
+    setIsComposerActionsOpen(false);
+    focusComposerAtEnd();
+  }
+
   async function handleSend(message: string) {
     const trimmed = message.trim();
 
@@ -269,6 +350,7 @@ export function ChatPanel() {
 
     setIsSending(true);
     setDraft('');
+    setIsComposerActionsOpen(false);
 
     try {
       await submitChatMessage(trimmed);
@@ -360,11 +442,80 @@ export function ChatPanel() {
             </div>
           ) : null}
 
-          <div className="rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest p-3 shadow-ambient">
-            <div className="flex items-end gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-container text-primary">
-                <MaterialIcon name="edit_note" className="text-[22px]" />
+          <div
+            ref={composerRef}
+            className="rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest p-3 shadow-ambient"
+          >
+            {isComposerActionsOpen ? (
+              <div
+                id="chat-composer-quick-actions"
+                className="mb-3 rounded-[1.6rem] border border-outline-variant/20 bg-surface-container-low px-3 py-3 shadow-ambient"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3 px-1">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary">
+                      Quick Actions
+                    </p>
+                    <p className="mt-1 text-sm text-on-surface-variant">
+                      Tap a shortcut to draft a chat command.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsComposerActionsOpen(false)}
+                    className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                    aria-label="Close quick actions"
+                  >
+                    <MaterialIcon name="close" className="text-[18px]" />
+                  </button>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {composerActions.map((action) => (
+                    <button
+                      key={action.label}
+                      type="button"
+                      onClick={() => applyComposerAction(action.prompt)}
+                      className="rounded-[1.3rem] border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-left transition hover:-translate-y-0.5 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary-container text-primary">
+                          <MaterialIcon name={action.icon} className="text-[20px]" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-on-surface">
+                            {action.label}
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                            {action.hint}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
+            ) : null}
+
+            <div className="flex items-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsComposerActionsOpen((current) => !current)}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition ${
+                  isComposerActionsOpen
+                    ? 'border-primary/20 bg-primary text-on-primary'
+                    : 'border-transparent bg-primary-container text-primary hover:border-outline-variant/20 hover:bg-surface-container-low'
+                }`}
+                aria-haspopup="dialog"
+                aria-label="Open quick chat actions"
+                aria-expanded={isComposerActionsOpen}
+                aria-controls="chat-composer-quick-actions"
+              >
+                <MaterialIcon
+                  name={isComposerActionsOpen ? 'close' : 'edit_note'}
+                  className="text-[22px]"
+                />
+              </button>
 
               <textarea
                 ref={textareaRef}
