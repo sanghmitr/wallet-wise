@@ -1,26 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <circle cx="256" cy="256" r="208" fill="#B48257" />
+  <defs>
+    <radialGradient id="iconGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(186 150) rotate(49.304) scale(260.343)">
+      <stop stop-color="#666EFF" stop-opacity="0.36" />
+      <stop offset="1" stop-color="#666EFF" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="iconBase" x1="128" y1="108" x2="378" y2="406" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A1D25" />
+      <stop offset="1" stop-color="#0C0E13" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="208" fill="url(#iconBase)" />
+  <circle cx="256" cy="256" r="208" fill="url(#iconGlow)" />
   <path
     d="M176 172H304C328.301 172 348 191.699 348 216V324C348 348.301 328.301 368 304 368H176C151.699 368 132 348.301 132 324V216C132 191.699 151.699 172 176 172Z"
-    stroke="#FFFDF9"
+    stroke="#F5F7FF"
     stroke-linecap="round"
     stroke-linejoin="round"
     stroke-width="24"
   />
   <path
     d="M204 212H332C352.987 212 370 229.013 370 250V302C370 322.987 352.987 340 332 340H204C183.013 340 166 322.987 166 302V250C166 229.013 183.013 212 204 212Z"
-    fill="#FFFDF9"
+    fill="#F5F7FF"
   />
-  <circle cx="314" cy="276" r="16" fill="#B48257" />
+  <circle cx="314" cy="276" r="16" fill="#666EFF" />
   <path
     d="M188 250H242"
-    stroke="#B48257"
+    stroke="#666EFF"
     stroke-linecap="round"
     stroke-width="20"
   />
   <path
     d="M188 286H228"
-    stroke="#B48257"
+    stroke="#666EFF"
     stroke-linecap="round"
     stroke-width="20"
   />
