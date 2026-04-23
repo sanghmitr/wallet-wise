@@ -394,7 +394,7 @@ export function AddExpenseModal() {
               </span>
               <input
                 type="date"
-                className="mt-3 w-full rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3.5 text-sm font-medium text-on-surface outline-none sm:rounded-[1.25rem] sm:py-4"
+                className="mt-3 w-full rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3.5 text-base font-medium text-on-surface outline-none sm:rounded-[1.25rem] sm:py-4 sm:text-sm"
                 {...register('date')}
               />
             </label>
@@ -406,7 +406,7 @@ export function AddExpenseModal() {
               <input
                 type="text"
                 placeholder="Where did you spend?"
-                className="mt-3 w-full rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3.5 text-sm font-medium text-on-surface outline-none placeholder:text-outline-variant sm:rounded-[1.25rem] sm:py-4"
+                className="mt-3 w-full rounded-[1rem] border-none bg-surface-container-lowest px-4 py-3.5 text-base font-medium text-on-surface outline-none placeholder:text-outline-variant sm:rounded-[1.25rem] sm:py-4 sm:text-sm"
                 {...register('merchant')}
               />
             </label>
@@ -418,7 +418,7 @@ export function AddExpenseModal() {
               <textarea
                 rows={2}
                 placeholder="What was this for?"
-                className="mt-3 w-full resize-none rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-4 text-sm font-medium text-on-surface outline-none placeholder:text-outline-variant"
+                className="mt-3 w-full resize-none rounded-[1.25rem] border-none bg-surface-container-lowest px-4 py-4 text-base font-medium text-on-surface outline-none placeholder:text-outline-variant sm:text-sm"
                 {...register('note')}
               />
             </label>
