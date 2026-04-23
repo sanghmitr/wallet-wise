@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   addDays,
   differenceInCalendarDays,
@@ -29,7 +29,9 @@ import { cn } from '@/lib/utils';
 import { useAppData } from '@/store/AppDataContext';
 import type { Expense, PaymentMethod } from '@/types/domain';
 import {
+  filterBudgetTrackedExpenses,
   getCategoryTotals,
+  getBudgetTrackedTotal,
   getPaymentMethodTotals,
   getSortedExpenses,
   sumExpenses,
@@ -329,13 +331,18 @@ export function DashboardPage() {
     string | 'all'
   >('all');
   const [selectedCategory, setSelectedCategory] = useState<string | 'all'>('all');
+  const [mobileCardPage, setMobileCardPage] = useState(0);
+  const [mobileCardsHeight, setMobileCardsHeight] = useState<number | null>(null);
   const insightsRef = useRef<HTMLDivElement | null>(null);
+  const mobileCardsRef = useRef<HTMLDivElement | null>(null);
+  const mobileCardSlidesRef = useRef<Array<HTMLDivElement | null>>([]);
 
   const bounds = getRangeBounds(range, customStart, customEnd);
   const previousBounds = getPreviousRange(bounds, range);
 
   const rangeExpenses = filterExpensesByDateBounds(expenses, bounds);
   const previousExpenses = filterExpensesByDateBounds(expenses, previousBounds);
+  const budgetTrackedRangeExpenses = filterBudgetTrackedExpenses(rangeExpenses, categories);
   const totalSpent = sumExpenses(rangeExpenses);
   const previousTotal = sumExpenses(previousExpenses);
   const deltaAmount = totalSpent - previousTotal;
@@ -385,13 +392,15 @@ export function DashboardPage() {
       return true;
     }),
   );
-  const focusedTransactionTotal = sumExpenses(transactionExpenses);
-
-  const totalBudget = budgets.reduce((sum, budget) => sum + budget.limit, 0);
-  const remainingBudget = totalBudget - totalSpent;
-  const budgetUsage = totalBudget > 0 ? totalSpent / totalBudget : 0;
+  const budgetTrackedSpent = sumExpenses(budgetTrackedRangeExpenses);
+  const excludedSpend = Math.max(totalSpent - budgetTrackedSpent, 0);
+  const totalBudget = getBudgetTrackedTotal(budgets, categories);
+  const remainingBudget = totalBudget - budgetTrackedSpent;
+  const budgetUsage = totalBudget > 0 ? budgetTrackedSpent / totalBudget : 0;
   const budgetRemainingPercent =
-    totalBudget > 0 ? Math.max(0, ((totalBudget - totalSpent) / totalBudget) * 100) : 0;
+    totalBudget > 0
+      ? Math.max(0, ((totalBudget - budgetTrackedSpent) / totalBudget) * 100)
+      : 0;
   const budgetTone = getBudgetTone(budgetUsage);
   const budgetToneColor = getBudgetToneColor(budgetTone);
 
@@ -551,6 +560,271 @@ export function DashboardPage() {
     insightsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  function scrollMobileCardPage(page: number) {
+    const container = mobileCardsRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    container.scrollTo({
+      left: container.clientWidth * page,
+      behavior: 'smooth',
+    });
+    setMobileCardPage(page);
+  }
+
+  useEffect(() => {
+    function syncMobileCardsHeight() {
+      const activeSlide = mobileCardSlidesRef.current[mobileCardPage];
+
+      if (!activeSlide) {
+        return;
+      }
+
+      setMobileCardsHeight(activeSlide.offsetHeight);
+    }
+
+    syncMobileCardsHeight();
+
+    const activeSlide = mobileCardSlidesRef.current[mobileCardPage];
+
+    if (!activeSlide) {
+      return;
+    }
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', syncMobileCardsHeight);
+
+      return () => {
+        window.removeEventListener('resize', syncMobileCardsHeight);
+      };
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      syncMobileCardsHeight();
+    });
+
+    resizeObserver.observe(activeSlide);
+    window.addEventListener('resize', syncMobileCardsHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', syncMobileCardsHeight);
+    };
+  }, [mobileCardPage]);
+
+  const overviewCard = (onViewInsightsClick: () => void) => (
+    <Card className="surface-ring relative overflow-hidden bg-surface-container-low p-5 sm:p-6">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-[-12%] top-[-18%] h-40 w-40 rounded-full bg-primary/16 blur-3xl" />
+        <div className="absolute bottom-[-22%] right-[-8%] h-36 w-36 rounded-full bg-[#4d8f78]/12 blur-3xl" />
+      </div>
+
+      <div className="relative">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+              Total Spent
+            </p>
+            <h2 className="mt-3 text-[2rem] font-extrabold tracking-tight text-on-surface sm:text-[2.4rem]">
+              {formatCurrency(totalSpent, settings.currency)}
+            </h2>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface-container-lowest/92 px-3 py-2 text-xs font-semibold text-on-surface">
+              <MaterialIcon
+                name={isSpendingUp ? 'trending_up' : 'trending_down'}
+                className={cn(
+                  'text-[18px]',
+                  isSpendingUp ? 'text-[#b9634b]' : 'text-[#3b8f68]',
+                )}
+              />
+              <span>
+                {previousTotal > 0
+                  ? `${isSpendingUp ? '+' : '-'}${Math.abs(
+                      deltaPercentage,
+                    ).toFixed(0)}% ${getComparisonLabel(range)}`
+                  : 'No prior range to compare yet'}
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-[1.2rem] bg-surface-container-lowest/92 px-3 py-2 text-right">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+              Active Range
+            </p>
+            <p className="mt-1 text-sm font-semibold text-on-surface">
+              {getRangeLabel(range, bounds)}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-[1.2rem] bg-surface-container-lowest/92 px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+              Counts Toward Budget
+            </p>
+            <p className="mt-2 text-lg font-bold text-on-surface">
+              {formatCurrency(budgetTrackedSpent, settings.currency)}
+            </p>
+            <p className="mt-1 text-xs text-on-surface-variant">
+              Spend included in monthly limits
+            </p>
+          </div>
+
+          <div className="rounded-[1.2rem] bg-surface-container-lowest/92 px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+              Excluded From Budget
+            </p>
+            <p className="mt-2 text-lg font-bold text-on-surface">
+              {formatCurrency(excludedSpend, settings.currency)}
+            </p>
+            <p className="mt-1 text-xs text-on-surface-variant">
+              Spend logged outside monthly limits
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <Button className="gap-2 px-4 py-3" onClick={onViewInsightsClick}>
+            <MaterialIcon name="insights" className="text-[18px]" />
+            View Insights
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const remainingBudgetCard = (
+    <Card className="surface-ring bg-surface-container-low p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+            Remaining Budget
+          </p>
+          <p className="mt-2 text-2xl font-extrabold tracking-tight text-on-surface">
+            {totalBudget > 0 ? formatPercent(budgetRemainingPercent) : '--'}
+          </p>
+        </div>
+        <div
+          className="rounded-full px-3 py-1.5 text-xs font-semibold"
+          style={{
+            color: budgetToneColor,
+            backgroundColor: `${budgetToneColor}17`,
+          }}
+        >
+          {budgetTone === 'safe'
+            ? 'Healthy'
+            : budgetTone === 'warning'
+              ? 'Watch'
+              : 'Critical'}
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <ProgressBar value={Math.min(budgetUsage * 100, 100)} tone={budgetTone} />
+      </div>
+
+      <div className="mt-4 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-on-surface">
+            {totalBudget > 0
+              ? `${formatCurrency(
+                  Math.max(remainingBudget, 0),
+                  settings.currency,
+                )} left`
+              : 'No budgets added yet'}
+          </p>
+          <p className="mt-1 text-xs text-on-surface-variant">
+            {totalBudget > 0
+              ? `Out of ${formatCurrency(totalBudget, settings.currency)} budget`
+              : 'Create budgets to unlock spend pacing'}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-semibold text-on-surface">
+            {formatCurrency(budgetTrackedSpent, settings.currency)}
+          </p>
+          <p className="mt-1 text-xs text-on-surface-variant">budget-tracked spent</p>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const smartInsightsCard = (
+    <Card className="surface-ring bg-surface-container-low p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+            Smart Insights
+          </p>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
+            What needs attention
+          </h2>
+        </div>
+        <Link
+          to="/chat"
+          aria-label="Open AI assistant"
+          className="group relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-container text-primary transition-transform duration-200 hover:scale-105"
+          style={{
+            boxShadow: '0 0 0 1px rgba(168, 122, 84, 0.1), 0 0 24px rgba(168, 122, 84, 0.24)',
+          }}
+        >
+          <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-75" />
+          <span className="absolute inset-[6px] rounded-full bg-primary/10 blur-md" />
+          <span className="relative z-10 flex h-full w-full items-center justify-center">
+            <MaterialIcon name="auto_awesome" className="text-[20px]" />
+          </span>
+        </Link>
+      </div>
+
+      <div className="mt-4 space-y-2.5">
+        {highlightInsights.map((insight) => (
+          <InsightRow
+            key={insight.title}
+            icon={insight.icon}
+            title={insight.title}
+            description={insight.description}
+          />
+        ))}
+      </div>
+    </Card>
+  );
+
+  const paymentMethodSpendCard = (
+    <Card className="surface-ring bg-surface-container-low p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+            Payment Method Spend
+          </p>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
+            Where you paid from
+          </h2>
+        </div>
+        <div className="rounded-full bg-surface-container-lowest px-3 py-1.5 text-xs font-semibold text-on-surface">
+          {paymentMethodTotals.length} methods
+        </div>
+      </div>
+
+      {!paymentMethodTotals.length ? (
+        <div className="mt-4 rounded-[1.25rem] bg-surface-container-lowest p-3.5 text-sm text-on-surface-variant">
+          Spend will start grouping by payment method once you add transactions.
+        </div>
+      ) : (
+        <div className="mt-4 space-y-2.5">
+          {paymentMethodTotals.map((item) => (
+            <PaymentMethodBar
+              key={item.name}
+              paymentMethod={item.paymentMethod}
+              amount={formatCompactCurrency(item.value, settings.currency)}
+              share={totalSpent > 0 ? (item.value / totalSpent) * 100 : 0}
+            />
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+
   return (
     <div className="space-y-6 pb-24 animate-float-in sm:space-y-7 lg:pb-8">
       <header className="space-y-4">
@@ -656,189 +930,80 @@ export function DashboardPage() {
         ) : null}
       </header>
 
-      <section className="grid gap-4 lg:grid-cols-[1.45fr_0.95fr]">
-        <Card className="surface-ring relative overflow-hidden bg-surface-container-low p-5 sm:p-6">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-[-12%] top-[-18%] h-40 w-40 rounded-full bg-primary/16 blur-3xl" />
-            <div className="absolute bottom-[-22%] right-[-8%] h-36 w-36 rounded-full bg-[#4d8f78]/12 blur-3xl" />
-          </div>
+      <section className="lg:hidden">
+        <div
+          className="overflow-hidden transition-[height] duration-300 ease-out"
+          style={mobileCardsHeight ? { height: mobileCardsHeight } : undefined}
+        >
+          <div
+            ref={mobileCardsRef}
+            onScroll={(event) => {
+              const container = event.currentTarget;
 
-          <div className="relative">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Total Spent
-                </p>
-                <h2 className="mt-3 text-[2rem] font-extrabold tracking-tight text-on-surface sm:text-[2.4rem]">
-                  {formatCurrency(totalSpent, settings.currency)}
-                </h2>
-                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface-container-lowest/92 px-3 py-2 text-xs font-semibold text-on-surface">
-                  <MaterialIcon
-                    name={isSpendingUp ? 'trending_up' : 'trending_down'}
-                    className={cn(
-                      'text-[18px]',
-                      isSpendingUp ? 'text-[#b9634b]' : 'text-[#3b8f68]',
-                    )}
-                  />
-                  <span>
-                    {previousTotal > 0
-                      ? `${isSpendingUp ? '+' : '-'}${Math.abs(
-                          deltaPercentage,
-                        ).toFixed(0)}% ${getComparisonLabel(range)}`
-                      : 'No prior range to compare yet'}
-                  </span>
-                </div>
-              </div>
+              if (!container.clientWidth) {
+                return;
+              }
 
-              <div className="rounded-[1.2rem] bg-surface-container-lowest/92 px-3 py-2 text-right">
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                  Active Range
-                </p>
-                <p className="mt-1 text-sm font-semibold text-on-surface">
-                  {getRangeLabel(range, bounds)}
-                </p>
-              </div>
+              setMobileCardPage(
+                Math.round(container.scrollLeft / container.clientWidth),
+              );
+            }}
+            className="no-scrollbar -mx-1 flex snap-x snap-mandatory overflow-x-auto px-1 pb-2"
+          >
+            <div
+              ref={(element) => {
+                mobileCardSlidesRef.current[0] = element;
+              }}
+              className="w-full shrink-0 snap-center space-y-4 px-1"
+            >
+              {overviewCard(() => scrollMobileCardPage(1))}
+              {paymentMethodSpendCard}
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button className="gap-2 px-4 py-3" onClick={handleViewInsights}>
-                <MaterialIcon name="insights" className="text-[18px]" />
-                View Insights
-              </Button>
+            <div
+              ref={(element) => {
+                mobileCardSlidesRef.current[1] = element;
+              }}
+              className="w-full shrink-0 snap-center space-y-4 px-1"
+            >
+              {smartInsightsCard}
+              {remainingBudgetCard}
             </div>
           </div>
-        </Card>
+        </div>
 
-        <div className="grid gap-4">
-          <Card className="surface-ring bg-surface-container-low p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                  Remaining Budget
-                </p>
-                <p className="mt-2 text-2xl font-extrabold tracking-tight text-on-surface">
-                  {totalBudget > 0
-                    ? formatPercent(budgetRemainingPercent)
-                    : '--'}
-                </p>
-              </div>
-              <div
-                className="rounded-full px-3 py-1.5 text-xs font-semibold"
-                style={{
-                  color: budgetToneColor,
-                  backgroundColor: `${budgetToneColor}17`,
-                }}
-              >
-                {budgetTone === 'safe'
-                  ? 'Healthy'
-                  : budgetTone === 'warning'
-                    ? 'Watch'
-                    : 'Critical'}
-              </div>
-            </div>
-
-            <div className="mt-5">
-              <ProgressBar value={Math.min(budgetUsage * 100, 100)} tone={budgetTone} />
-            </div>
-
-            <div className="mt-4 flex items-end justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-on-surface">
-                  {totalBudget > 0
-                    ? `${formatCurrency(
-                        Math.max(remainingBudget, 0),
-                        settings.currency,
-                      )} left`
-                    : 'No budgets added yet'}
-                </p>
-                <p className="mt-1 text-xs text-on-surface-variant">
-                  {totalBudget > 0
-                    ? `Out of ${formatCurrency(totalBudget, settings.currency)} budget`
-                    : 'Create budgets to unlock spend pacing'}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-on-surface">
-                  {formatCurrency(totalSpent, settings.currency)}
-                </p>
-                <p className="mt-1 text-xs text-on-surface-variant">spent</p>
-              </div>
-            </div>
-          </Card>
+        <div className="mt-3 flex items-center justify-center gap-2">
+          {[0, 1].map((page) => (
+            <button
+              key={page}
+              type="button"
+              onClick={() => scrollMobileCardPage(page)}
+              className={cn(
+                'h-2.5 rounded-full transition-all duration-200',
+                mobileCardPage === page
+                  ? 'w-7 bg-primary'
+                  : 'w-2.5 bg-outline-variant',
+              )}
+              aria-label={`Go to dashboard card set ${page + 1}`}
+            />
+          ))}
         </div>
       </section>
 
-      <section ref={insightsRef} className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-        <Card className="surface-ring bg-surface-container-low p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                Smart Insights
-              </p>
-              <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
-                What needs attention
-              </h2>
-            </div>
-            <Link
-              to="/chat"
-              aria-label="Open AI assistant"
-              className="group relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-container text-primary transition-transform duration-200 hover:scale-105"
-              style={{
-                boxShadow: '0 0 0 1px rgba(168, 122, 84, 0.1), 0 0 24px rgba(168, 122, 84, 0.24)',
-              }}
-            >
-              <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-75" />
-              <span className="absolute inset-[6px] rounded-full bg-primary/10 blur-md" />
-              <span className="relative z-10 flex h-full w-full items-center justify-center">
-                <MaterialIcon name="auto_awesome" className="text-[20px]" />
-              </span>
-            </Link>
-          </div>
+      <section className="hidden gap-4 lg:grid lg:grid-cols-[1.45fr_0.95fr]">
+        {overviewCard(handleViewInsights)}
 
-          <div className="mt-4 space-y-2.5">
-            {highlightInsights.map((insight) => (
-              <InsightRow
-                key={insight.title}
-                icon={insight.icon}
-                title={insight.title}
-                description={insight.description}
-              />
-            ))}
-          </div>
-        </Card>
+        <div className="grid gap-4">
+          {remainingBudgetCard}
+        </div>
+      </section>
 
-        <Card className="surface-ring bg-surface-container-low p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                Payment Method Spend
-              </p>
-              <h2 className="mt-2 text-xl font-extrabold tracking-tight text-on-surface">
-                Where you paid from
-              </h2>
-            </div>
-            <div className="rounded-full bg-surface-container-lowest px-3 py-1.5 text-xs font-semibold text-on-surface">
-              {paymentMethodTotals.length} methods
-            </div>
-          </div>
-
-          {!paymentMethodTotals.length ? (
-            <div className="mt-4 rounded-[1.25rem] bg-surface-container-lowest p-3.5 text-sm text-on-surface-variant">
-              Spend will start grouping by payment method once you add transactions.
-            </div>
-          ) : (
-            <div className="mt-4 space-y-2.5">
-              {paymentMethodTotals.map((item) => (
-                <PaymentMethodBar
-                  key={item.name}
-                  paymentMethod={item.paymentMethod}
-                  amount={formatCompactCurrency(item.value, settings.currency)}
-                  share={totalSpent > 0 ? (item.value / totalSpent) * 100 : 0}
-                />
-              ))}
-            </div>
-          )}
-        </Card>
+      <section
+        ref={insightsRef}
+        className="hidden gap-4 lg:grid lg:grid-cols-[1.05fr_0.95fr]"
+      >
+        {smartInsightsCard}
+        {paymentMethodSpendCard}
       </section>
 
       <section className="space-y-4">
@@ -963,7 +1128,6 @@ export function DashboardPage() {
               bounds,
             ).toLowerCase()}.`}
             summaryLabel="Filtered total"
-            summaryValue={formatCurrency(focusedTransactionTotal, settings.currency)}
             onEdit={openEditExpense}
             onDelete={(expenseId) => void deleteExpense(expenseId)}
           />

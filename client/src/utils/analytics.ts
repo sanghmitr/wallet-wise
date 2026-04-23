@@ -115,6 +115,37 @@ export function getCategoryTotals(expenses: Expense[]) {
     .sort((left, right) => right.value - left.value);
 }
 
+export function getBudgetTrackedCategoryNames(categories: Category[]) {
+  return new Set(
+    categories
+      .filter((category) => category.includeInMonthlyBudget)
+      .map((category) => category.name),
+  );
+}
+
+export function filterBudgetTrackedExpenses(
+  expenses: Expense[],
+  categories: Category[],
+) {
+  const trackedCategoryNames = getBudgetTrackedCategoryNames(categories);
+
+  return expenses.filter((expense) => trackedCategoryNames.has(expense.category));
+}
+
+export function getBudgetTrackedCategories(categories: Category[]) {
+  return categories.filter((category) => category.includeInMonthlyBudget);
+}
+
+export function getBudgetTrackedTotal(budgets: Budget[], categories: Category[]) {
+  const trackedCategoryNames = getBudgetTrackedCategoryNames(categories);
+
+  return budgets.reduce(
+    (total, budget) =>
+      trackedCategoryNames.has(budget.category) ? total + budget.limit : total,
+    0,
+  );
+}
+
 export function getPaymentMethodTotals(expenses: Expense[]) {
   return Object.entries(
     expenses.reduce<Record<string, number>>((accumulator, expense) => {
@@ -153,7 +184,7 @@ export function getBudgetUsage(
   expenses: Expense[],
   categories: Category[],
 ) {
-  return categories
+  return getBudgetTrackedCategories(categories)
     .map((category) => {
       const budget = budgets.find((item) => item.category === category.name);
       const spent = sumExpenses(

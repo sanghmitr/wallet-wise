@@ -591,8 +591,19 @@ function formatAmount(value: number, currency: CurrencyCode) {
   }).format(value);
 }
 
-function buildBudgetAlerts(expenses: Expense[], budgets: Budget[]) {
+function buildBudgetAlerts(
+  expenses: Expense[],
+  budgets: Budget[],
+  categories: Array<{ name: string; includeInMonthlyBudget: boolean }>,
+) {
+  const trackedCategoryNames = new Set(
+    categories
+      .filter((category) => category.includeInMonthlyBudget)
+      .map((category) => category.name),
+  );
+
   return budgets
+    .filter((budget) => trackedCategoryNames.has(budget.category))
     .map((budget) => {
       const spent = sumExpenses(
         expenses.filter((expense) => expense.category === budget.category),
@@ -837,7 +848,7 @@ export async function handleAssistantMessage(
   };
 
   const expenses = await store.listExpenses(userId, expenseFilters);
-  const budgetAlerts = buildBudgetAlerts(expenses, budgets);
+  const budgetAlerts = buildBudgetAlerts(expenses, budgets, categories);
   const response = await generateResponse(
     message,
     expenses,

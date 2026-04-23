@@ -29,6 +29,7 @@ export interface Category {
   name: string;
   icon: string;
   color: string;
+  includeInMonthlyBudget: boolean;
   isDefault: boolean;
   createdAt: string;
 }
@@ -68,6 +69,7 @@ export interface CategoryInput {
   name: string;
   icon: string;
   color: string;
+  includeInMonthlyBudget: boolean;
 }
 
 export interface BudgetInput {

@@ -61,14 +61,62 @@ export interface DataStore {
 }
 
 const defaultCategories: Array<Omit<Category, 'id' | 'createdAt'>> = [
-  { name: 'Food & Dining', icon: 'restaurant', color: '#bf7b77', isDefault: true },
-  { name: 'Groceries', icon: 'shopping_cart', color: '#a79892', isDefault: true },
-  { name: 'Travel', icon: 'directions_car', color: '#7a8799', isDefault: true },
-  { name: 'Leisure', icon: 'movie', color: '#7a778f', isDefault: true },
-  { name: 'Rent & Utilities', icon: 'home_work', color: '#5f5e5e', isDefault: true },
-  { name: 'Shopping', icon: 'shopping_bag', color: '#8d847f', isDefault: true },
-  { name: 'Health', icon: 'medical_services', color: '#b56d69', isDefault: true },
-  { name: 'Other', icon: 'inventory_2', color: '#8c8a84', isDefault: true },
+  {
+    name: 'Food & Dining',
+    icon: 'restaurant',
+    color: '#bf7b77',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
+  {
+    name: 'Groceries',
+    icon: 'shopping_cart',
+    color: '#a79892',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
+  {
+    name: 'Travel',
+    icon: 'directions_car',
+    color: '#7a8799',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
+  {
+    name: 'Leisure',
+    icon: 'movie',
+    color: '#7a778f',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
+  {
+    name: 'Rent & Utilities',
+    icon: 'home_work',
+    color: '#5f5e5e',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
+  {
+    name: 'Shopping',
+    icon: 'shopping_bag',
+    color: '#8d847f',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
+  {
+    name: 'Health',
+    icon: 'medical_services',
+    color: '#b56d69',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
+  {
+    name: 'Other',
+    icon: 'inventory_2',
+    color: '#8c8a84',
+    includeInMonthlyBudget: true,
+    isDefault: true,
+  },
 ];
 
 const defaultPaymentMethods: Array<Omit<PaymentMethod, 'id' | 'createdAt'>> = [
@@ -92,6 +140,15 @@ function createDefaultCategories() {
   }));
 }
 
+function normalizeCategory(
+  category: Category | (Partial<Category> & Pick<Category, 'name' | 'icon' | 'color'>),
+) {
+  return {
+    ...category,
+    includeInMonthlyBudget: category.includeInMonthlyBudget ?? true,
+  } as Category;
+}
+
 function createDefaultPaymentMethods() {
   return defaultPaymentMethods.map((paymentMethod) => ({
     ...paymentMethod,
@@ -101,7 +158,10 @@ function createDefaultPaymentMethods() {
 }
 
 function mergeMissingDefaultCategories(categories: Category[]) {
-  const existingNames = new Set(categories.map((category) => normalizeName(category.name)));
+  const normalizedCategories = categories.map((category) => normalizeCategory(category));
+  const existingNames = new Set(
+    normalizedCategories.map((category) => normalizeName(category.name)),
+  );
   const missing = defaultCategories
     .filter((category) => !existingNames.has(normalizeName(category.name)))
     .map((category) => ({
@@ -110,7 +170,7 @@ function mergeMissingDefaultCategories(categories: Category[]) {
       createdAt: new Date().toISOString(),
     }));
 
-  return missing.length ? [...categories, ...missing] : categories;
+  return missing.length ? [...normalizedCategories, ...missing] : normalizedCategories;
 }
 
 function mergeMissingDefaultPaymentMethods(paymentMethods: PaymentMethod[]) {
@@ -430,8 +490,9 @@ class MemoryStore implements DataStore {
     };
 
     const data = this.getUserData(userId);
-    data.categories.push(category);
-    return category;
+    const normalized = normalizeCategory(category);
+    data.categories.push(normalized);
+    return normalized;
   }
 
   async updateCategory(userId: string, categoryId: string, input: CategoryInput) {
@@ -442,7 +503,7 @@ class MemoryStore implements DataStore {
       throw new Error('Category not found');
     }
 
-    const updated = { ...current, ...input };
+    const updated = normalizeCategory({ ...current, ...input });
     data.categories = data.categories.map((category) =>
       category.id === categoryId ? updated : category,
     );
@@ -672,7 +733,7 @@ class FirestoreStore implements DataStore {
       );
       const categoryDocs = snapshot.docs.map((doc) => ({
         ref: doc.ref,
-        value: this.mapDoc(doc.id, doc.data()) as Category,
+        value: normalizeCategory(this.mapDoc(doc.id, doc.data()) as Category),
       }));
       const categoriesByName = new Map<
         string,
@@ -855,7 +916,7 @@ class FirestoreStore implements DataStore {
       this.categoriesRef(userId).get(),
     );
     return snapshot.docs
-      .map((doc) => this.mapDoc(doc.id, doc.data()) as Category)
+      .map((doc) => normalizeCategory(this.mapDoc(doc.id, doc.data()) as Category))
       .sort((left, right) => left.name.localeCompare(right.name));
   }
 
@@ -867,12 +928,13 @@ class FirestoreStore implements DataStore {
       isDefault: false,
       createdAt: new Date().toISOString(),
     };
+    const normalized = normalizeCategory(category);
 
     await this.withTimeout(
       'create a category in Firestore',
-      this.categoriesRef(userId).doc(category.id).set(category),
+      this.categoriesRef(userId).doc(normalized.id).set(normalized),
     );
-    return category;
+    return normalized;
   }
 
   async updateCategory(userId: string, categoryId: string, input: CategoryInput) {
@@ -883,11 +945,11 @@ class FirestoreStore implements DataStore {
       throw new Error('Category not found');
     }
 
-    const updated = {
+    const updated = normalizeCategory({
       ...(existing.data() as Category),
       ...input,
       id: categoryId,
-    };
+    });
 
     await this.withTimeout('update a category in Firestore', ref.set(updated));
     return updated;

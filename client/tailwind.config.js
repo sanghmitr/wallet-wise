@@ -59,6 +59,11 @@ export default {
           '0%, 100%': { opacity: '0.75', transform: 'scale(1)' },
           '50%': { opacity: '1', transform: 'scale(1.06)' },
         },
+        heartBeat: {
+          '0%, 42%, 100%': { transform: 'scale(1)' },
+          '14%': { transform: 'scale(1.08)' },
+          '28%': { transform: 'scale(0.96)' },
+        },
         gridPan: {
           '0%': { transform: 'translate3d(0, 0, 0)' },
           '100%': { transform: 'translate3d(48px, 48px, 0)' },
@@ -68,6 +73,7 @@ export default {
         'float-in': 'floatIn 320ms ease-out',
         'slow-float': 'slowFloat 8s ease-in-out infinite',
         'glow-pulse': 'glowPulse 7s ease-in-out infinite',
+        heartbeat: 'heartBeat 1.9s ease-in-out infinite',
         'grid-pan': 'gridPan 18s linear infinite',
       },
     },

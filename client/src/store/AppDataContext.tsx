@@ -108,7 +108,7 @@ interface AppDataContextValue {
   ) => Promise<boolean>;
   deletePaymentMethod: (paymentMethodId: string) => Promise<void>;
   saveSettings: (payload: UserSettingsInput) => Promise<boolean>;
-  saveBudget: (payload: BudgetInput) => Promise<void>;
+  saveBudget: (payload: BudgetInput) => Promise<Budget | null>;
   submitChatMessage: (message: string) => Promise<ChatResponsePayload | null>;
 }
 
@@ -123,6 +123,12 @@ const activeServerStatusPollIntervalMs = 5000;
 
 function ensureList<T>(value: T[] | unknown): T[] {
   return Array.isArray(value) ? value : [];
+}
+
+function getCurrentBudgetMonth() {
+  return formatISO(startOfMonth(new Date()), {
+    representation: 'date',
+  }).slice(0, 7);
 }
 
 function confirmDestructiveAction(message: string) {
@@ -199,9 +205,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   }
 
   async function refreshAll() {
-    const currentMonth = formatISO(startOfMonth(new Date()), {
-      representation: 'date',
-    }).slice(0, 7);
+    const currentMonth = getCurrentBudgetMonth();
 
     const [expenseData, categoryData, budgetData, paymentMethodData, settingsData] =
       await Promise.all([
@@ -819,36 +823,41 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
   async function saveBudget(payload: BudgetInput) {
     if (!(await requireReadyServerAction())) {
-      return;
+      return null;
     }
 
     try {
       const saved = await upsertBudget(payload);
+      const currentMonth = getCurrentBudgetMonth();
 
-      startTransition(() => {
-        setBudgets((current) => {
-          const existingIndex = current.findIndex(
-            (budget) =>
-              budget.category === saved.category && budget.month === saved.month,
-          );
-
-          if (existingIndex === -1) {
-            return [...current, saved].sort((left, right) =>
-              left.category.localeCompare(right.category),
+      if (saved.month === currentMonth) {
+        startTransition(() => {
+          setBudgets((current) => {
+            const existingIndex = current.findIndex(
+              (budget) =>
+                budget.category === saved.category && budget.month === saved.month,
             );
-          }
 
-          return current.map((budget, index) =>
-            index === existingIndex ? saved : budget,
-          );
+            if (existingIndex === -1) {
+              return [...current, saved].sort((left, right) =>
+                left.category.localeCompare(right.category),
+              );
+            }
+
+            return current.map((budget, index) =>
+              index === existingIndex ? saved : budget,
+            );
+          });
         });
-      });
+      }
 
       markServerReady();
       toast.success('Budget saved.');
+      return saved;
     } catch (error) {
       handleServerActionError(error);
       toast.error(getApiErrorMessage(error));
+      return null;
     }
   }
 
